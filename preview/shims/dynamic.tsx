@@ -1,0 +1,16 @@
+import { Suspense, lazy, type ComponentType } from "react";
+
+// next/dynamic -> React.lazy
+export default function dynamic<P extends object>(loader: () => Promise<{ default: ComponentType<P> } | ComponentType<P>>) {
+  const L = lazy(async () => {
+    const m = await loader();
+    return "default" in (m as object) ? (m as { default: ComponentType<P> }) : { default: m as ComponentType<P> };
+  });
+  return function Dynamic(props: P) {
+    return (
+      <Suspense fallback={null}>
+        <L {...props} />
+      </Suspense>
+    );
+  };
+}
