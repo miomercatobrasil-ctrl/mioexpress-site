@@ -1,0 +1,29 @@
+{
+  "name": "mioexpress-site",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "tsc --noEmit",
+    "images": "node scripts/prepare-images.mjs",
+    "glb:optimize": "npx -y @gltf-transform/cli@4 optimize assets/source/export/mio-terracos-raw.glb public/models/mio-terracos.glb --compress meshopt --texture-compress ktx2 --texture-size 2048 --simplify false",
+    "glb:inspect": "npx -y @gltf-transform/cli@4 inspect public/models/mio-terracos.glb"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.2",
+    "next": "^16.4.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.186.0",
+    "typescript": "5.9"
+  }
+}

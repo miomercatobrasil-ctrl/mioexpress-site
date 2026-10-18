@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+.env*.local
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+# arquivos-fonte pesados (SketchUp/Blender) ficam fora do git; ver assets/source/README.md
+assets/source/**/*.skp
+assets/source/**/*.blend
+assets/source/**/*.blend1
+assets/source/export/
+assets/source/sketchup/
