@@ -117,7 +117,7 @@ export const HOTSPOTS: Hotspot[] = [
     title: "Geladeiras Mio",
     text: "Bebidas sempre geladas, 24h.",
     anchor: [3.45, 1.75, 3.65],
-    view: { position: [1.5, 1.5, 3.2], target: [3.8, 1.0, 3.6] },
+    view: { position: [1.15, 1.55, 3.0], target: [3.85, 1.0, 3.65] },
   },
   {
     id: "coca",

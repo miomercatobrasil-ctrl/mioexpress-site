@@ -209,7 +209,7 @@ function Fridge({ id, position, rotationY, width: w, depth: d = 0.6, height: h =
       for (let i = 0; i < n; i++) {
         const tall = r() < 0.35;
         const ch = tall ? 0.26 : 0.13;
-        items.push({ p: [-w / 2 + 0.08 + (i * (w - 0.16)) / (n - 1), y + ch / 2, d / 2], s: [0.065, ch, 0.065], c: tall ? "#3d6b4a" : c });
+        items.push({ p: [-w / 2 + 0.08 + (i * (w - 0.16)) / (n - 1), y + 0.005 + ch / 2, d * 0.62], s: [0.065, ch, 0.065], c: tall ? "#3d6b4a" : c });
       }
     }
     return items;
@@ -217,20 +217,27 @@ function Fridge({ id, position, rotationY, width: w, depth: d = 0.6, height: h =
 
   return (
     <Interactive id={id} position={position} rotation={[0, rotationY, 0]}>
-      {/* corpo */}
-      <Box size={[w, h, d - 0.04]} position={[0, h / 2, (d - 0.04) / 2]} color={body} outline roughness={0.5} />
-      {/* interior iluminado */}
-      <Box size={[w - 0.08, h - base - head, 0.02]} position={[0, base + (h - base - head) / 2, d - 0.05]} color="#f6f3ee" emissive="#fff4e4" emissiveIntensity={0.55} />
+      {/* corpo oco: fundo, laterais, topo e base (o interior fica visível pelo vidro) */}
+      <Box size={[w, h, 0.04]} position={[0, h / 2, 0.02]} color={body} outline roughness={0.5} />
+      <Box size={[0.04, h, d - 0.04]} position={[-w / 2 + 0.02, h / 2, (d - 0.04) / 2]} color={body} outline roughness={0.5} />
+      <Box size={[0.04, h, d - 0.04]} position={[w / 2 - 0.02, h / 2, (d - 0.04) / 2]} color={body} outline roughness={0.5} />
+      <Box size={[w, head, d - 0.04]} position={[0, h - head / 2, (d - 0.04) / 2]} color={body} outline roughness={0.5} />
+      <Box size={[w, base, d - 0.04]} position={[0, base / 2, (d - 0.04) / 2]} color={body} outline roughness={0.5} />
+      {/* fundo iluminado */}
+      <Box size={[w - 0.08, h - base - head, 0.01]} position={[0, base + (h - base - head) / 2, 0.045]} color="#f6f3ee" emissive="#fff4e4" emissiveIntensity={0.45} />
+      {/* prateleiras aramadas */}
+      {Array.from({ length: 5 }, (_, i) => (
+        <Box key={i} size={[w - 0.08, 0.01, d - 0.12]} position={[0, base + 0.035 + (i * (h - base - head - 0.06)) / 5, (d - 0.04) / 2]} color="#c9c9c9" metalness={0.6} roughness={0.4} />
+      ))}
       <Products items={cans} />
       {/* vidro */}
-      <Box size={[w - 0.06, h - base - head, 0.01]} position={[0, base + (h - base - head) / 2, d - 0.015]} color="#cfe3ea" opacity={0.18} roughness={0.05} />
+      <Box size={[w - 0.06, h - base - head, 0.008]} position={[0, base + (h - base - head) / 2, d - 0.03]} color="#cfe3ea" opacity={0.14} roughness={0.05} />
       {/* frente: cabeçote e grade */}
       {brand === "mio" ? (
-        <Logo white position={[0, h - head / 2, d - 0.035]} width={w * 0.7} />
+        <Logo white position={[0, h - head / 2, d - 0.035]} width={w * 0.62} />
       ) : (
-        <Box size={[w - 0.04, 0.03, 0.005]} position={[0, h - head / 2, d - 0.035]} color="#ffffff" />
+        <Box size={[w - 0.04, 0.03, 0.005]} position={[0, h - head / 2, d - 0.0375]} color="#ffffff" />
       )}
-      <Box size={[w - 0.04, base - 0.05, 0.01]} position={[0, base / 2, d - 0.035]} color={body} emissive="#000" roughness={0.7} />
     </Interactive>
   );
 }
