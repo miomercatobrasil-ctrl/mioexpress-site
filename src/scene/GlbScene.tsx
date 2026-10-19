@@ -64,13 +64,19 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
   mat.lightMapIntensity = LIGHTMAP_EXPOSURE;
   mat.envMapIntensity = 0;
   mat.side = THREE.DoubleSide;
+  if (FLAGS.nightZero) mat.defines = { ...mat.defines, MIO_NIGHT_ZERO: "" };
   if (FLAGS.lightOnly) mat.defines = { ...mat.defines, MIO_LIGHT_ONLY: "" };
+  diag.lmPatched++;
   mat.onBeforeCompile = (shader) => {
+    diag.lmCompiled++;
     shader.uniforms.uLmNight = { value: tex.noite };
     shader.uniforms.uLmDayOff = { value: tex.dia_semled };
     shader.uniforms.uLmNightOff = { value: tex.noite_semled };
     shader.uniforms.uNight = lightmapUniforms.uNight;
     shader.uniforms.uLedOff = lightmapUniforms.uLedOff;
+    shader.vertexShader = shader.vertexShader
+      .replace("#include <common>", "#include <common>\nvarying float vMioY;")
+      .replace("#include <project_vertex>", "#include <project_vertex>\nvMioY = ( modelMatrix * vec4( transformed, 1.0 ) ).y;");
     shader.fragmentShader = shader.fragmentShader
       .replace(
         "#include <lights_fragment_maps>",
@@ -85,25 +91,44 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
           vec3 dLed = max( texture2D( lightMap, vLightMapUv ).rgb - dOff, vec3( 0.0 ) );
           vec3 nLed = max( texture2D( uLmNight, vLightMapUv ).rgb - nOff, vec3( 0.0 ) );
           vec4 lmD = vec4( dOff * mix( 1.0, 0.9, uLedOff ) + dLed * 1.4 * ( 1.0 - uLedOff ), 1.0 );
-          vec4 lmN = vec4( nOff * mix( 1.0, 0.75, uLedOff ) + nLed * 1.8 * ( 1.0 - uLedOff ), 1.0 );
-          // dia: leve curva de contraste; noite: mais escura, quente e contrastada (poças de luz dos spots/LED)
-          vec3 dayL = pow( lmD.rgb, vec3( 1.12 ) );
-          vec3 nightL = pow( lmN.rgb, vec3( 1.4 ) ) * vec3( 1.25, 1.0, 0.72 ) * 1.35;
-          // luz rebatida: teto e cantos ficam numa penumbra quente, nunca pretos
-          nightL += lmD.rgb * vec3( 0.2, 0.15, 0.1 );
+          // pow com base 0 é indefinido em GPUs com matemática rápida (Metal/Mac): pixel inválido que o bloom espalha
+          vec3 lmDs = max( lmD.rgb, vec3( 1e-4 ) );
+          vec3 lmNs = max( nOff * mix( 1.0, 0.8, uLedOff ), vec3( 1e-4 ) );
+          // dia: leve curva de contraste
+          vec3 dayL = pow( lmDs, vec3( 1.12 ) );
+          // noite: o bake das luminárias sai quase tão forte quanto o dia; aqui vira penumbra quente
+          // com contraste, e a luz da fita de LED entra por cima (é ela que dá vida ao armário)
+          vec3 nightL = pow( lmNs, vec3( 1.6 ) ) * vec3( 1.25, 1.0, 0.72 ) * 0.32;
+          // parte alta (paredes acima das prateleiras e teto) mais escura
+          nightL *= mix( 1.0, 0.45, smoothstep( 1.6, 2.5, vMioY ) );
+          nightL += nLed * vec3( 1.25, 1.0, 0.7 ) * 1.7 * ( 1.0 - uLedOff );
+          // penumbra mínima: teto e cantos nunca ficam pretos
+          nightL += vec3( 0.04, 0.03, 0.022 );
+          #ifdef MIO_NIGHT_ZERO
+            nightL = vec3( 0.0 );
+            irradiance += mix( dayL, nightL, 1.0 ) * lightMapIntensity;
+          #else
           irradiance += mix( dayL, nightL, uNight ) * lightMapIntensity;
+          #endif
           #ifdef MIO_LIGHT_ONLY
             diffuseColor.rgb = vec3( 0.6 );
             material.diffuseColor = vec3( 0.6 );
+            material.diffuseContribution = vec3( 0.6 );
           #endif
         #endif
-        #include <lights_fragment_maps>`,
+        #include <lights_fragment_maps>
+        #ifdef USE_LIGHTMAP
+          // a luz de ambiente da cena (RoomEnvironment) soma por cima do bake: de dia mantém um pouco de
+          // preenchimento e reflexo; à noite some, senão a loja continua iluminada como de dia
+          iblIrradiance *= 1.0 - uNight;
+          radiance *= mix( 0.35, 0.0, uNight );
+        #endif`,
       )
-      .replace("#include <common>", "#include <common>\nuniform sampler2D uLmNight;\nuniform sampler2D uLmDayOff;\nuniform sampler2D uLmNightOff;\nuniform float uNight;\nuniform float uLedOff;")
+      .replace("#include <common>", "#include <common>\nvarying float vMioY;\nuniform sampler2D uLmNight;\nuniform sampler2D uLmDayOff;\nuniform sampler2D uLmNightOff;\nuniform float uNight;\nuniform float uLedOff;")
       // o bloco original do lightmap fica desligado (já somado acima)
       .replace("vec4 lightMapTexel = texture2D( lightMap, vLightMapUv );", "vec4 lightMapTexel = vec4( 0.0 );");
   };
-  mat.customProgramCacheKey = () => "mio-lm5";
+  mat.customProgramCacheKey = () => "mio-lm10";
   mat.needsUpdate = true;
 }
 

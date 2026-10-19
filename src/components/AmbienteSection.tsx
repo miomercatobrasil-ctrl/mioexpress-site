@@ -82,7 +82,7 @@ function DiagPanel() {
     <div style={{ position: "absolute", left: 12, top: 90, zIndex: 9, background: "rgba(0,0,0,.8)", color: "#fff", font: "12px/1.5 monospace", padding: 12, borderRadius: 8, maxWidth: 420 }}>
       <div>build {d.BUILD_TAG} · modelo: {x.model}</div>
       <div>texturas ok {x.texOk} · falhas {x.texFail}</div>
-      <div>lightmaps ok {x.lmOk} · falhas {x.lmFail}</div>
+      <div>lightmaps ok {x.lmOk} · falhas {x.lmFail} · materiais {x.lmPatched} · shaders {x.lmCompiled} · assada {String(sceneStore.get().baked)}</div>
       <div>gpu: {x.gpu}</div>
       <div style={{ wordBreak: "break-all" }}>{navigator.userAgent.slice(0, 120)}</div>
       {x.errors.map((e, i) => (

@@ -1,5 +1,5 @@
 // Diagnóstico do carregamento 3D. Abra a página com "#debug3d" no fim do endereço para ver o painel.
-export const BUILD_TAG = "v16";
+export const BUILD_TAG = "v17";
 
 export const diag = {
   model: "aguardando",
@@ -7,6 +7,8 @@ export const diag = {
   texFail: 0,
   lmOk: 0,
   lmFail: 0,
+  lmPatched: 0,
+  lmCompiled: 0,
   errors: [] as string[],
   gpu: "",
   samples: [] as ImageBitmap[],
@@ -24,4 +26,5 @@ export const FLAGS = {
   lightmaps: params?.get("lm") !== "0",
   effects: params?.get("fx") !== "0",
   lightOnly: params?.get("lmuv") === "1",
+  nightZero: params?.get("lmzero") === "1",
 };
