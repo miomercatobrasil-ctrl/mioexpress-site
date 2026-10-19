@@ -17,8 +17,7 @@ export const SITE = {
   whatsappDisplay: "(12) 99739-7730",
   instagram: "https://www.instagram.com/mioexpressbrasil/",
   instagramHandle: "@mioexpressbrasil",
-  // TODO: confirmar URL da página do Facebook
-  facebook: "https://www.facebook.com/mioexpressbrasil",
+  facebook: "https://www.facebook.com/profile.php?id=61580459421097",
   architectCredit: "Daniele Faustino Arquitetura & Interiores",
 } as const;
 
