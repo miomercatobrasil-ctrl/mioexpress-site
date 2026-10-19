@@ -1,0 +1,133 @@
+"use client";
+
+import { useEffect, useMemo, useRef } from "react";
+import * as THREE from "three";
+import { useFrame, useThree } from "@react-three/fiber";
+import { COLORS } from "./layout";
+import { sceneStore } from "./store";
+
+// Iluminação em tempo real com dois controles: dia/noite e LED do armário.
+// Dia: luz natural pelo jardim. Noite: céu escuro, spots/anéis do teto e luz das geladeiras acesos.
+
+const LED = new THREE.Color(COLORS.led);
+const DAY_BG = new THREE.Color("#efe6d8");
+const NIGHT_BG = new THREE.Color("#1b1714");
+
+// medidas do projeto (site, metros): frente do armário em x = 0,33; módulos z 1,52–4,57
+const SHELF_Y = [0.53, 1.34, 1.61, 1.97];
+const MODULES: [number, number][] = [
+  [1.52, 2.53],
+  [2.55, 3.55],
+  [3.57, 4.57],
+];
+// poucas luzes dinâmicas (cada uma custa em todo pixel, pesa no celular); as do teto só existem à noite
+const CEILING_LIGHTS: [number, number, number][] = [
+  [1.3, 2.4, 2.0],
+  [3.4, 2.4, 1.4],
+];
+const FRIDGE_LIGHTS: [number, number, number][] = [
+  [1.95, 1.2, 0.45],
+  [3.7, 1.2, 3.66],
+];
+
+const damp = THREE.MathUtils.damp;
+
+export function LightRig({ reducedMotion }: { reducedMotion: boolean }) {
+  const hemi = useRef<THREE.HemisphereLight>(null);
+  const amb = useRef<THREE.AmbientLight>(null);
+  const sun = useRef<THREE.DirectionalLight>(null);
+  const leds = useRef<THREE.PointLight[]>([]);
+  const ceiling = useRef<THREE.PointLight[]>([]);
+  const fridges = useRef<THREE.PointLight[]>([]);
+  const scene = useThree((s) => s.scene);
+  const gl = useThree((s) => s.gl);
+
+  const stripMat = useMemo(() => new THREE.MeshBasicMaterial({ color: LED.clone(), toneMapped: false }), []);
+  useEffect(() => () => stripMat.dispose(), [stripMat]);
+
+  useFrame((_, dt) => {
+    const { night, led } = sceneStore.get();
+    const k = reducedMotion ? 100 : 4;
+    const ledOn = led ? 1 : 0;
+    if (hemi.current) hemi.current.intensity = damp(hemi.current.intensity, night ? 0.38 : 1.5, k, dt);
+    if (amb.current) amb.current.intensity = damp(amb.current.intensity, night ? 0.1 : 0.35, k, dt);
+    if (sun.current) sun.current.intensity = damp(sun.current.intensity, night ? 0 : 1.3, k, dt);
+    leds.current.forEach((l) => l && (l.intensity = damp(l.intensity, ledOn * (night ? 2.2 : 1.2), k, dt)));
+    ceiling.current.forEach((l) => {
+      if (!l) return;
+      l.intensity = damp(l.intensity, night ? 4 : 0, k, dt);
+      l.visible = l.intensity > 0.02;
+    });
+    fridges.current.forEach((l) => l && (l.intensity = damp(l.intensity, night ? 1.6 : 0.7, k, dt)));
+    // fita de LED: acesa = cor quente forte, apagada = cinza
+    const target = led ? 1 : 0.15;
+    const cur = stripMat.userData.v ?? 1;
+    const v = damp(cur, target, k, dt);
+    stripMat.userData.v = v;
+    stripMat.color.setRGB(0.35 + (LED.r * 1.6 - 0.35) * v, 0.35 + (LED.g * 1.4 - 0.35) * v, 0.35 + (LED.b - 0.35) * v);
+    // fundo / névoa
+    const bg = (scene.userData.bg as THREE.Color) ?? (scene.userData.bg = DAY_BG.clone());
+    bg.lerp(night ? NIGHT_BG : DAY_BG, 1 - Math.exp(-k * dt));
+    gl.setClearColor(bg);
+    if (scene.fog) (scene.fog as THREE.Fog).color.copy(bg);
+    gl.toneMappingExposure = damp(gl.toneMappingExposure, night ? 0.95 : 1, k, dt);
+  });
+
+  return (
+    <>
+      <hemisphereLight ref={hemi} args={["#fff4e2", "#b79a77", 1.5]} />
+      <ambientLight ref={amb} intensity={0.35} color="#ffe9cc" />
+      {/* luz do dia entrando pelo jardim */}
+      <directionalLight ref={sun} position={[10, 6, 1.5]} intensity={1.3} color="#fff1d6" />
+      {/* LED do armário: uma luz por módulo + fitas visíveis */}
+      {MODULES.map(([z0, z1], i) => (
+        <pointLight
+          key={i}
+          ref={(l) => {
+            if (l) leds.current[i] = l;
+          }}
+          position={[0.75, 1.3, (z0 + z1) / 2]}
+          intensity={1.2}
+          distance={2.2}
+          decay={1.5}
+          color={COLORS.led}
+        />
+      ))}
+      {MODULES.flatMap(([z0, z1], m) =>
+        SHELF_Y.map((y) => (
+          <mesh key={`${m}-${y}`} position={[0.31, y, (z0 + z1) / 2]} material={stripMat} raycast={() => null}>
+            <boxGeometry args={[0.012, 0.008, z1 - z0 - 0.04]} />
+          </mesh>
+        )),
+      )}
+      {/* teto (acendem à noite) */}
+      {CEILING_LIGHTS.map((p, i) => (
+        <pointLight
+          key={i}
+          ref={(l) => {
+            if (l) ceiling.current[i] = l;
+          }}
+          position={p}
+          intensity={0}
+          distance={4.5}
+          decay={1.4}
+          color="#ffdcae"
+        />
+      ))}
+      {/* luz interna das geladeiras */}
+      {FRIDGE_LIGHTS.map((p, i) => (
+        <pointLight
+          key={i}
+          ref={(l) => {
+            if (l) fridges.current[i] = l;
+          }}
+          position={p}
+          intensity={0.7}
+          distance={1.6}
+          decay={1.2}
+          color="#f2f6ff"
+        />
+      ))}
+    </>
+  );
+}

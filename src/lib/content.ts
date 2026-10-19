@@ -1,8 +1,26 @@
 // Conteúdo editável do site. Itens marcados com "CONFIRMAR" dependem de validação da Mio.
 
-export const unidades: { nome: string; bairro?: string }[] = [
-  // TODO: substituir pela lista real de condomínios atendidos.
-  { nome: "Residencial Mediterrâneo" },
+export const unidades: { nome: string; unidades?: number }[] = [
+  { nome: "Terraços", unidades: 296 },
+  { nome: "Portal da Vila", unidades: 150 },
+  { nome: "Adiana", unidades: 72 },
+  { nome: "Reiwa", unidades: 90 },
+  { nome: "Bourbon", unidades: 192 },
+  { nome: "Home", unidades: 176 },
+  { nome: "Kazza", unidades: 120 },
+  { nome: "Itapoã", unidades: 90 },
+  { nome: "Rio Branco", unidades: 72 },
+  { nome: "Maragogi", unidades: 91 },
+  { nome: "San Francisco", unidades: 64 },
+  { nome: "Porto Régio", unidades: 64 },
+  { nome: "Tahiti" },
+  { nome: "Redentor", unidades: 60 },
+  { nome: "Mediterrâneo", unidades: 120 },
+  { nome: "Estoril" },
+  { nome: "Itamarati", unidades: 80 },
+  { nome: "Girassol", unidades: 64 },
+  { nome: "Millenium" },
+  { nome: "Solar", unidades: 90 },
 ];
 
 export const depoimentos: { texto: string; autor: string; papel: string; condominio: string; rascunho?: boolean }[] = [

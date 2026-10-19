@@ -14,6 +14,7 @@ import { diag, diagError } from "./diag";
 // Os objetos de primeiro nível precisam ter os nomes de `ObjectId` (armario_mio, totem_pagamento…).
 
 // decodificadores servidos localmente (copiados de three/examples/jsm/libs)
+const STICKER_URL = (process.env.NEXT_PUBLIC_SCENE_ASSETS || "/") .replace(/models\/$/, "") + "textures/adesivo-como-funciona.jpg";
 const KTX2_PATH = "/libs/basis/";
 const DRACO_PATH = "/libs/draco/";
 
@@ -116,6 +117,39 @@ function tintMioFridges(scene: THREE.Object3D) {
   }
 }
 
+/** Painel lateral do totem: os adesivos do SketchUp perderam a imagem na conversão (saem brancos);
+ *  entram como um adesivo único. A tela do totem usava a arte "Como funciona" repetida: vira tela escura. */
+async function fixTotem(scene: THREE.Object3D) {
+  scene.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh) return;
+    const mats = Array.isArray(m.material) ? m.material : [m.material];
+    if (mats.some((x) => /^Material_25[3-7]/.test(x.name))) m.visible = false;
+    if (mats.some((x) => x.name === "Color_G06")) {
+      m.material = new THREE.MeshStandardMaterial({ color: "#14181c", emissive: "#2a3f55", emissiveIntensity: 0.35, roughness: 0.25, metalness: 0.1 });
+    }
+  });
+  try {
+    const res = await fetch(STICKER_URL);
+    // ImageBitmap ignora texture.flipY: a imagem já vem virada para o UV do three
+    const bmp = await createImageBitmap(await res.blob(), { imageOrientation: "flipY" });
+    const tex = new THREE.Texture(bmp as unknown as HTMLImageElement);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    tex.needsUpdate = true;
+    // painel: frente em x = 0,41; z 1,22–1,47; arte 512×1450
+    const w = 0.24;
+    const h = w * (1450 / 512);
+    const plane = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8 }));
+    plane.name = "adesivo_como_funciona";
+    plane.position.set(0.413, 1.99 - h / 2, 1.345);
+    plane.rotation.y = Math.PI / 2;
+    scene.add(plane);
+  } catch (e) {
+    diagError("adesivo", e);
+  }
+}
+
 /** Carrega o .glb (ou o .glb em base64 num ".b64.txt", usado na prévia publicada, que não serve .glb)
  *  com fetch + parse. As texturas embutidas são lidas por <img> (TextureLoader), que funciona também
  *  em páginas com política de segurança restrita. */
@@ -175,6 +209,7 @@ function useModel(url: string, gl: THREE.WebGLRenderer) {
     });
     diag.model = "ok";
     tintMioFridges(gltf.scene);
+    await fixTotem(gltf.scene);
     return gltf.scene;
   }, [url, "mio-model"]);
 }
@@ -196,28 +231,33 @@ function GlbModel({ url }: { url: string }) {
   const hovered = useScene((s) => s.hovered);
   useLightmaps(scene, url);
 
-  // contorno de hover: cópia do objeto com material de casco invertido
-  const outlineMat = useMemo(
-    () => new THREE.MeshBasicMaterial({ color: COLORS.vinho, side: THREE.BackSide, transparent: true, opacity: 0.9 }),
-    [],
-  );
+  // hover: brilho vinho suave no objeto (troca temporária dos materiais)
   useEffect(() => {
     if (!hovered) return;
     const target = scene.getObjectByName(hovered);
     if (!target) return;
-    const shells: THREE.Mesh[] = [];
+    const restore: [THREE.Mesh, THREE.Material | THREE.Material[]][] = [];
+    const glow = (mat: THREE.Material) => {
+      const m = mat as THREE.MeshStandardMaterial;
+      if (!("emissive" in m)) return mat;
+      const c = m.clone();
+      c.emissive = new THREE.Color(COLORS.vinho);
+      c.emissiveIntensity = 0.22;
+      return c;
+    };
     target.traverse((o) => {
-      const m = o as THREE.Mesh;
-      if (!m.isMesh || m.userData.isOutline) return;
-      const shell = new THREE.Mesh(m.geometry, outlineMat);
-      shell.userData.isOutline = true;
-      shell.scale.setScalar(1.015);
-      shell.raycast = () => {};
-      m.add(shell);
-      shells.push(shell);
+      const mesh = o as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      restore.push([mesh, mesh.material]);
+      mesh.material = Array.isArray(mesh.material) ? mesh.material.map(glow) : glow(mesh.material);
     });
-    return () => shells.forEach((s) => s.removeFromParent());
-  }, [hovered, scene, outlineMat]);
+    return () =>
+      restore.forEach(([mesh, mat]) => {
+        const cur = mesh.material;
+        (Array.isArray(cur) ? cur : [cur]).forEach((m) => m.dispose());
+        mesh.material = mat;
+      });
+  }, [hovered, scene]);
 
   const over = (e: ThreeEvent<PointerEvent>) => {
     const id = findObjectId(e.object);

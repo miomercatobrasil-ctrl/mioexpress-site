@@ -12,6 +12,8 @@ export type SceneState = {
   zoomRequest: number; // incrementa/decrementa a cada clique em +/-
   ready: boolean;
   loadProgress: number;
+  night: boolean; // false = dia (luz natural), true = noite (todas as luzes acesas)
+  led: boolean; // fita de LED do armário
 };
 
 let state: SceneState = {
@@ -25,6 +27,8 @@ let state: SceneState = {
   zoomRequest: 0,
   ready: false,
   loadProgress: 0,
+  night: false,
+  led: true,
 };
 
 const listeners = new Set<() => void>();

@@ -21,6 +21,30 @@ class SceneBoundary extends Component<{ fallback: ReactNode; children: ReactNode
   }
 }
 
+const iconProps = { width: 15, height: 15, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };
+function MoonIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
+    </svg>
+  );
+}
+function SunIcon() {
+  return (
+    <svg {...iconProps}>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </svg>
+  );
+}
+function BulbIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2V17h6v-.3c0-.8.4-1.5 1-2A7 7 0 0 0 12 2Z" />
+    </svg>
+  );
+}
+
 function DiagPanel() {
   const [on, setOn] = useState(false);
   const [, tick] = useState(0);
@@ -107,6 +131,8 @@ function Loader() {
 function Card() {
   const active = useScene((s) => s.active);
   const touring = useScene((s) => s.touring);
+  const night = useScene((s) => s.night);
+  const led = useScene((s) => s.led);
   const h = HOTSPOTS.find((x) => x.id === active);
   const step = active ? TOUR_ORDER.indexOf(active) : -1;
   return (
@@ -147,6 +173,8 @@ export function AmbienteSection() {
   const mode = useScene((s) => s.mode);
   const interacted = useScene((s) => s.interacted);
   const touring = useScene((s) => s.touring);
+  const night = useScene((s) => s.night);
+  const led = useScene((s) => s.led);
   const progress = useScene((s) => s.introProgress);
 
   useEffect(() => {
@@ -293,6 +321,22 @@ export function AmbienteSection() {
                   onClick={() => sceneStore.set({ touring: !touring, interacted: true, active: touring ? null : sceneStore.get().active })}
                 >
                   {touring ? "Parar tour" : "▶ Fazer tour"}
+                </button>
+                <button
+                  type="button"
+                  className={`btn btn--light btn--sm btn--icon${night ? " is-on" : ""}`}
+                  aria-pressed={night}
+                  onClick={() => sceneStore.set({ night: !night, interacted: true, lastInteraction: performance.now() })}
+                >
+                  {night ? <SunIcon /> : <MoonIcon />} {night ? "Dia" : "Anoitecer"}
+                </button>
+                <button
+                  type="button"
+                  className={`btn btn--light btn--sm btn--icon${led ? " is-on" : ""}`}
+                  aria-pressed={led}
+                  onClick={() => sceneStore.set({ led: !led, interacted: true, lastInteraction: performance.now() })}
+                >
+                  <BulbIcon /> LED {led ? "aceso" : "apagado"}
                 </button>
                 <div className="scene-zoom" role="group" aria-label="Zoom">
                   <button type="button" aria-label="Aproximar" onClick={() => sceneStore.set({ zoomRequest: sceneStore.get().zoomRequest + 1 })}>

@@ -189,6 +189,9 @@ p {
 .btn--light.is-on::before {
   transform: none;
 }
+.btn--icon {
+  gap: 7px;
+}
 .btn--sm {
   padding: 11px 18px;
   font-size: 0.86rem;
@@ -1461,4 +1464,8 @@ body:has(.ambiente.is-explore) .wa-float {
 }
 .legal__back {
   margin-top: 48px;
+}
+
+.units__count {
+  margin-top: 18px;
 }

@@ -8,18 +8,22 @@ export function Unidades() {
         <div className="section__head">
           <Reveal as="p" className="eyebrow" text="Nossas unidades" />
           <Reveal as="h2" className="h2" text={"Condomínios que já têm\numa Mio no hall."} accent={["Mio"]} />
+          <Fx as="p" className="section__lead units__count" delay={150}>
+            {unidades.length} condomínios em São José dos Campos e mais de{" "}
+            {(Math.floor(unidades.reduce((t, u) => t + (u.unidades ?? 0), 0) / 100) * 100).toLocaleString("pt-BR")} apartamentos com uma Mio a poucos passos de casa.
+          </Fx>
         </div>
         <ul className="units">
           {unidades.map((u, i) => (
-            <Fx as="li" key={u.nome} className="unit" delay={i * 70}>
+            <Fx as="li" key={u.nome} className="unit" delay={(i % 8) * 50}>
               <span className="unit__pin" aria-hidden />
               <div>
                 <strong>{u.nome}</strong>
-                <span>{u.bairro ?? "São José dos Campos – SP"}</span>
+                <span>{u.unidades ? `${u.unidades} apartamentos` : "São José dos Campos – SP"}</span>
               </div>
             </Fx>
           ))}
-          <Fx as="li" className="unit unit--next" delay={unidades.length * 70}>
+          <Fx as="li" className="unit unit--next" delay={150}>
             <a href="#contato">
               <strong>Seu condomínio aqui</strong>
               <span>Fale com a gente →</span>

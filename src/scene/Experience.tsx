@@ -9,6 +9,7 @@ import { Hotspots } from "./Hotspots";
 import { COLORS, INTRO_PATH } from "./layout";
 import { PlaceholderScene } from "./Placeholders";
 import { sceneStore } from "./store";
+import { LightRig } from "./LightRig";
 
 // modelo final por padrão; NEXT_PUBLIC_SCENE_GLB="" volta para a cena de placeholders
 const GLB_URL = process.env.NEXT_PUBLIC_SCENE_GLB ?? "/models/mio-terracos.glb";
@@ -66,7 +67,7 @@ export default function Experience({ mobile, reducedMotion, running }: { mobile:
       <PerformanceMonitor onDecline={() => setDprMax(1)} />
       <AdaptiveDpr pixelated={false} />
       <fog attach="fog" args={["#efe6d8", 9, 20]} />
-      <Lights />
+      {GLB_URL ? <LightRig reducedMotion={reducedMotion} /> : <Lights />}
       <Suspense fallback={null}>
         {GLB_URL ? <GlbScene url={GLB_URL} /> : <PlaceholderScene />}
         {<ContactShadows position={[2.5, 0.006, 1.7]} scale={[10, 8]} resolution={mobile ? 512 : 1024} blur={2.4} opacity={0.45} far={2.2} frames={1} />}
