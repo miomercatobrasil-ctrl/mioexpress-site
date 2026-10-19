@@ -30,6 +30,9 @@ o exportador converte (`export_yup=True`). Ou seja, **no Blender**: origem no me
 
 ## 1. Exportar do SketchUp
 
+> O `.skp` não abre fora do SketchUp (a geometria fica em `model.dat`, formato fechado). As texturas já foram
+> extraídas para `public/textures/`; falta a exportação **.dae** para trazer a geometria.
+
 1. No SketchUp, **nomeie os grupos/componentes** de cada equipamento com os nomes da tabela (economiza o passo 3).
 2. Apague cenas/estilos não usados e oculte nada que deva sair (o script apaga o que estiver oculto).
 3. Exporte em **glTF** (extensão "Khronos glTF Export" ou "SimLab glTF Exporter") ou, se não houver, **.dae (Collada)**

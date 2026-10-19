@@ -37,10 +37,11 @@ let js = result.outputFiles[0].text;
 let css = readFileSync(resolve(root, "src/app/globals.css"), "utf8");
 
 // caminhos absolutos de arquivos públicos -> data URIs
-const mime = { svg: "image/svg+xml", webp: "image/webp", jpg: "image/jpeg", png: "image/png" };
+const mime = { svg: "image/svg+xml", webp: "image/webp", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png" };
 const assets = [
   ...["logo.svg", "logo-white.svg"].map((f) => `/brand/${f}`),
   ...readdirSync(resolve(root, "public/images")).map((f) => `/images/${f}`),
+  ...readdirSync(resolve(root, "public/textures")).map((f) => `/textures/${f}`),
 ];
 for (const p of assets) {
   const ext = p.split(".").pop();

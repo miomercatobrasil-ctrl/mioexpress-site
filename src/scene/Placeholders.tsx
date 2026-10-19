@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { useTexture } from "@react-three/drei";
 import { Box, HoverOutline, Interactive } from "./Interactive";
 import { ARMARIO, CEILING_Y, COLORS, DIVISORIA, type Vec3 } from "./layout";
-import { useFloorTexture, useHowItWorksPanel } from "./textures";
+import { CANS, PLANOGRAMA, PRODUCTS, TEX, type CanKey, type ProductDef, type ProductKey } from "./assets";
 
 // Cena provisória: blocos nas medidas e posições da planta, com a cor de cada equipamento.
 // Cada grupo usa o mesmo nome que o objeto terá no .glb (ver docs/PIPELINE-3D.md).
@@ -19,33 +19,83 @@ function rng(seed: number) {
   };
 }
 
-const PRODUCT_COLORS = ["#e8b923", "#d8392b", "#2f6fb5", "#f0a01c", "#3c9a4a", "#f4e7c8", "#7d2f8a", "#e2622a", "#1f3f7a", "#ffffff", "#c9a227"];
+type Item = { p: Vec3; s: Vec3 };
 
-type Item = { p: Vec3; s: Vec3; c: string };
+function useSrgbTexture(url: string, setup?: (t: THREE.Texture) => void) {
+  const tex = useTexture(url);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  setup?.(tex);
+  return tex;
+}
 
-/** Produtos como caixas instanciadas (uma única draw call). */
-function Products({ items }: { items: Item[] }) {
+function useInstances(items: Item[]) {
   const ref = useRef<THREE.InstancedMesh>(null);
   useLayoutEffect(() => {
     const m = ref.current;
     if (!m) return;
     const o = new THREE.Object3D();
-    const col = new THREE.Color();
     items.forEach((it, i) => {
       o.position.set(...it.p);
       o.scale.set(...it.s);
       o.updateMatrix();
       m.setMatrixAt(i, o.matrix);
-      m.setColorAt(i, col.set(it.c));
     });
     m.instanceMatrix.needsUpdate = true;
-    if (m.instanceColor) m.instanceColor.needsUpdate = true;
+    m.computeBoundingSphere();
   }, [items]);
+  return ref;
+}
+
+/** Embalagens com rótulo real (texturas do projeto SketchUp): frente com a imagem, laterais na cor da embalagem.
+ *  Uma InstancedMesh por produto = uma draw call por rótulo. */
+function LabeledProducts({ def, items }: { def: ProductDef; items: Item[] }) {
+  const tex = useSrgbTexture(def.tex);
+  const ref = useInstances(items);
+  const mats = useMemo(() => {
+    const side = new THREE.MeshStandardMaterial({ color: def.side, roughness: 0.6 });
+    const front = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.45 });
+    return [side, side, side, side, front, side];
+  }, [tex, def.side]);
   return (
-    <instancedMesh ref={ref} args={[undefined, undefined, items.length]}>
+    <instancedMesh ref={ref} args={[undefined, mats, items.length]}>
       <boxGeometry />
-      <meshStandardMaterial roughness={0.6} />
     </instancedMesh>
+  );
+}
+
+/** Latas: cilindros com o rótulo em volta. */
+function Cans({ can, items }: { can: CanKey; items: Item[] }) {
+  const def = CANS[can];
+  const tex = useSrgbTexture(def.tex, (t) => {
+    t.wrapS = THREE.RepeatWrapping;
+    t.repeat.x = 2; // a foto mostra meia lata
+  });
+  const ref = useInstances(items);
+  const mats = useMemo(() => {
+    const top = new THREE.MeshStandardMaterial({ color: "#c9c9c9", metalness: 0.7, roughness: 0.3 });
+    return [new THREE.MeshStandardMaterial({ map: tex, roughness: 0.35, metalness: 0.2 }), top, top];
+  }, [tex]);
+  return (
+    <instancedMesh ref={ref} args={[undefined, mats, items.length]}>
+      <cylinderGeometry args={[0.5, 0.5, 1, 14]} />
+    </instancedMesh>
+  );
+}
+
+/** Caixa com uma imagem na face da frente (+Z). */
+function TexturedBox({ size, position, rotation, tex, side, outline }: { size: Vec3; position?: Vec3; rotation?: Vec3; tex: string; side: string; outline?: boolean }) {
+  const map = useSrgbTexture(tex);
+  return (
+    <mesh position={position} rotation={rotation}>
+      <boxGeometry args={size} />
+      {[0, 1, 2, 3].map((i) => (
+        <meshStandardMaterial key={i} attach={`material-${i}`} color={side} roughness={0.8} />
+      ))}
+      <meshStandardMaterial attach="material-4" map={map} roughness={0.7} />
+      <meshStandardMaterial attach="material-5" color={side} roughness={0.8} />
+      {outline && <HoverOutline />}
+    </mesh>
   );
 }
 
@@ -80,7 +130,11 @@ function Armario() {
   const x0 = -total / 2; // borda esquerda (vista de frente)
   const xModEnd = x0 + W;
   const panelGeo = useMemo(() => roundedPanelGeometry(total, HT, raioTopo, 0.025), [total, HT, raioTopo]);
-  const howTex = useHowItWorksPanel();
+  const howTex = useSrgbTexture(TEX.comoFunciona);
+  const mdf = useSrgbTexture(TEX.mdf, (t) => {
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(0.8, 0.8);
+  });
 
   const shelvesY = useMemo(() => {
     const ys: number[] = [];
@@ -93,34 +147,40 @@ function Armario() {
   }, [B, vaos]);
 
   const products = useMemo(() => {
-    const r = rng(7);
-    const items: Item[] = [];
+    const groups = new Map<ProductKey, Item[]>();
     const levels = [B, ...shelvesY];
-    for (let m = 0; m < 3; m++) {
-      const mx0 = x0 + 0.02 + m * 1.02;
+    PLANOGRAMA.forEach((mod, m) => {
+      const mx0 = x0 + 0.02 + m * 1.02 + 0.03;
+      const span = 0.92;
       levels.forEach((ly, li) => {
-        const gap = vaos[li];
-        let x = mx0 + 0.03;
-        const palette = PRODUCT_COLORS[(m * 5 + li * 3) % PRODUCT_COLORS.length];
-        while (x < mx0 + 0.95) {
-          const w = 0.07 + r() * 0.1;
-          if (x + w > mx0 + 0.96) break;
-          const h = Math.min(gap - 0.05, gap * (0.3 + r() * 0.25) + w * 0.4);
-          const c = r() < 0.6 ? palette : PRODUCT_COLORS[Math.floor(r() * PRODUCT_COLORS.length)];
-          const dz = 0.1 + r() * 0.1;
-          items.push({ p: [x + w / 2, ly + 0.02 + h / 2, 0.29 - dz / 2], s: [w * 0.94, h, dz], c });
-          x += w + 0.005;
-        }
+        const keys = mod[li] ?? [];
+        const seg = span / Math.max(1, keys.length);
+        keys.forEach((key, ki) => {
+          const def = PRODUCTS[key];
+          const h = Math.min(def.height, vaos[li] - 0.05);
+          const w = h * def.aspect;
+          const d = Math.min(def.depth, 0.2);
+          const n = Math.max(1, Math.floor(seg / (w + 0.006)));
+          const start = mx0 + ki * seg + (seg - n * (w + 0.006)) / 2;
+          const list = groups.get(key) ?? [];
+          for (let i = 0; i < n; i++) {
+            // duas fileiras quando a embalagem é rasa
+            for (let row = 0; row < (d < 0.1 ? 2 : 1); row++) {
+              list.push({ p: [start + i * (w + 0.006) + w / 2, ly + 0.022 + h / 2, 0.275 - d / 2 - row * (d + 0.01)], s: [w, h, d] });
+            }
+          }
+          groups.set(key, list);
+        });
       });
-    }
-    return items;
+    });
+    return [...groups.entries()];
   }, [B, shelvesY, vaos, x0]);
 
   return (
     <Interactive id="armario_mio" position={[0, 0, ARMARIO.zCentroGrupo]} rotation={[0, HALF_PI, 0]}>
       {/* painel de fundo com topo arredondado (MDF Antuérpia) */}
       <mesh geometry={panelGeo}>
-        <meshStandardMaterial color={COLORS.madeiraClara} emissive="#ffb35c" emissiveIntensity={0.12} roughness={0.8} />
+        <meshStandardMaterial map={mdf} emissive="#ffb35c" emissiveIntensity={0.07} roughness={0.8} />
         <HoverOutline />
       </mesh>
       <Logo position={[x0 + W / 2, H + (HT - H) / 2 - 0.01, 0.03]} width={1.05} />
@@ -147,7 +207,9 @@ function Armario() {
         </group>
       ))}
       <Box size={[W - 0.06, 0.008, 0.012]} position={[x0 + W / 2, H - 0.105, 0.26]} color={COLORS.led} emissive={COLORS.led} emissiveIntensity={3} />
-      <Products items={products} />
+      {products.map(([key, items]) => (
+        <LabeledProducts key={key} def={PRODUCTS[key]} items={items} />
+      ))}
 
       {/* painel lateral "Como funciona" */}
       <mesh position={[xModEnd + P / 2, 1.5, 0.027]}>
@@ -172,7 +234,7 @@ function Totem({ x }: { x: number }) {
       </group>
       {/* ganho p/ sacolas + ecobag */}
       <Box size={[0.02, 0.02, 0.06]} position={[0, 0.78, 0.04]} color="#9a9a9a" metalness={0.6} roughness={0.3} />
-      <Box size={[0.26, 0.32, 0.03]} position={[0, 0.55, 0.08]} rotation={[0.05, 0, 0]} color="#efe6d4" outline />
+      <TexturedBox size={[0.26, 0.32, 0.03]} position={[0, 0.55, 0.08]} rotation={[0.05, 0, 0]} tex={TEX.ecobag} side="#efe6d4" outline />
       <Box size={[0.012, 0.12, 0.012]} position={[-0.07, 0.74, 0.07]} color="#efe6d4" />
       <Box size={[0.012, 0.12, 0.012]} position={[0.07, 0.74, 0.07]} color="#efe6d4" />
     </Interactive>
@@ -198,22 +260,22 @@ function Fridge({ id, position, rotationY, width: w, depth: d = 0.6, height: h =
   const head = 0.2;
   const cans = useMemo(() => {
     const r = rng(seed);
-    const items: Item[] = [];
+    const groups = new Map<CanKey, Item[]>();
     const shelves = 5;
     const inner = h - base - head - 0.06;
-    const canColors = ["#c8141b", "#e7e2d5", "#2c7a3d", "#d9a21b", "#1d3f8f", "#7a1f2b", "#111111"];
+    const keys = Object.keys(CANS) as CanKey[];
     for (let s = 0; s < shelves; s++) {
       const y = base + 0.04 + (s * inner) / shelves;
-      const c = canColors[Math.floor(r() * canColors.length)];
-      const n = 6;
-      for (let i = 0; i < n; i++) {
-        const tall = r() < 0.35;
-        const ch = tall ? 0.26 : 0.13;
-        items.push({ p: [-w / 2 + 0.08 + (i * (w - 0.16)) / (n - 1), y + 0.005 + ch / 2, d * 0.62], s: [0.065, ch, 0.065], c: tall ? "#3d6b4a" : c });
-      }
+      const key = brand === "mio" ? keys[Math.floor(r() * keys.length)] : r() < 0.7 ? "coca" : "cocaZero";
+      const list = groups.get(key) ?? [];
+      const n = 7;
+      for (let i = 0; i < n; i++)
+        for (let row = 0; row < 2; row++)
+          list.push({ p: [-w / 2 + 0.07 + (i * (w - 0.14)) / (n - 1), y + 0.005 + 0.06, d * 0.62 - row * 0.075], s: [0.066, 0.122, 0.066] });
+      groups.set(key, list);
     }
-    return items;
-  }, [seed, w, d, h]);
+    return [...groups.entries()];
+  }, [seed, w, d, h, brand]);
 
   return (
     <Interactive id={id} position={position} rotation={[0, rotationY, 0]}>
@@ -229,16 +291,32 @@ function Fridge({ id, position, rotationY, width: w, depth: d = 0.6, height: h =
       {Array.from({ length: 5 }, (_, i) => (
         <Box key={i} size={[w - 0.08, 0.01, d - 0.12]} position={[0, base + 0.035 + (i * (h - base - head - 0.06)) / 5, (d - 0.04) / 2]} color="#c9c9c9" metalness={0.6} roughness={0.4} />
       ))}
-      <Products items={cans} />
+      {cans.map(([key, items]) => (
+        <Cans key={key} can={key} items={items} />
+      ))}
       {/* vidro */}
       <Box size={[w - 0.06, h - base - head, 0.008]} position={[0, base + (h - base - head) / 2, d - 0.03]} color="#cfe3ea" opacity={0.14} roughness={0.05} />
       {/* frente: cabeçote e grade */}
       {brand === "mio" ? (
         <Logo white position={[0, h - head / 2, d - 0.035]} width={w * 0.62} />
       ) : (
-        <Box size={[w - 0.04, 0.03, 0.005]} position={[0, h - head / 2, d - 0.0375]} color="#ffffff" />
+        <CocaHeader width={w - 0.06} height={head - 0.04} position={[0, h - head / 2, d - 0.035]} />
       )}
     </Interactive>
+  );
+}
+
+function CocaHeader({ width, height, position }: { width: number; height: number; position: Vec3 }) {
+  const tex = useSrgbTexture(TEX.cocaLogo, (t) => {
+    // recorte central da imagem quadrada para a faixa do cabeçote
+    t.repeat.set(1, height / width);
+    t.offset.set(0, (1 - height / width) / 2);
+  });
+  return (
+    <mesh position={position}>
+      <planeGeometry args={[width, height]} />
+      <meshStandardMaterial map={tex} roughness={0.5} />
+    </mesh>
   );
 }
 
@@ -251,8 +329,8 @@ function Freezer() {
       <Box size={[w, h, d]} position={[0, 0.06 + h / 2, d / 2]} color="#141414" outline roughness={0.45} />
       <Box size={[w + 0.02, 0.06, d + 0.02]} position={[0, 0.06 + h + 0.02, d / 2]} color="#b9b9b9" metalness={0.5} roughness={0.35} outline />
       <Box size={[w - 0.06, 0.02, d - 0.06]} position={[0, 0.06 + h + 0.055, d / 2]} color="#dceaf0" opacity={0.45} roughness={0.05} />
-      {/* painel frontal (logo do fabricante no ambiente real) */}
-      <Box size={[0.42, 0.36, 0.005]} position={[0, 0.48, d + 0.003]} color="#efe3cf" />
+      {/* painel frontal com a marca do freezer, como no ambiente real */}
+      <TexturedBox size={[0.4, 0.53, 0.004]} position={[0, 0.5, d + 0.003]} tex={TEX.loslos} side="#141414" />
       {/* display no topo */}
       <Box size={[0.6, 0.2, 0.02]} position={[0, 1.08, 0.04]} color="#f4ead6" outline />
       {[0.1, 0.4].map((z) =>
@@ -395,7 +473,10 @@ function Jardim() {
 }
 
 function Piso() {
-  const tex = useFloorTexture(6, 4.5);
+  const tex = useSrgbTexture(TEX.piso, (t) => {
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(10, 7.2);
+  });
   return (
     <mesh name="piso" rotation={[-HALF_PI, 0, 0]} position={[4.35, 0, 1.675]}>
       <planeGeometry args={[9.1, 6.55]} />
