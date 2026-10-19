@@ -1,0 +1,9 @@
+// Cloudflare (Workers com arquivos estáticos): publica a pasta out/ gerada por `npm run build:static`.
+{
+  "name": "mioexpress",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./out",
+    "not_found_handling": "404-page"
+  }
+}

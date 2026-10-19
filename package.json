@@ -10,7 +10,8 @@
     "images": "node scripts/prepare-images.mjs",
     "glb:optimize": "node scripts/optimize-model.mjs",
     "glb:inspect": "npx -y @gltf-transform/cli@4 inspect public/models/mio-terracos.glb",
-    "glb:build": "python scripts/blender/mio_build.py assets/source/export/terracos-raw.glb assets/source/export/build --bake"
+    "glb:build": "python scripts/blender/mio_build.py assets/source/export/terracos-raw.glb assets/source/export/build --bake",
+    "build:static": "STATIC_EXPORT=1 next build"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
@@ -31,5 +32,8 @@
     "esbuild": "^0.25.12",
     "meshoptimizer": "^1.3.0",
     "typescript": "5.9"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
