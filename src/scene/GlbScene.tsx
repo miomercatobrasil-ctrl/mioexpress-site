@@ -63,7 +63,9 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
           vec4 lmN = mix( texture2D( uLmNight, vLightMapUv ), texture2D( uLmNightOff, vLightMapUv ), uLedOff );
           // dia: leve curva de contraste; noite: mais escura, quente e contrastada (poças de luz dos spots/LED)
           vec3 dayL = pow( lmD.rgb, vec3( 1.12 ) );
-          vec3 nightL = pow( lmN.rgb, vec3( 1.55 ) ) * vec3( 1.25, 1.0, 0.72 ) * 1.35;
+          vec3 nightL = pow( lmN.rgb, vec3( 1.4 ) ) * vec3( 1.25, 1.0, 0.72 ) * 1.35;
+          // luz rebatida: teto e cantos ficam numa penumbra quente, nunca pretos
+          nightL += lmD.rgb * vec3( 0.2, 0.15, 0.1 );
           irradiance += mix( dayL, nightL, uNight ) * lightMapIntensity;
         #endif
         #include <lights_fragment_maps>`,
