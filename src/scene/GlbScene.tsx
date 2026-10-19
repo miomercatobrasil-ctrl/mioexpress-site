@@ -48,11 +48,15 @@ type Variant = (typeof VARIANTS)[number];
 export const lightmapUniforms = { uNight: { value: 0 } };
 
 async function loadBitmapTexture(src: string) {
-  const res = await fetch(src);
-  if (!res.ok) throw new Error(String(res.status));
-  const bmp = await createImageBitmap(await res.blob(), { colorSpaceConversion: "none" });
-  const t = new THREE.Texture(bmp as unknown as HTMLImageElement);
-  t.colorSpace = THREE.SRGBColorSpace;
+  // <img> em vez de ImageBitmap: no Chrome do Mac o ImageBitmap de WebP chegava zerado na GPU
+  // (no Safari funcionava), e a noite/LED ficavam sem a luz assada
+  const img = new Image();
+  img.decoding = "async";
+  img.src = src;
+  await img.decode();
+  const t = new THREE.Texture(img);
+  // valores crus; a conversão sRGB → linear é feita no shader (a decodificação da GPU variava entre aparelhos)
+  t.colorSpace = THREE.NoColorSpace;
   t.channel = 1;
   t.flipY = false;
   t.needsUpdate = true;
@@ -73,6 +77,39 @@ const NIGHT_BOOST: Record<string, number> = {
 // Materiais com luz assada e as 4 variantes de cada um. Dia/noite/LED trocam a textura do lightMap
 // (caminho padrão do three): texturas extras em uniforms próprios chegavam zeradas na GPU do Mac.
 const lmMaterials: { mat: THREE.MeshStandardMaterial; tex: Record<Variant, THREE.Texture> }[] = [];
+
+/** Diagnóstico: brilho médio (0–255) de cada variante lida pela própria GPU, desenhando a textura num alvo 8×8. */
+function probeLightmaps(gl: THREE.WebGLRenderer) {
+  const first = lmMaterials[0];
+  if (!first) return;
+  const rt = new THREE.WebGLRenderTarget(8, 8);
+  const mat = new THREE.MeshBasicMaterial();
+  const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat);
+  quad.position.z = -0.5;
+  const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  const buf = new Uint8Array(8 * 8 * 4);
+  const out: string[] = [];
+  const prev = gl.getRenderTarget();
+  for (const v of VARIANTS) {
+    const t = first.tex[v];
+    // o lightmap usa o UV 2 (channel 1); o quadrado de teste só tem o UV 1
+    t.channel = 0;
+    mat.map = t;
+    mat.needsUpdate = true;
+    gl.setRenderTarget(rt);
+    gl.render(quad, cam);
+    t.channel = 1;
+    gl.readRenderTargetPixels(rt, 0, 0, 8, 8, buf);
+    let sum = 0;
+    for (let i = 0; i < buf.length; i += 4) sum += buf[i] + buf[i + 1] + buf[i + 2];
+    out.push(`${v} ${Math.round(sum / 192)}`);
+  }
+  gl.setRenderTarget(prev);
+  rt.dispose();
+  mat.dispose();
+  quad.geometry.dispose();
+  diag.lmProbe = out.join(" · ");
+}
 
 export function setLightmapVariant(night: boolean, led: boolean) {
   const v: Variant = night ? (led ? "noite" : "noite_semled") : led ? "dia" : "dia_semled";
@@ -110,7 +147,7 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
           reflectedLight.directDiffuse = vec3( 0.0 );
           reflectedLight.directSpecular *= 0.15;
           // pow com base 0 é indefinido em GPUs com matemática rápida (Metal/Mac)
-          vec3 lm = max( texture2D( lightMap, vLightMapUv ).rgb, vec3( 1e-4 ) );
+          vec3 lm = pow( max( texture2D( lightMap, vLightMapUv ).rgb, vec3( 1e-4 ) ), vec3( 2.2 ) );
           // dia: leve curva de contraste
           vec3 dayL = pow( lm, vec3( 1.12 ) );
           // noite: luminárias do teto e LED (variante já trocada no lightMap), em tom quente
@@ -141,7 +178,7 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
       // o bloco original do lightmap fica desligado (já somado acima)
       .replace("vec4 lightMapTexel = texture2D( lightMap, vLightMapUv );", "vec4 lightMapTexel = vec4( 0.0 );");
   };
-  mat.customProgramCacheKey = () => "mio-lm14";
+  mat.customProgramCacheKey = () => "mio-lm15";
   mat.needsUpdate = true;
 }
 
@@ -345,7 +382,15 @@ function GlbModel({ url }: { url: string }) {
   const hovered = useScene((s) => s.hovered);
   useEffect(() => {
     let alive = true;
-    (FLAGS.lightmaps ? applyLightmaps(scene, assetsBase(url)) : Promise.resolve(false)).then((baked) => alive && sceneStore.set({ baked }));
+    (FLAGS.lightmaps ? applyLightmaps(scene, assetsBase(url)) : Promise.resolve(false)).then((baked) => {
+      if (!alive) return;
+      sceneStore.set({ baked });
+      try {
+        probeLightmaps(gl);
+      } catch (e) {
+        diagError("sonda", e);
+      }
+    });
     return () => {
       alive = false;
     };
