@@ -27,7 +27,7 @@ const LIGHTMAP_EXPOSURE = 1.45;
 // perto das luzes pontuais: o pixel vira infinito e o bloom espalha manchas brancas. Limita a luz de saída.
 if (!THREE.ShaderChunk.opaque_fragment.includes("mio-clamp")) {
   THREE.ShaderChunk.opaque_fragment =
-    "// mio-clamp\noutgoingLight = clamp( outgoingLight, vec3( 0.0 ), vec3( 16.0 ) );\n" + THREE.ShaderChunk.opaque_fragment;
+    "// mio-clamp\noutgoingLight = clamp( outgoingLight, vec3( 1e-4 ), vec3( 16.0 ) );\n" + THREE.ShaderChunk.opaque_fragment;
 }
 
 /** Nenhum material do projeto é espelhado: rugosidade mínima evita reflexos pontuais estourados. */

@@ -26,6 +26,12 @@ export function SceneEnvironment() {
   return null;
 }
 
+// AgX faz log2 da cor com piso 1e-10; em meia precisão (GPU do Mac, celulares) esse piso vira 0 e o log2(0)
+// dá lixo: os pixels mais escuros (sombras, frestas, noite) saem brancos. Piso representável em 16 bits.
+if (THREE.ShaderChunk.tonemapping_pars_fragment.includes("max( color, 1e-10 )")) {
+  THREE.ShaderChunk.tonemapping_pars_fragment = THREE.ShaderChunk.tonemapping_pars_fragment.replace("max( color, 1e-10 )", "max( color, 1e-4 )");
+}
+
 /** Acabamento de câmera (só no computador): curva de tom, contraste, brilho do LED/luminárias e vinheta. */
 export function CameraLook() {
   const gl = useThree((s) => s.gl);
