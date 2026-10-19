@@ -29,6 +29,8 @@ from mathutils import Vector
 args = sys.argv[1:]
 OUT = args[0]
 SAMPLES = int(args[args.index("--samples") + 1]) if "--samples" in args else 96
+VARIANTS = args[args.index("--variants") + 1].split(",") if "--variants" in args else None
+REUSE = "--reuse-geometry" in args  # refaz só a luz, sobre o mio-terracos-baked.glb existente (mesmos UVs)
 ONLY = args[args.index("--only") + 1].split(",") if "--only" in args else None
 SCALE = float(args[args.index("--scale") + 1]) if "--scale" in args else 1.0
 os.makedirs(os.path.join(OUT, "lightmaps"), exist_ok=True)
@@ -183,9 +185,10 @@ def rig():
     w.use_nodes = True
     sc.world = w
     sun_d = bpy.data.lights.new("sol", "SUN")
-    sun_d.energy = 3.5
+    # sol suave (disco grande = sombra com degradê, sem recorte duro na parede da janela)
+    sun_d.energy = 2.4
     sun_d.color = (1.0, 0.9, 0.76)
-    sun_d.angle = math.radians(4)
+    sun_d.angle = math.radians(24)
     sun = bpy.data.objects.new("sol", sun_d)
     aim(sun, (-1.0, 0.3, -0.7))
     sc.collection.objects.link(sun)
@@ -279,23 +282,40 @@ def bake(o, variant):
 
 # ───────────────────────── execução ─────────────────────────
 bpy.ops.wm.read_factory_settings(use_empty=True)
-bpy.ops.import_scene.gltf(filepath=os.path.join(OUT, "mio-terracos-nobake.glb"))
+bpy.ops.import_scene.gltf(filepath=os.path.join(OUT, "mio-terracos-baked.glb" if REUSE else "mio-terracos-nobake.glb"))
 objs = [o for o in bpy.data.objects if o.type == "MESH" and o.parent is None]
-for o in objs:
+for o in ([] if REUSE else objs):
     before = len(o.data.polygons)
     removed = clean(o)
     nsmall = lightmap_uv(o)
     log(f"{o.name}: {before} -> {len(o.data.polygons)} faces ({removed} versos removidos, {nsmall} pequenas com luz média)")
 
 glb = os.path.join(OUT, "mio-terracos-baked.glb")
-bpy.ops.export_scene.gltf(filepath=glb, export_format="GLB", export_yup=True, export_lights=False, export_cameras=False, export_texcoords=True, export_normals=True)
+if REUSE:
+    for o in objs:
+        for slot in o.material_slots:
+            if slot.material:
+                slot.material.use_backface_culling = False
+        if "lightmap" not in o.data.uv_layers:
+            # o exportador grava o UV2 como TEXCOORD_1 sem nome; no reimport ele vira o 2º layer
+            o.data.uv_layers[1].name = "lightmap"
+        o.data.uv_layers[0].name = "UVMap"
+        o.data.uv_layers.active = o.data.uv_layers[0]
+if not REUSE:
+  bpy.ops.export_scene.gltf(filepath=glb, export_format="GLB", export_yup=True, export_lights=False, export_cameras=False, export_texcoords=True, export_normals=True)
 log("geometria exportada", glb, f"{os.path.getsize(glb) / 1e6:.1f} MB")
 
 rig()
 manifest = {}
 # a ordem importa: o primeiro bake ("dia", paredes) calibra o ganho
 order = sorted(objs, key=lambda o: 0 if o.name == "paredes" else 1)
+if VARIANTS and os.path.exists(os.path.join(OUT, "lightmaps.json")):
+    prev = json.load(open(os.path.join(OUT, "lightmaps.json")))
+    GAIN["g"] = prev["gain"]
+    manifest = prev["objects"]
 for variant, night, led in [("dia", False, True), ("noite", True, True), ("dia_semled", False, False), ("noite_semled", True, False)]:
+    if VARIANTS and variant not in VARIANTS:
+        continue
     set_variant(night, led)
     for o in order:
         if ONLY and o.name not in ONLY and o.name != "paredes":
@@ -303,6 +323,7 @@ for variant, night, led in [("dia", False, True), ("noite", True, True), ("dia_s
         if "semled" in variant and o.name not in LED_OBJECTS:
             continue
         bake(o, variant)
-        manifest.setdefault(o.name, []).append(variant)
+        if variant not in manifest.setdefault(o.name, []):
+            manifest[o.name].append(variant)
 json.dump({"gain": GAIN.get("g", 1.0), "objects": manifest}, open(os.path.join(OUT, "lightmaps.json"), "w"), indent=1)
 log("pronto")
