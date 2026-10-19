@@ -4,8 +4,6 @@ import { useEffect } from "react";
 import * as THREE from "three";
 import { useThree } from "@react-three/fiber";
 import { MeshReflectorMaterial } from "@react-three/drei";
-import { Bloom, BrightnessContrast, EffectComposer, HueSaturation, ToneMapping, Vignette } from "@react-three/postprocessing";
-import { ToneMappingMode } from "postprocessing";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
 /** Reflexos suaves (vidros, metais, embalagens) a partir de um ambiente neutro. Barato: vale também no celular. */
@@ -32,25 +30,19 @@ if (THREE.ShaderChunk.tonemapping_pars_fragment.includes("max( color, 1e-10 )"))
   THREE.ShaderChunk.tonemapping_pars_fragment = THREE.ShaderChunk.tonemapping_pars_fragment.replace("max( color, 1e-10 )", "max( color, 1e-4 )");
 }
 
-/** Acabamento de câmera (só no computador): curva de tom, contraste, brilho do LED/luminárias e vinheta. */
+/** Acabamento de câmera (só no computador): curva de tom ACES (mais contraste que AgX sem pós-processamento) aplicada direto nos materiais.
+ *  Sem cadeia de pós-processamento: no Mac (Metal, meia precisão) ela transformava os pixels escuros em
+ *  manchas brancas. A vinheta fica no CSS (.ambiente__stage::after). */
 export function CameraLook() {
   const gl = useThree((s) => s.gl);
   useEffect(() => {
     const prev = gl.toneMapping;
-    gl.toneMapping = THREE.NoToneMapping; // a curva é aplicada no fim da cadeia de efeitos
+    gl.toneMapping = THREE.ACESFilmicToneMapping;
     return () => {
       gl.toneMapping = prev;
     };
   }, [gl]);
-  return (
-    <EffectComposer multisampling={4}>
-      <Bloom mipmapBlur luminanceThreshold={1} luminanceSmoothing={0.2} intensity={0.75} radius={0.6} />
-      <ToneMapping mode={ToneMappingMode.AGX} />
-      <BrightnessContrast brightness={0.01} contrast={0.12} />
-      <HueSaturation saturation={0.06} />
-      <Vignette eskil={false} offset={0.22} darkness={0.42} />
-    </EffectComposer>
-  );
+  return null;
 }
 
 /** Reflexo do porcelanato (só no computador): plano translúcido sobre o piso da loja. */

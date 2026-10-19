@@ -96,7 +96,7 @@ export function LightRig({ reducedMotion }: { reducedMotion: boolean }) {
     bg.lerp(night ? NIGHT_BG : DAY_BG, 1 - Math.exp(-k * dt));
     gl.setClearColor(bg);
     if (scene.fog) (scene.fog as THREE.Fog).color.copy(bg);
-    gl.toneMappingExposure = damp(gl.toneMappingExposure, night ? 0.9 : 1, k, dt);
+    gl.toneMappingExposure = damp(gl.toneMappingExposure, night ? 0.95 : 0.85, k, dt);
     scene.environmentIntensity = damp(scene.environmentIntensity ?? 0.6, night ? 0.1 : 0.6, k, dt);
   });
 

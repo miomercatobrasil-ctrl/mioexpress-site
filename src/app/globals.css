@@ -2334,3 +2334,12 @@ body:has(.ambiente.is-explore) .wa-float {
     transform: translateY(110%);
   }
 }
+
+/* vinheta da câmera 3D (substitui o pós-processamento) */
+.scene-gl::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(20, 12, 8, 0.32) 100%);
+}
