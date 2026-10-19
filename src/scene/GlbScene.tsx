@@ -8,6 +8,7 @@ import { suspend } from "suspend-react";
 import { COLORS, OBJECT_TO_HOTSPOT, type ObjectId } from "./layout";
 import { sceneStore, useScene } from "./store";
 import { Vegetation, type PlantSpot } from "./Vegetation";
+import { diag, diagError } from "./diag";
 
 // Cena final exportada do Blender (ver docs/PIPELINE-3D.md).
 // Os objetos de primeiro nível precisam ter os nomes de `ObjectId` (armario_mio, totem_pagamento…).
@@ -44,8 +45,13 @@ function useLightmaps(scene: THREE.Object3D, url: string) {
       LIGHTMAPPED.map(async (name) => {
         const obj = scene.getObjectByName(name);
         if (!obj) return;
-        const tex = await load(`${base}${name}.webp`).catch(() => null);
+        const tex = await load(`${base}${name}.webp`).catch((e) => {
+          diag.lmFail++;
+          diagError(`lightmap ${name}`, e);
+          return null;
+        });
         if (!tex || !alive) return;
+        diag.lmOk++;
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.channel = 1;
         tex.flipY = false;
@@ -108,6 +114,7 @@ function tintMioFridges(scene: THREE.Object3D) {
  *  em páginas com política de segurança restrita. */
 function useModel(url: string, gl: THREE.WebGLRenderer) {
   return suspend(async () => {
+    diag.model = "baixando";
     const res = await fetch(url);
     if (!res.ok) throw new Error(`modelo 3D: ${res.status}`);
     let buf: ArrayBuffer;
@@ -136,16 +143,30 @@ function useModel(url: string, gl: THREE.WebGLRenderer) {
         if (src.bufferView === undefined) return original(index, ldr);
         const key = `mio-${index}`;
         p.sourceCache[key] ??= p.getDependency("bufferView", src.bufferView).then(async (bytes) => {
-          const bmp = await createImageBitmap(new Blob([bytes], { type: src.mimeType }), { colorSpaceConversion: "none", premultiplyAlpha: "none" });
-          const tex = new THREE.Texture(bmp as unknown as HTMLImageElement);
-          tex.needsUpdate = true;
-          return tex;
+          try {
+            const bmp = await createImageBitmap(new Blob([bytes], { type: src.mimeType }), { colorSpaceConversion: "none", premultiplyAlpha: "none" });
+            diag.texOk++;
+            if (src.mimeType === "image/png" && diag.samples.length < 4) diag.samples.push(bmp);
+            const tex = new THREE.Texture(bmp as unknown as HTMLImageElement);
+            tex.needsUpdate = true;
+            return tex;
+          } catch (e) {
+            diag.texFail++;
+            diagError(`textura ${index} (${src.mimeType})`, e);
+            throw e;
+          }
         });
         return p.sourceCache[key].then((t) => t.clone());
       };
       return { name: "mio_bitmap_textures" } as never;
     });
-    const gltf = await loader.parseAsync(buf, "");
+    diag.model = "lendo";
+    const gltf = await loader.parseAsync(buf, "").catch((e) => {
+      diagError("modelo", e);
+      diag.model = "erro";
+      throw e;
+    });
+    diag.model = "ok";
     tintMioFridges(gltf.scene);
     return gltf.scene;
   }, [url, "mio-model"]);
@@ -157,6 +178,13 @@ export function GlbScene({ url }: { url: string }) {
 
 function GlbModel({ url }: { url: string }) {
   const gl = useThree((s) => s.gl);
+  useEffect(() => {
+    try {
+      const ctx = gl.getContext();
+      const ext = ctx.getExtension("WEBGL_debug_renderer_info");
+      diag.gpu = String(ext ? ctx.getParameter(ext.UNMASKED_RENDERER_WEBGL) : ctx.getParameter(ctx.RENDERER)).slice(0, 80);
+    } catch {}
+  }, [gl]);
   const scene = useModel(url, gl);
   const hovered = useScene((s) => s.hovered);
   useLightmaps(scene, url);
