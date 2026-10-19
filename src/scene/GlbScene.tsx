@@ -28,9 +28,13 @@ const LIGHTMAPPED = [
   "freezer_loslos", "divisoria_ripada_1", "divisoria_ripada_2", "banco", "jardim", "piso", "paredes",
 ];
 
+// lightmaps desligados até o bake ser refeito (o bake atual estragava geometria e texturas)
+const USE_LIGHTMAPS = process.env.NEXT_PUBLIC_LIGHTMAPS === "1";
+
 function useLightmaps(scene: THREE.Object3D, url: string) {
   const [, setDone] = useState(false);
   useEffect(() => {
+    if (!USE_LIGHTMAPS) return;
     const base = assetsBase(url) + "lightmaps/";
     let alive = true;
     const load = async (src: string) => {

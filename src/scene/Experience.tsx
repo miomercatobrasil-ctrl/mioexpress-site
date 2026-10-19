@@ -13,22 +13,11 @@ import { sceneStore } from "./store";
 // modelo final por padrão; NEXT_PUBLIC_SCENE_GLB="" volta para a cena de placeholders
 const GLB_URL = process.env.NEXT_PUBLIC_SCENE_GLB ?? "/models/mio-terracos.glb";
 
-// Com o .glb a iluminação vem assada nas texturas; fica só um preenchimento leve.
-function BakedLights() {
-  // luz ambiente suave por baixo da luz assada: nenhuma superfície fica preta
-  return (
-    <>
-      <hemisphereLight args={["#fff4e2", "#c9b090", 0.9]} />
-      <directionalLight position={[8, 6, 2]} intensity={0.5} color="#fff1d6" />
-    </>
-  );
-}
-
 function Lights() {
   return (
     <>
-      <hemisphereLight args={["#fff4e2", "#b79a77", 0.9]} />
-      <ambientLight intensity={0.25} color="#ffe9cc" />
+      <hemisphereLight args={["#fff4e2", "#b79a77", 1.5]} />
+      <ambientLight intensity={0.35} color="#ffe9cc" />
       {/* luz do dia entrando pelo jardim */}
       <directionalLight position={[10, 6, 1.5]} intensity={1.3} color="#fff1d6" />
       {/* LED das prateleiras (uma luz por módulo) */}
@@ -77,10 +66,10 @@ export default function Experience({ mobile, reducedMotion, running }: { mobile:
       <PerformanceMonitor onDecline={() => setDprMax(1)} />
       <AdaptiveDpr pixelated={false} />
       <fog attach="fog" args={["#efe6d8", 9, 20]} />
-      {GLB_URL ? <BakedLights /> : <Lights />}
+      <Lights />
       <Suspense fallback={null}>
         {GLB_URL ? <GlbScene url={GLB_URL} /> : <PlaceholderScene />}
-        {!GLB_URL && <ContactShadows position={[2.5, 0.006, 1.7]} scale={[10, 8]} resolution={mobile ? 512 : 1024} blur={2.4} opacity={0.45} far={2.2} frames={1} />}
+        {<ContactShadows position={[2.5, 0.006, 1.7]} scale={[10, 8]} resolution={mobile ? 512 : 1024} blur={2.4} opacity={0.45} far={2.2} frames={1} />}
         <Hotspots />
         <Ready />
       </Suspense>
