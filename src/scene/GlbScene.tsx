@@ -8,7 +8,7 @@ import { suspend } from "suspend-react";
 import { COLORS, OBJECT_TO_HOTSPOT, type ObjectId } from "./layout";
 import { sceneStore, useScene } from "./store";
 import { Vegetation, type PlantSpot } from "./Vegetation";
-import { diag, diagError } from "./diag";
+import { FLAGS, diag, diagError } from "./diag";
 
 // Cena final exportada do Blender (ver docs/PIPELINE-3D.md).
 // Os objetos de primeiro nível precisam ter os nomes de `ObjectId` (armario_mio, totem_pagamento…).
@@ -64,6 +64,7 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
   mat.lightMapIntensity = LIGHTMAP_EXPOSURE;
   mat.envMapIntensity = 0;
   mat.side = THREE.DoubleSide;
+  if (FLAGS.lightOnly) mat.defines = { ...mat.defines, MIO_LIGHT_ONLY: "" };
   mat.onBeforeCompile = (shader) => {
     shader.uniforms.uLmNight = { value: tex.noite };
     shader.uniforms.uLmDayOff = { value: tex.dia_semled };
@@ -91,6 +92,10 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
           // luz rebatida: teto e cantos ficam numa penumbra quente, nunca pretos
           nightL += lmD.rgb * vec3( 0.2, 0.15, 0.1 );
           irradiance += mix( dayL, nightL, uNight ) * lightMapIntensity;
+          #ifdef MIO_LIGHT_ONLY
+            diffuseColor.rgb = vec3( 0.6 );
+            material.diffuseColor = vec3( 0.6 );
+          #endif
         #endif
         #include <lights_fragment_maps>`,
       )
@@ -302,7 +307,7 @@ function GlbModel({ url }: { url: string }) {
   const hovered = useScene((s) => s.hovered);
   useEffect(() => {
     let alive = true;
-    applyLightmaps(scene, assetsBase(url)).then((baked) => alive && sceneStore.set({ baked }));
+    (FLAGS.lightmaps ? applyLightmaps(scene, assetsBase(url)) : Promise.resolve(false)).then((baked) => alive && sceneStore.set({ baked }));
     return () => {
       alive = false;
     };

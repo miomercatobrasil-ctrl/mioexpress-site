@@ -1,5 +1,5 @@
 // Diagnóstico do carregamento 3D. Abra a página com "#debug3d" no fim do endereço para ver o painel.
-export const BUILD_TAG = "v15";
+export const BUILD_TAG = "v16";
 
 export const diag = {
   model: "aguardando",
@@ -17,3 +17,11 @@ export function diagError(where: string, e: unknown) {
   if (diag.errors.length < 8) diag.errors.push(msg.slice(0, 160));
   console.warn("[mio]", msg);
 }
+
+/** Chaves de teste pelo endereço (?lm=0 sem luz assada, ?fx=0 sem pós-processamento, ?lmuv=1 só a luz assada em cinza). */
+const params = typeof window === "undefined" ? null : new URLSearchParams(window.location.search);
+export const FLAGS = {
+  lightmaps: params?.get("lm") !== "0",
+  effects: params?.get("fx") !== "0",
+  lightOnly: params?.get("lmuv") === "1",
+};
