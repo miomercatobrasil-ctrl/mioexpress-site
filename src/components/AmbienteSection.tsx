@@ -2,10 +2,24 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { Component, useEffect, useRef, useState, type ReactNode } from "react";
 import { HOTSPOTS, TOUR_ORDER } from "@/scene/layout";
 import { sceneStore, useScene } from "@/scene/store";
 import { Reveal } from "./Reveal";
+
+/** Se o 3D falhar (WebGL, rede, modelo), a página segue normal e mostra a foto no lugar. */
+class SceneBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch(e: unknown) {
+    console.error("[mio] cena 3D desativada:", e);
+  }
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
+}
 
 const Experience = dynamic(() => import("@/scene/Experience"), { ssr: false });
 
@@ -174,9 +188,17 @@ export function AmbienteSection() {
       <div className="scene-stage">
         {show3D ? (
           <>
-            <div className={`scene-gl${mode === "explore" ? " is-interactive" : ""}`}>
-              <Experience mobile={mobile} reducedMotion={reduced} running={visible} />
-            </div>
+            <SceneBoundary
+              fallback={
+                <div className="scene-fallback">
+                  <Image src="/images/loja-angulo.webp" alt="Mini mercado Mio Express instalado no hall de um condomínio" fill sizes="100vw" quality={70} />
+                </div>
+              }
+            >
+              <div className={`scene-gl${mode === "explore" ? " is-interactive" : ""}`}>
+                <Experience mobile={mobile} reducedMotion={reduced} running={visible} />
+              </div>
+            </SceneBoundary>
             <Loader />
           </>
         ) : (

@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
-import { useGLTF } from "@react-three/drei";
 import { useThree, type ThreeEvent } from "@react-three/fiber";
-import { KTX2Loader } from "three-stdlib";
+import { DRACOLoader, GLTFLoader, KTX2Loader, MeshoptDecoder } from "three-stdlib";
+import { suspend } from "suspend-react";
 import { COLORS, OBJECT_TO_HOTSPOT, type ObjectId } from "./layout";
 import { sceneStore, useScene } from "./store";
 import { Vegetation, type PlantSpot } from "./Vegetation";
@@ -74,12 +74,40 @@ function findObjectId(o: THREE.Object3D | null): ObjectId | null {
   return null;
 }
 
+/** Carrega o .glb (ou o .glb em base64 num ".b64.txt", usado na prévia publicada, que não serve .glb)
+ *  com fetch + parse. As texturas embutidas são lidas por <img> (TextureLoader), que funciona também
+ *  em páginas com política de segurança restrita. */
+function useModel(url: string, gl: THREE.WebGLRenderer) {
+  return suspend(async () => {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`modelo 3D: ${res.status}`);
+    let buf: ArrayBuffer;
+    if (url.endsWith(".b64.txt")) {
+      const bin = Uint8Array.from(atob((await res.text()).trim()), (c) => c.charCodeAt(0));
+      buf = bin.buffer;
+    } else buf = await res.arrayBuffer();
+    const loader = new GLTFLoader();
+    // no three-stdlib o decoder é uma fábrica
+    const meshopt = MeshoptDecoder as unknown;
+    loader.setMeshoptDecoder((typeof meshopt === "function" ? meshopt() : meshopt) as never);
+    loader.setDRACOLoader(new DRACOLoader().setDecoderPath(DRACO_PATH));
+    loader.setKTX2Loader(new KTX2Loader().setTranscoderPath(KTX2_PATH).detectSupport(gl) as never);
+    loader.register((parser) => {
+      (parser as unknown as { textureLoader: THREE.Loader }).textureLoader = new THREE.TextureLoader(parser.options.manager);
+      return { name: "mio_img_textures" } as never;
+    });
+    const gltf = await loader.parseAsync(buf, "");
+    return gltf.scene;
+  }, [url, "mio-model"]);
+}
+
 export function GlbScene({ url }: { url: string }) {
+  return <GlbModel url={url} />;
+}
+
+function GlbModel({ url }: { url: string }) {
   const gl = useThree((s) => s.gl);
-  const { scene } = useGLTF(url, DRACO_PATH, true, (loader) => {
-    const ktx2 = new KTX2Loader().setTranscoderPath(KTX2_PATH).detectSupport(gl);
-    loader.setKTX2Loader(ktx2 as never);
-  });
+  const scene = useModel(url, gl);
   const hovered = useScene((s) => s.hovered);
   useLightmaps(scene, url);
 

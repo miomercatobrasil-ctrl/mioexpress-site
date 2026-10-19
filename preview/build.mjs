@@ -21,8 +21,8 @@ const result = await build({
   define: {
     "process.env.NODE_ENV": '"production"',
     "process.env.NEXT_PUBLIC_META_PIXEL_ID": '""',
-    // o visualizador de artifacts não serve .glb: o modelo vai embutido na página (data URI)
-    "process.env.NEXT_PUBLIC_SCENE_GLB": hasGlb ? '"__MIO_GLB__"' : '""',
+    // o visualizador de artifacts não serve .glb: o modelo vai em base64 num .txt, carregado só na seção 3D
+    "process.env.NEXT_PUBLIC_SCENE_GLB": hasGlb ? '"models/mio-terracos.b64.txt"' : '""',
     "process.env.NEXT_PUBLIC_SCENE_ASSETS": hasGlb ? '"models/"' : '""',
   },
   loader: { ".css": "empty" },
@@ -55,7 +55,6 @@ for (const p of assets) {
 // links internos
 js = js.split('"/privacidade"').join('"#privacidade"').split('"/#').join('"#').split('href:"/"').join('href:"#inicio"');
 
-if (hasGlb) js = js.split('"__MIO_GLB__"').join(`"data:model/gltf-binary;base64,${readFileSync(resolve(root, "public/models/mio-terracos.glb")).toString("base64")}"`);
 
 css = `:root{--font:"Montserrat"}\n` + css;
 const html = `<title>Mio Express</title>
@@ -76,5 +75,6 @@ writeFileSync(out, html);
 if (hasGlb) {
   cpSync(resolve(root, "public/models/lightmaps"), resolve(root, "preview/dist/models/lightmaps"), { recursive: true });
   cpSync(resolve(root, "public/models/plants.json"), resolve(root, "preview/dist/models/plants.json"));
+  writeFileSync(resolve(root, "preview/dist/models/mio-terracos.b64.txt"), readFileSync(resolve(root, "public/models/mio-terracos.glb")).toString("base64"));
 }
 console.log(out, (html.length / 1024 / 1024).toFixed(2) + " MB");
