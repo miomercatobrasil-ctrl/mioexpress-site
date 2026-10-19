@@ -81,6 +81,28 @@ function findObjectId(o: THREE.Object3D | null): ObjectId | null {
   return null;
 }
 
+/** As geladeiras Mio são vinho; no SketchUp o corpo saiu com materiais pretos ("Color M08", "METAL PRETO"). */
+function tintMioFridges(scene: THREE.Object3D) {
+  const vinho = new THREE.Color("#6e1c24");
+  for (const name of ["geladeira_mio_1", "geladeira_mio_2", "geladeira_mio_3"]) {
+    scene.getObjectByName(name)?.traverse((o) => {
+      const m = o as THREE.Mesh;
+      if (!m.isMesh) return;
+      const mats = Array.isArray(m.material) ? m.material : [m.material];
+      const out = mats.map((mat) => {
+        const std = mat as THREE.MeshStandardMaterial;
+        const dark = std.color && !std.map && std.color.r + std.color.g + std.color.b < 0.25;
+        if (!dark || !/m08|preto/i.test(std.name)) return mat;
+        const c = std.clone();
+        c.color.copy(vinho);
+        c.roughness = 0.55;
+        return c;
+      });
+      m.material = Array.isArray(m.material) ? out : out[0];
+    });
+  }
+}
+
 /** Carrega o .glb (ou o .glb em base64 num ".b64.txt", usado na prévia publicada, que não serve .glb)
  *  com fetch + parse. As texturas embutidas são lidas por <img> (TextureLoader), que funciona também
  *  em páginas com política de segurança restrita. */
@@ -124,6 +146,7 @@ function useModel(url: string, gl: THREE.WebGLRenderer) {
       return { name: "mio_bitmap_textures" } as never;
     });
     const gltf = await loader.parseAsync(buf, "");
+    tintMioFridges(gltf.scene);
     return gltf.scene;
   }, [url, "mio-model"]);
 }

@@ -20,6 +20,7 @@ execFileSync(
     "--flatten", "false",      // mantém os objetos nomeados (hover/clique no site)
     "--join-named", "false",
     "--instance", "false",
+    "--palette", "false",      // mantém os materiais com nome (o site ajusta cores por material)
     "--simplify", "false",     // a simplificação já foi feita no Blender
     "--prune-attributes", "false", // mantém o UV2 (TEXCOORD_1) usado pelos lightmaps
   ],
