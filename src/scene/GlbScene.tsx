@@ -22,6 +22,25 @@ const DRACO_PATH = "/libs/draco/";
 // dia, noite, dia_semled, noite_semled. O shader mistura as variantes conforme os botões Dia/Noite e LED.
 // Ligado quando existe lightmaps.json ao lado do modelo.
 const LIGHTMAP_EXPOSURE = 1.45;
+
+// GPUs que calculam em meia precisão (Macs, celulares) estouram o brilho especular de superfícies muito lisas
+// perto das luzes pontuais: o pixel vira infinito e o bloom espalha manchas brancas. Limita a luz de saída.
+if (!THREE.ShaderChunk.opaque_fragment.includes("mio-clamp")) {
+  THREE.ShaderChunk.opaque_fragment =
+    "// mio-clamp\noutgoingLight = clamp( outgoingLight, vec3( 0.0 ), vec3( 16.0 ) );\n" + THREE.ShaderChunk.opaque_fragment;
+}
+
+/** Nenhum material do projeto é espelhado: rugosidade mínima evita reflexos pontuais estourados. */
+function tameSpecular(scene: THREE.Object3D) {
+  scene.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh) return;
+    for (const mat of Array.isArray(m.material) ? m.material : [m.material]) {
+      const std = mat as THREE.MeshStandardMaterial;
+      if (std.isMeshStandardMaterial) std.roughness = Math.max(std.roughness, 0.3);
+    }
+  });
+}
 const VARIANTS = ["dia", "noite", "dia_semled", "noite_semled"] as const;
 type Variant = (typeof VARIANTS)[number];
 
@@ -58,9 +77,14 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
           // superfície com luz assada: ignora as luzes dinâmicas (só a luz do bake)
           irradiance = vec3( 0.0 );
           reflectedLight.directDiffuse = vec3( 0.0 );
-          reflectedLight.directSpecular *= 0.25;
-          vec4 lmD = mix( texture2D( lightMap, vLightMapUv ), texture2D( uLmDayOff, vLightMapUv ), uLedOff );
-          vec4 lmN = mix( texture2D( uLmNight, vLightMapUv ), texture2D( uLmNightOff, vLightMapUv ), uLedOff );
+          reflectedLight.directSpecular *= 0.15;
+          // LED: parte da luz que vem só da fita (aceso − apagado), reforçada para o botão ter efeito visível
+          vec3 dOff = texture2D( uLmDayOff, vLightMapUv ).rgb;
+          vec3 nOff = texture2D( uLmNightOff, vLightMapUv ).rgb;
+          vec3 dLed = max( texture2D( lightMap, vLightMapUv ).rgb - dOff, vec3( 0.0 ) );
+          vec3 nLed = max( texture2D( uLmNight, vLightMapUv ).rgb - nOff, vec3( 0.0 ) );
+          vec4 lmD = vec4( dOff * mix( 1.0, 0.9, uLedOff ) + dLed * 1.4 * ( 1.0 - uLedOff ), 1.0 );
+          vec4 lmN = vec4( nOff * mix( 1.0, 0.75, uLedOff ) + nLed * 1.8 * ( 1.0 - uLedOff ), 1.0 );
           // dia: leve curva de contraste; noite: mais escura, quente e contrastada (poças de luz dos spots/LED)
           vec3 dayL = pow( lmD.rgb, vec3( 1.12 ) );
           vec3 nightL = pow( lmN.rgb, vec3( 1.4 ) ) * vec3( 1.25, 1.0, 0.72 ) * 1.35;
@@ -74,7 +98,7 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
       // o bloco original do lightmap fica desligado (já somado acima)
       .replace("vec4 lightMapTexel = texture2D( lightMap, vLightMapUv );", "vec4 lightMapTexel = vec4( 0.0 );");
   };
-  mat.customProgramCacheKey = () => "mio-lm4";
+  mat.customProgramCacheKey = () => "mio-lm5";
   mat.needsUpdate = true;
 }
 
@@ -254,6 +278,7 @@ function useModel(url: string, gl: THREE.WebGLRenderer) {
       throw e;
     });
     diag.model = "ok";
+    tameSpecular(gltf.scene);
     tintMioFridges(gltf.scene);
     await fixTotem(gltf.scene);
     return gltf.scene;

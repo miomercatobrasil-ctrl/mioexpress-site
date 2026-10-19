@@ -1,2 +1,4 @@
 /models/*
-  Cache-Control: public, max-age=86400
+  Cache-Control: public, max-age=0, must-revalidate
+/textures/*
+  Cache-Control: public, max-age=0, must-revalidate
