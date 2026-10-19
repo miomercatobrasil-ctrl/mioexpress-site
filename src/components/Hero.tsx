@@ -8,7 +8,7 @@ export function Hero() {
     <section className="hero" id="inicio">
       <div className="container hero__grid">
         <div className="hero__copy">
-          <Reveal as="p" className="eyebrow" text="Mini mercado autônomo · São José dos Campos" once />
+          <Reveal as="p" className="eyebrow" text="Mini mercado autônomo · 24h" once />
           <Reveal as="h1" className="hero__title" text={"Um mini mercado 24h\ndentro do seu condomínio."} accent={["24h"]} delay={120} stagger={55} once />
           <Fx as="p" className="hero__lead" delay={650} once>
             A Mio instala, abastece e cuida de tudo. Para o condomínio, custo zero. Para quem mora, a despensa a poucos passos de
