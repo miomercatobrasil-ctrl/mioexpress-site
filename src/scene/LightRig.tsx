@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { COLORS } from "./layout";
 import { sceneStore } from "./store";
-import { lightmapUniforms } from "./GlbScene";
+import { lightmapUniforms, setLightmapVariant } from "./GlbScene";
 
 // Iluminação em tempo real com dois controles: dia/noite e LED do armário.
 // Dia: luz natural pelo jardim. Noite: céu escuro, spots/anéis do teto e luz das geladeiras acesos.
@@ -44,6 +44,7 @@ export function LightRig({ reducedMotion }: { reducedMotion: boolean }) {
   const amb = useRef<THREE.AmbientLight>(null);
   const sun = useRef<THREE.DirectionalLight>(null);
   const leds = useRef<THREE.PointLight[]>([]);
+  const variantKey = useRef("");
   const ceiling = useRef<THREE.PointLight[]>([]);
   const fridges = useRef<THREE.PointLight[]>([]);
   const scene = useThree((s) => s.scene);
@@ -60,9 +61,13 @@ export function LightRig({ reducedMotion }: { reducedMotion: boolean }) {
     const ledOn = led ? 1 : 0;
     // com luz assada, as variantes do lightmap fazem a transição; as luzes dinâmicas ficam só como
     // preenchimento leve para o que não tem lightmap (plantas, adesivo)
-    const u = lightmapUniforms;
-    u.uNight.value = damp(u.uNight.value, night ? 1 : 0, k, dt);
-    u.uLedOff.value = damp(u.uLedOff.value, led ? 0 : 1, k, dt);
+    // troca da variante assada (instantânea; o fundo e as luzes dinâmicas fazem a transição suave)
+    const key = `${night}-${led}`;
+    if (variantKey.current !== key) {
+      variantKey.current = key;
+      setLightmapVariant(night, led);
+      lightmapUniforms.uNight.value = night ? 1 : 0;
+    }
     const dyn = baked ? 0 : 1;
     if (hemi.current) hemi.current.intensity = damp(hemi.current.intensity, baked ? (night ? 0.18 : 1.1) : night ? 0.38 : 1.5, k, dt);
     if (amb.current) amb.current.intensity = damp(amb.current.intensity, dyn * (night ? 0.1 : 0.35), k, dt);

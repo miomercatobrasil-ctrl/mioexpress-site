@@ -45,7 +45,7 @@ const VARIANTS = ["dia", "noite", "dia_semled", "noite_semled"] as const;
 type Variant = (typeof VARIANTS)[number];
 
 // uniforms compartilhados por todos os materiais com lightmap
-export const lightmapUniforms = { uNight: { value: 0 }, uLedOff: { value: 0 } };
+export const lightmapUniforms = { uNight: { value: 0 } };
 
 async function loadBitmapTexture(src: string) {
   const res = await fetch(src);
@@ -70,23 +70,34 @@ const NIGHT_BOOST: Record<string, number> = {
   freezer_loslos: 1.2,
 };
 
+// Materiais com luz assada e as 4 variantes de cada um. Dia/noite/LED trocam a textura do lightMap
+// (caminho padrão do three): texturas extras em uniforms próprios chegavam zeradas na GPU do Mac.
+const lmMaterials: { mat: THREE.MeshStandardMaterial; tex: Record<Variant, THREE.Texture> }[] = [];
+
+export function setLightmapVariant(night: boolean, led: boolean) {
+  const v: Variant = night ? (led ? "noite" : "noite_semled") : led ? "dia" : "dia_semled";
+  for (const { mat, tex } of lmMaterials) mat.lightMap = tex[v];
+}
+
 function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Variant, THREE.Texture>, nightBoost = 1) {
-  mat.lightMap = tex.dia;
+  const { night, led } = sceneStore.get();
+  lmMaterials.push({ mat, tex });
+  mat.lightMap = tex[night ? (led ? "noite" : "noite_semled") : led ? "dia" : "dia_semled"];
   mat.lightMapIntensity = LIGHTMAP_EXPOSURE;
   mat.envMapIntensity = 0;
   mat.side = THREE.DoubleSide;
-  mat.defines = { ...mat.defines, MIO_NIGHT_GAIN: FLAGS.nightGain.toFixed(3), MIO_NIGHT_EXP: FLAGS.nightExp.toFixed(3) };
-  if (FLAGS.nightZero) mat.defines = { ...mat.defines, MIO_NIGHT_ZERO: "" };
-  if (FLAGS.lightOnly) mat.defines = { ...mat.defines, MIO_LIGHT_ONLY: "" };
+  mat.defines = {
+    ...mat.defines,
+    MIO_NIGHT_GAIN: FLAGS.nightGain.toFixed(3),
+    MIO_NIGHT_EXP: FLAGS.nightExp.toFixed(3),
+    MIO_NIGHT_BOOST: nightBoost.toFixed(3),
+  };
+  if (nightBoost === 1) mat.defines.MIO_CEILING_BOUNCE = "";
+  if (FLAGS.lightOnly) mat.defines.MIO_LIGHT_ONLY = "";
   diag.lmPatched++;
   mat.onBeforeCompile = (shader) => {
     diag.lmCompiled++;
-    shader.uniforms.uLmNight = { value: tex.noite };
-    shader.uniforms.uLmDayOff = { value: tex.dia_semled };
-    shader.uniforms.uLmNightOff = { value: tex.noite_semled };
     shader.uniforms.uNight = lightmapUniforms.uNight;
-    shader.uniforms.uNightBoost = { value: nightBoost };
-    shader.uniforms.uLedOff = lightmapUniforms.uLedOff;
     shader.vertexShader = shader.vertexShader
       .replace("#include <common>", "#include <common>\nvarying float vMioY;")
       .replace("#include <project_vertex>", "#include <project_vertex>\nvMioY = ( modelMatrix * vec4( transformed, 1.0 ) ).y;");
@@ -98,31 +109,20 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
           irradiance = vec3( 0.0 );
           reflectedLight.directDiffuse = vec3( 0.0 );
           reflectedLight.directSpecular *= 0.15;
-          // LED: parte da luz que vem só da fita (aceso − apagado), reforçada para o botão ter efeito visível
-          vec3 dOff = texture2D( uLmDayOff, vLightMapUv ).rgb;
-          vec3 nOff = texture2D( uLmNightOff, vLightMapUv ).rgb;
-          vec3 dLed = max( texture2D( lightMap, vLightMapUv ).rgb - dOff, vec3( 0.0 ) );
-          vec3 nLed = max( texture2D( uLmNight, vLightMapUv ).rgb - nOff, vec3( 0.0 ) );
-          vec4 lmD = vec4( dOff * mix( 1.0, 0.9, uLedOff ) + dLed * 1.4 * ( 1.0 - uLedOff ), 1.0 );
-          // pow com base 0 é indefinido em GPUs com matemática rápida (Metal/Mac): pixel inválido que o bloom espalha
-          vec3 lmDs = max( lmD.rgb, vec3( 1e-4 ) );
-          vec3 lmNs = max( nOff * mix( 1.0, 0.9, uLedOff ), vec3( 1e-4 ) );
+          // pow com base 0 é indefinido em GPUs com matemática rápida (Metal/Mac)
+          vec3 lm = max( texture2D( lightMap, vLightMapUv ).rgb, vec3( 1e-4 ) );
           // dia: leve curva de contraste
-          vec3 dayL = pow( lmDs, vec3( 1.12 ) );
-          // noite: luminárias do teto acesas (luz quente, com contraste) e a fita de LED por cima no armário
-          vec3 nightL = pow( lmNs, vec3( MIO_NIGHT_EXP ) ) * vec3( 1.25, 1.0, 0.72 ) * MIO_NIGHT_GAIN;
-          // teto branco: as luminárias apontam para baixo, então o teto recebe a luz rebatida do piso
-          nightL += vec3( 0.34, 0.3, 0.24 ) * smoothstep( 2.25, 2.55, vMioY ) * step( uNightBoost, 1.0 );
-          nightL *= uNightBoost;
-          nightL += nLed * vec3( 1.25, 1.0, 0.7 ) * 2.6 * ( 1.0 - uLedOff );
-          // penumbra mínima: teto e cantos nunca ficam pretos
-          nightL += vec3( 0.07, 0.056, 0.042 );
-          #ifdef MIO_NIGHT_ZERO
-            nightL = vec3( 0.0 );
-            irradiance += mix( dayL, nightL, 1.0 ) * lightMapIntensity;
-          #else
-          irradiance += mix( dayL, nightL, uNight ) * lightMapIntensity;
+          vec3 dayL = pow( lm, vec3( 1.12 ) );
+          // noite: luminárias do teto e LED (variante já trocada no lightMap), em tom quente
+          vec3 nightL = pow( lm, vec3( MIO_NIGHT_EXP ) ) * vec3( 1.25, 1.0, 0.72 ) * MIO_NIGHT_GAIN;
+          #ifdef MIO_CEILING_BOUNCE
+            // teto claro: as luminárias apontam para baixo, o teto recebe a luz rebatida do piso
+            nightL += vec3( 0.34, 0.3, 0.24 ) * smoothstep( 2.25, 2.55, vMioY );
           #endif
+          // o que vende (armário, geladeiras) fica em destaque
+          nightL *= MIO_NIGHT_BOOST;
+          nightL += vec3( 0.07, 0.056, 0.042 );
+          irradiance += mix( dayL, nightL, uNight ) * lightMapIntensity;
           #ifdef MIO_LIGHT_ONLY
             diffuseColor.rgb = vec3( 0.6 );
             material.diffuseColor = vec3( 0.6 );
@@ -137,11 +137,11 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
           radiance *= mix( 0.35, 0.0, uNight );
         #endif`,
       )
-      .replace("#include <common>", "#include <common>\nvarying float vMioY;\nuniform sampler2D uLmNight;\nuniform sampler2D uLmDayOff;\nuniform sampler2D uLmNightOff;\nuniform float uNight;\nuniform float uNightBoost;\nuniform float uLedOff;")
+      .replace("#include <common>", "#include <common>\nvarying float vMioY;\nuniform float uNight;")
       // o bloco original do lightmap fica desligado (já somado acima)
       .replace("vec4 lightMapTexel = texture2D( lightMap, vLightMapUv );", "vec4 lightMapTexel = vec4( 0.0 );");
   };
-  mat.customProgramCacheKey = () => "mio-lm13";
+  mat.customProgramCacheKey = () => "mio-lm14";
   mat.needsUpdate = true;
 }
 
@@ -356,29 +356,23 @@ function GlbModel({ url }: { url: string }) {
     if (!hovered) return;
     const target = scene.getObjectByName(hovered);
     if (!target) return;
-    const restore: [THREE.Mesh, THREE.Material | THREE.Material[]][] = [];
-    const glow = (mat: THREE.Material) => {
-      const m = mat as THREE.MeshStandardMaterial;
-      if (!("emissive" in m)) return mat;
-      const c = m.clone();
-      // clone() não copia o patch do shader de lightmap
-      c.onBeforeCompile = m.onBeforeCompile;
-      c.customProgramCacheKey = m.customProgramCacheKey;
-      c.emissive = new THREE.Color(COLORS.vinho);
-      c.emissiveIntensity = 0.22;
-      return c;
-    };
+    // brilho no próprio material (sem clonar: o clone recompilava o shader e o objeto sumia no Mac)
+    const saved = new Map<THREE.MeshStandardMaterial, [THREE.Color, number]>();
     target.traverse((o) => {
       const mesh = o as THREE.Mesh;
       if (!mesh.isMesh) return;
-      restore.push([mesh, mesh.material]);
-      mesh.material = Array.isArray(mesh.material) ? mesh.material.map(glow) : glow(mesh.material);
+      for (const mat of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) {
+        const m = mat as THREE.MeshStandardMaterial;
+        if (!m.isMeshStandardMaterial || saved.has(m)) continue;
+        saved.set(m, [m.emissive.clone(), m.emissiveIntensity]);
+        m.emissive.set(COLORS.vinho);
+        m.emissiveIntensity = 0.22;
+      }
     });
     return () =>
-      restore.forEach(([mesh, mat]) => {
-        const cur = mesh.material;
-        (Array.isArray(cur) ? cur : [cur]).forEach((m) => m.dispose());
-        mesh.material = mat;
+      saved.forEach(([color, intensity], m) => {
+        m.emissive.copy(color);
+        m.emissiveIntensity = intensity;
       });
   }, [hovered, scene]);
 
