@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 // Plantas leves no lugar dos blocos de vegetação do SketchUp: cada planta é um maço de "cards"
@@ -18,96 +18,31 @@ function rng(seed: number) {
   };
 }
 
-/** Atlas 2×2 com folhagens desenhadas em canvas (sem download de imagem). */
+/** Atlas 2×2 de folhagem fotográfica (folha de fícus do próprio projeto SketchUp, recortada e montada
+ *  por scripts: folhas largas, finas, vermelhas e longas). */
+const ATLAS_URL = (process.env.NEXT_PUBLIC_SCENE_ASSETS || "/").replace(/models\/$/, "") + "textures/folhagem.webp";
+
 function useLeafAtlas() {
-  return useMemo(() => {
-    const S = 512;
-    const H = S / 2;
-    const c = document.createElement("canvas");
-    c.width = c.height = S;
-    const ctx = c.getContext("2d")!;
-    const r = rng(11);
-    const leaf = (x: number, y: number, len: number, wid: number, ang: number, fill: string, rib: string) => {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(ang);
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.quadraticCurveTo(wid, -len * 0.45, 0, -len);
-      ctx.quadraticCurveTo(-wid, -len * 0.45, 0, 0);
-      ctx.fillStyle = fill;
-      ctx.fill();
-      ctx.strokeStyle = rib;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(0, -len * 0.92);
-      ctx.stroke();
-      ctx.restore();
+  const [tex, setTex] = useState<THREE.Texture | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetch(ATLAS_URL)
+      .then((r) => r.blob())
+      .then((b) => createImageBitmap(b, { imageOrientation: "flipY" }))
+      .then((bmp) => {
+        if (!alive) return;
+        const t = new THREE.Texture(bmp as unknown as HTMLImageElement);
+        t.colorSpace = THREE.SRGBColorSpace;
+        t.anisotropy = 4;
+        t.needsUpdate = true;
+        setTex(t);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
     };
-    const cell = (cx: number, cy: number, draw: () => void) => {
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(cx, cy, H, H);
-      ctx.clip();
-      ctx.translate(cx, cy);
-      draw();
-      ctx.restore();
-    };
-    const greens = ["#2f5e25", "#3d7330", "#4f8a38", "#5f9c40", "#6fae48", "#2a5221"];
-    // 0: folhas largas (arbusto)
-    cell(0, 0, () => {
-      for (let i = 0; i < 70; i++) {
-        const x = H * (0.15 + r() * 0.7);
-        const y = H * (0.25 + r() * 0.72);
-        leaf(x, y, 34 + r() * 30, 12 + r() * 9, (r() - 0.5) * 2.6, greens[Math.floor(r() * greens.length)], "rgba(20,40,10,.35)");
-      }
-    });
-    // 1: samambaia / folhagem fina
-    cell(H, 0, () => {
-      for (let f = 0; f < 9; f++) {
-        const bx = H * (0.3 + r() * 0.4);
-        const ang = (r() - 0.5) * 1.6;
-        const len = H * (0.55 + r() * 0.35);
-        ctx.save();
-        ctx.translate(bx, H);
-        ctx.rotate(ang);
-        ctx.strokeStyle = "#35602a";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, -len);
-        ctx.stroke();
-        for (let k = 0.1; k < 1; k += 0.07) {
-          const l = 22 * (1 - k * 0.7);
-          const g = greens[Math.floor(r() * greens.length)];
-          leaf(0, -len * k, l, 4, 1.2, g, "rgba(0,0,0,0)");
-          leaf(0, -len * k, l, 4, -1.2, g, "rgba(0,0,0,0)");
-        }
-        ctx.restore();
-      }
-    });
-    // 2: folhas vermelhas (como a planta vermelha dos renders)
-    cell(0, H, () => {
-      const reds = ["#8e1b22", "#a8242c", "#b8323a", "#7a1f2b", "#c4434a"];
-      for (let i = 0; i < 60; i++) {
-        const x = H * (0.15 + r() * 0.7);
-        const y = H * (0.3 + r() * 0.68);
-        leaf(x, y, 30 + r() * 26, 8 + r() * 6, (r() - 0.5) * 2.4, reds[Math.floor(r() * reds.length)], "rgba(60,0,0,.4)");
-      }
-    });
-    // 3: capim / agave (folhas longas)
-    cell(H, H, () => {
-      for (let i = 0; i < 26; i++) {
-        const ang = (r() - 0.5) * 1.9;
-        leaf(H * (0.42 + r() * 0.16), H, H * (0.5 + r() * 0.45), 7 + r() * 5, ang, greens[Math.floor(r() * greens.length)], "rgba(255,255,255,.15)");
-      }
-    });
-    const t = new THREE.CanvasTexture(c);
-    t.colorSpace = THREE.SRGBColorSpace;
-    t.anisotropy = 4;
-    return t;
   }, []);
+  return tex;
 }
 
 function cardGeometry(kind: Kind) {
@@ -131,10 +66,6 @@ function Cards({ kind, cards, map }: { kind: Kind; cards: Card[]; map: THREE.Tex
         map,
         alphaTest: 0.45,
         side: THREE.DoubleSide,
-        // a cena final tem luz assada; as folhas se iluminam pela própria textura
-        emissive: new THREE.Color("#ffffff"),
-        emissiveMap: map,
-        emissiveIntensity: 0.55,
       }),
     [map],
   );
@@ -186,6 +117,7 @@ export function Vegetation({ spots }: { spots: PlantSpot[] }) {
     });
     return out;
   }, [spots]);
+  if (!map) return null;
   return (
     <group name="vegetacao">
       {byKind.map((cards, k) => (

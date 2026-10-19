@@ -21,7 +21,7 @@ const DRACO_PATH = "/libs/draco/";
 // Iluminação assada no Blender (scripts/blender/mio_bake2.py): por objeto, até 4 variantes no UV2 ("lightmap"):
 // dia, noite, dia_semled, noite_semled. O shader mistura as variantes conforme os botões Dia/Noite e LED.
 // Ligado quando existe lightmaps.json ao lado do modelo.
-const LIGHTMAP_EXPOSURE = 2.2;
+const LIGHTMAP_EXPOSURE = 1.45;
 const VARIANTS = ["dia", "noite", "dia_semled", "noite_semled"] as const;
 type Variant = (typeof VARIANTS)[number];
 
@@ -61,7 +61,10 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
           reflectedLight.directSpecular *= 0.25;
           vec4 lmD = mix( texture2D( lightMap, vLightMapUv ), texture2D( uLmDayOff, vLightMapUv ), uLedOff );
           vec4 lmN = mix( texture2D( uLmNight, vLightMapUv ), texture2D( uLmNightOff, vLightMapUv ), uLedOff );
-          irradiance += mix( lmD, lmN, uNight ).rgb * lightMapIntensity;
+          // dia: leve curva de contraste; noite: mais escura, quente e contrastada (poças de luz dos spots/LED)
+          vec3 dayL = pow( lmD.rgb, vec3( 1.12 ) );
+          vec3 nightL = pow( lmN.rgb, vec3( 1.55 ) ) * vec3( 1.25, 1.0, 0.72 ) * 1.35;
+          irradiance += mix( dayL, nightL, uNight ) * lightMapIntensity;
         #endif
         #include <lights_fragment_maps>`,
       )

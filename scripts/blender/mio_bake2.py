@@ -34,7 +34,7 @@ SCALE = float(args[args.index("--scale") + 1]) if "--scale" in args else 1.0
 os.makedirs(os.path.join(OUT, "lightmaps"), exist_ok=True)
 
 SIZE = {"armario_mio": 2048, "paredes": 2048, "piso": 1024, "jardim": 1024, "totem_pagamento": 512, "banco": 512}
-SMALL_FACE = 0.006  # m²: faces menores que ~8×8 cm usam a luz média
+SMALL_PIECE = 0.05  # m²: peças (faces conectadas) menores que isso usam a luz média
 STRIPE = 0.97  # u > STRIPE: faixa da luz média
 LED_OBJECTS = {"armario_mio", "totem_pagamento", "piso"}  # objetos em que o LED do armário faz diferença visível
 # centro da área por onde a câmera anda (site: x, y, z)
@@ -112,14 +112,36 @@ def lightmap_uv(o):
     # faixa "média" no canto (preenchida depois do bake com a luz média da variante)
     bm = bmesh.from_edit_mesh(me)
     mw = o.matrix_world
-    small = [f for f in bm.faces if (mw.to_3x3() @ f.normal).length > 0 and f.calc_area() * mw.to_scale().x ** 2 < SMALL_FACE]
+    k2 = mw.to_scale().x ** 2
+    # peças = conjuntos de faces conectadas; peça pequena (produto, lata, garrafa) usa a luz média
+    seen = set()
+    small = []
+    for f0 in bm.faces:
+        if f0.index in seen:
+            continue
+        stack, island, area = [f0], [], 0.0
+        seen.add(f0.index)
+        while stack:
+            f = stack.pop()
+            island.append(f)
+            area += f.calc_area() * k2
+            for e in f.edges:
+                for g in e.link_faces:
+                    if g.index not in seen:
+                        seen.add(g.index)
+                        stack.append(g)
+        if area < SMALL_PIECE:
+            small += island
     for f in bm.faces:
-        f.select = f not in set(small)
+        f.select = True
+    smallset_sel = set(small)
+    for f in small:
+        f.select = False
     bmesh.update_edit_mesh(me)
     bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.003, area_weight=0.0, scale_to_bounds=True)
     bm = bmesh.from_edit_mesh(me)
     uv = bm.loops.layers.uv["lightmap"]
-    smallset = set(small)
+    smallset = smallset_sel
     for f in bm.faces:
         for loop in f.loops:
             if f in smallset:
@@ -171,9 +193,9 @@ def rig():
     warm = (1.0, 0.8, 0.56)
     # anéis/plafons do teto (posições do modelo) e spots da circulação
     for i, (x, z) in enumerate([(1.23, 2.21), (3.22, 2.21)]):
-        area("noite", f"anel{i}", S(x, 2.44, z), 0.32, 160, (1.0, 0.85, 0.66), shape="DISK")
+        area("noite", f"anel{i}", S(x, 2.44, z), 0.32, 55, (1.0, 0.78, 0.55), shape="DISK")
     for i, (x, z) in enumerate([(1.6, 0.9), (3.7, 1.0), (1.0, 3.9), (5.4, 1.0)]):
-        area("noite", f"spot{i}", S(x, 2.46, z), 0.18, 70, (1.0, 0.86, 0.68), shape="DISK")
+        area("noite", f"spot{i}", S(x, 2.46, z), 0.12, 28, (1.0, 0.8, 0.6), shape="DISK")
     # fitas de LED sob as prateleiras (faixa de 1 m por módulo, voltada para baixo)
     for zc in (2.025, 3.05, 4.07):
         for y in (0.53, 1.34, 1.61, 1.97):
@@ -194,7 +216,7 @@ def rig():
 def set_variant(night: bool, led: bool):
     bg = bpy.context.scene.world.node_tree.nodes["Background"]
     bg.inputs["Color"].default_value = (1.0, 0.95, 0.88, 1) if not night else (0.25, 0.3, 0.45, 1)
-    bg.inputs["Strength"].default_value = 0.9 if not night else 0.04
+    bg.inputs["Strength"].default_value = 1.1 if not night else 0.015
     for o in LIGHTS["dia"]:
         o.hide_render = night
     for o in LIGHTS["noite"]:
