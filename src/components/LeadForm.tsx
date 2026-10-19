@@ -6,7 +6,7 @@ import { whatsappLink } from "@/lib/site";
 import { track } from "@/lib/pixel";
 import { WhatsAppIcon } from "./Icons";
 
-const UNIDADES = ["Até 50", "50 a 150", "150 a 300", "Mais de 300"];
+const UNIDADES = ["Menos de 80", "80 a 150", "150 a 300", "Mais de 300"];
 const CARGOS = ["Síndico(a)", "Administradora", "Conselheiro(a)", "Morador(a)"];
 
 function maskPhone(v: string) {

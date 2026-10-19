@@ -1,10 +1,10 @@
 import { Fx, Reveal } from "./Reveal";
 
 const STEPS = [
-  { n: "01", title: "Escolha", text: "Pegue o que precisar nas prateleiras e geladeiras, no seu tempo e do seu jeito." },
-  { n: "02", title: "Passe o código", text: "Aproxime o código de barras de cada produto do leitor do totem." },
+  { n: "01", title: "Escolha", text: "Escolha os produtos que quiser nas prateleiras e geladeiras, no seu tempo e do seu jeito." },
+  { n: "02", title: "Passe o código", text: "Passe o código de barras de cada produto no leitor do totem para registrar a compra." },
   // CONFIRMAR formas de pagamento aceitas no totem
-  { n: "03", title: "Pague no totem", text: "Pague com cartão, por aproximação ou chip. Pronto, compra concluída em segundos." },
+  { n: "03", title: "Pague no totem", text: "Pague inserindo ou aproximando o cartão. Pronto! Sua compra foi concluída em segundos." },
 ];
 
 export function HowItWorks() {

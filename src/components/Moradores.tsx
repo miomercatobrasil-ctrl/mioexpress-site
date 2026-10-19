@@ -2,6 +2,7 @@ import Image from "next/image";
 import { SITE } from "@/lib/site";
 import { Fx, Reveal } from "./Reveal";
 import { InstagramIcon } from "./Icons";
+import { VideoCard } from "./VideoCard";
 
 const BLOCKS = [
   {
@@ -45,7 +46,10 @@ export function Moradores() {
           ))}
         </div>
 
-        <div className="gallery">
+        <div className="gallery gallery--video">
+          <Fx variant="scale" className="gallery__video">
+            <VideoCard src="/video/institucional.mp4" poster="/video/institucional.jpg" label="Vídeo: moradora compra na Mio Express à noite, dentro do condomínio" />
+          </Fx>
           <Fx variant="img" className="gallery__item gallery__item--tall">
             <Image src="/images/loja-detalhe.webp" alt="Prateleiras com snacks, mercearia, café e produtos de limpeza" fill sizes="(max-width: 900px) 100vw, 50vw" quality={70} />
           </Fx>

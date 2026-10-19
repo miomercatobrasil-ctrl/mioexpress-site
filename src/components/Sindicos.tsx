@@ -1,6 +1,6 @@
-import Image from "next/image";
 import { Fx, Reveal } from "./Reveal";
 import { LeadForm } from "./LeadForm";
+import { VideoCard } from "./VideoCard";
 
 const BENEFITS = [
   { title: "Implantação gratuita", text: "Instalamos mobiliário, geladeiras e totem sem custo para o condomínio." },
@@ -28,8 +28,13 @@ export function Sindicos() {
                 </Fx>
               ))}
             </ul>
-            <Fx variant="img" className="sindicos__media">
-              <Image src="/images/geladeiras.webp" alt="Geladeiras Mio Express instaladas na área comum de um condomínio" fill sizes="(max-width: 900px) 100vw, 40vw" quality={70} />
+            <Fx className="sindicos__video">
+              <VideoCard src="/video/sindicos.mp4" poster="/video/sindicos.jpg" label="Vídeo: carro da Mio Express e geladeiras instaladas em condomínio" />
+              <div className="sindicos__video-text">
+                <p className="eyebrow eyebrow--light">Equipe própria</p>
+                <h3>Abastecimento pelo time da Mio</h3>
+                <p>Um sistema de gestão acompanha o consumo de cada unidade, e a reposição é feita pela nossa equipe, de forma independente e discreta. Empresa local de São José dos Campos, com suporte rápido.</p>
+              </div>
             </Fx>
           </div>
           <Fx className="sindicos__form" variant="scale">

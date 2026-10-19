@@ -11,6 +11,7 @@ const NAV = [
   { href: "/#sindicos", label: "Para síndicos" },
   { href: "/#moradores", label: "Para moradores" },
   { href: "/#unidades", label: "Unidades" },
+  { href: "/#duvidas", label: "Dúvidas" },
 ];
 
 export function Header() {

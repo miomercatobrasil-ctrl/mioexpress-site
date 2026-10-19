@@ -7,6 +7,7 @@ import { Sindicos } from "@/components/Sindicos";
 import { Moradores } from "@/components/Moradores";
 import { Depoimentos, Unidades } from "@/components/Unidades";
 import { Footer, WhatsAppFloat } from "@/components/Footer";
+import { Faq } from "@/components/Faq";
 
 export default function Home() {
   return (
@@ -21,6 +22,7 @@ export default function Home() {
         <Moradores />
         <Unidades />
         <Depoimentos />
+        <Faq />
       </main>
       <Footer />
       <WhatsAppFloat />
