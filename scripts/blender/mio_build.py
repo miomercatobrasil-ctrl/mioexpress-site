@@ -179,7 +179,7 @@ def decimate_group(name, objs):
     total = sum(t for _, t in counts)
     if not budget or total <= budget:
         return
-    heavy = [(o, t) for o, t in counts if t > 300]
+    heavy = [(o, t) for o, t in counts if t > 24]  # caixa simples = 12 triângulos
     light = total - sum(t for _, t in heavy)
     ratio = max(0.04, (budget - light) / max(1, sum(t for _, t in heavy)))
     dg = bpy.context.evaluated_depsgraph_get()
@@ -334,6 +334,27 @@ def bake(o):
     log(f"bake {o.name} {size}px em {time.time() - t:.0f}s")
 
 
+def export(glb):
+    for o in final.values():
+        if o.data.uv_layers.get("UVMap"):
+            o.data.uv_layers.active = o.data.uv_layers["UVMap"]
+    bpy.ops.export_scene.gltf(
+        filepath=glb,
+        export_format="GLB",
+        export_yup=True,
+        export_lights=False,
+        export_cameras=False,
+        export_apply=True,
+        export_texcoords=True,
+        export_normals=True,
+        export_image_format="AUTO",
+    )
+    log("exportado", glb, f"{os.path.getsize(glb) / 1e6:.1f} MB")
+
+
+# versão sem bake para conferir a geometria enquanto o bake roda
+export(os.path.join(OUT, "mio-terracos-nobake.glb"))
+
 if BAKE:
     light_rig()
     for name, o in final.items():
@@ -350,21 +371,6 @@ if BAKE:
             m.node_tree.nodes.remove(m.node_tree.nodes["BAKE_TARGET"])
 
 # ───────────────────────── 6. exportar ─────────────────────────
-for o in final.values():
-    if o.data.uv_layers.get("UVMap"):
-        o.data.uv_layers.active = o.data.uv_layers["UVMap"]
-glb = os.path.join(OUT, "mio-terracos.glb")
-bpy.ops.export_scene.gltf(
-    filepath=glb,
-    export_format="GLB",
-    export_yup=True,
-    export_lights=False,
-    export_cameras=False,
-    export_apply=True,
-    export_texcoords=True,
-    export_normals=True,
-    export_image_format="AUTO",
-)
+export(os.path.join(OUT, "mio-terracos.glb"))
 json.dump({k: {"tris": tris(o), "materials": len(o.material_slots)} for k, o in final.items()}, open(os.path.join(OUT, "objects.json"), "w"), indent=1)
 bpy.ops.wm.save_as_mainfile(filepath=os.path.join(OUT, "mio-terracos.blend"))
-log("exportado", glb, f"{os.path.getsize(glb) / 1e6:.1f} MB")
