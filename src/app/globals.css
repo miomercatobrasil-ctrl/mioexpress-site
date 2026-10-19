@@ -1564,3 +1564,76 @@ body:has(.ambiente.is-explore) .wa-float {
   letter-spacing: 0.16em;
   box-shadow: 0 6px 18px rgba(43, 29, 26, 0.25);
 }
+
+/* Instagram no topo */
+.header__insta {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  transition:
+    color 0.4s var(--ease),
+    background 0.4s var(--ease),
+    border-color 0.4s var(--ease);
+}
+.header__insta:hover {
+  color: var(--white);
+  background: var(--vinho);
+  border-color: var(--vinho);
+}
+@media (max-width: 980px) {
+  .header__insta {
+    margin-left: auto;
+  }
+  .header__insta + .header__cta + .header__burger,
+  .header__insta ~ .header__burger {
+    margin-left: 8px;
+  }
+}
+
+/* sem 3D (aparelho fraco / sem WebGL): seção só da altura da tela, sem rolagem vazia */
+.ambiente.is-fallback {
+  height: auto;
+}
+.ambiente.is-fallback .scene-stage {
+  position: relative;
+  height: min(100svh, 760px);
+}
+
+/* foto do topo: enquadra o armário, não o teto */
+.hero__media img {
+  object-position: 50% 72%;
+}
+
+/* unidades: 2 colunas compactas no celular */
+@media (max-width: 600px) {
+  .units {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .unit {
+    padding: 14px;
+    gap: 10px;
+    border-radius: 16px;
+  }
+  .unit strong {
+    font-size: 0.92rem;
+  }
+  .unit span {
+    font-size: 0.78rem;
+  }
+  .unit__pin {
+    width: 8px;
+    height: 8px;
+    box-shadow: 0 0 0 4px rgba(122, 31, 43, 0.14);
+  }
+  .unit--next {
+    grid-column: 1 / -1;
+  }
+  .unit--next a {
+    padding: 16px;
+  }
+}

@@ -262,7 +262,7 @@ export function AmbienteSection() {
   const showFallback = support === "none" || (support === "weak" && !force);
 
   return (
-    <section id="ambiente" ref={wrapRef} className={`ambiente${mode === "explore" ? " is-explore" : ""}`} aria-label="Ambiente 3D interativo">
+    <section id="ambiente" ref={wrapRef} className={`ambiente${mode === "explore" ? " is-explore" : ""}${showFallback ? " is-fallback" : ""}`} aria-label="Ambiente 3D interativo">
       <div className="scene-stage">
         {show3D ? (
           <>

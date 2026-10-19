@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { SITE } from "@/lib/site";
+import { InstagramIcon } from "./Icons";
 import { useEffect, useState } from "react";
 
 const NAV = [
@@ -39,6 +41,9 @@ export function Header() {
             </a>
           ))}
         </nav>
+        <a href={SITE.instagram} target="_blank" rel="noopener noreferrer" className="header__insta" aria-label={`Instagram ${SITE.instagramHandle}`}>
+          <InstagramIcon size={20} />
+        </a>
         <a href="/#contato" className="btn btn--primary btn--sm header__cta" onClick={() => setOpen(false)}>
           Quero no meu condomínio
         </a>

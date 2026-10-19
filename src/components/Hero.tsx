@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Fx, Reveal } from "./Reveal";
 import { ArrowIcon } from "./Icons";
+import { unidades } from "@/lib/content";
 
 export function Hero() {
   return (
@@ -29,7 +30,7 @@ export function Hero() {
               <strong>R$ 0</strong> de implantação
             </li>
             <li>
-              <strong>3 passos</strong> para comprar
+              <strong>{unidades.length} condomínios</strong> já atendidos
             </li>
           </Fx>
         </div>

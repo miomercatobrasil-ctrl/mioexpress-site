@@ -53,7 +53,7 @@ export function LeadForm() {
       <div className="lead__grid">
         <label className="field">
           <span>Seu nome</span>
-          <input name="nome" required autoComplete="name" placeholder="Como podemos te chamar?" />
+          <input name="nome" required autoComplete="name" placeholder="Seu nome" />
         </label>
         <label className="field">
           <span>WhatsApp</span>

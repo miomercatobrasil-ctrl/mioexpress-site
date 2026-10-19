@@ -19,7 +19,7 @@ export function Unidades() {
               <span className="unit__pin" aria-hidden />
               <div>
                 <strong>{u.nome}</strong>
-                <span>{u.unidades ? `${u.unidades} apartamentos` : "São José dos Campos – SP"}</span>
+                {u.unidades ? <span>{u.unidades} apartamentos</span> : null}
               </div>
             </Fx>
           ))}
@@ -36,8 +36,9 @@ export function Unidades() {
 }
 
 export function Depoimentos() {
-  const d = depoimentos[0];
-  if (!d) return null;
+  // só aparece com depoimento real aprovado (rascunhos ficam fora do site)
+  const reais = depoimentos.filter((x) => !x.rascunho);
+  if (!reais.length) return null;
   return (
     <section className="section depo" aria-labelledby="depo-title">
       <div className="container depo__inner">
@@ -45,9 +46,8 @@ export function Depoimentos() {
         <h2 id="depo-title" className="sr-only">
           Depoimentos
         </h2>
-        {depoimentos.map((x) => (
+        {reais.map((x) => (
           <figure key={x.condominio} className="depo__item">
-            {x.rascunho && <span className="draft-tag">rascunho: substituir pelo depoimento real</span>}
             <Reveal as="blockquote" className="depo__quote" text={`“${x.texto}”`} stagger={22} />
             <Fx as="figcaption" delay={300}>
               <strong>{x.autor}</strong> · {x.papel}, {x.condominio}
