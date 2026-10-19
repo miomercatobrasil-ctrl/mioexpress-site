@@ -1049,21 +1049,48 @@ p {
   gap: 0;
 }
 .benefit {
+  position: relative;
   display: grid;
   grid-template-columns: 52px 1fr;
   gap: 12px;
-  padding: 22px 0;
+  padding: 22px 12px 22px 0;
   border-top: 1px solid rgba(255, 253, 249, 0.14);
-  transition: padding 0.5s var(--ease);
+  isolation: isolate;
 }
-.benefit:hover {
-  padding-left: 10px;
+/* faixa de luz que entra pela esquerda (transform, sem mexer no layout) */
+.benefit::before {
+  content: "";
+  position: absolute;
+  inset: 0 -16px;
+  z-index: -1;
+  border-radius: 14px;
+  background: linear-gradient(90deg, rgba(214, 191, 158, 0.12), rgba(214, 191, 158, 0.02) 70%, transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.7s var(--ease);
+}
+.benefit:hover::before {
+  transform: scaleX(1);
 }
 .benefit__n {
   font-size: 0.85rem;
   color: var(--madeira);
   font-weight: 600;
   padding-top: 4px;
+  opacity: 0.7;
+  transition:
+    opacity 0.5s var(--ease),
+    transform 0.6s var(--ease);
+}
+.benefit:hover .benefit__n {
+  opacity: 1;
+  transform: translateX(6px);
+}
+.benefit > div {
+  transition: transform 0.7s var(--ease);
+}
+.benefit:hover > div {
+  transform: translateX(8px);
 }
 .benefit h3 {
   font-size: 1.2rem;
@@ -1072,6 +1099,10 @@ p {
 }
 .benefit p {
   color: rgba(255, 253, 249, 0.7);
+  transition: color 0.5s var(--ease);
+}
+.benefit:hover p {
+  color: rgba(255, 253, 249, 0.88);
 }
 .sindicos__media {
   margin-top: 40px;
