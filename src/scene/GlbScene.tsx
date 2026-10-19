@@ -93,17 +93,17 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
           vec4 lmD = vec4( dOff * mix( 1.0, 0.9, uLedOff ) + dLed * 1.4 * ( 1.0 - uLedOff ), 1.0 );
           // pow com base 0 é indefinido em GPUs com matemática rápida (Metal/Mac): pixel inválido que o bloom espalha
           vec3 lmDs = max( lmD.rgb, vec3( 1e-4 ) );
-          vec3 lmNs = max( nOff * mix( 1.0, 0.8, uLedOff ), vec3( 1e-4 ) );
+          vec3 lmNs = max( nOff * mix( 1.0, 0.9, uLedOff ), vec3( 1e-4 ) );
           // dia: leve curva de contraste
           vec3 dayL = pow( lmDs, vec3( 1.12 ) );
           // noite: o bake das luminárias sai quase tão forte quanto o dia; aqui vira penumbra quente
           // com contraste, e a luz da fita de LED entra por cima (é ela que dá vida ao armário)
-          vec3 nightL = pow( lmNs, vec3( 1.6 ) ) * vec3( 1.25, 1.0, 0.72 ) * 0.32;
+          vec3 nightL = pow( lmNs, vec3( 1.6 ) ) * vec3( 1.25, 1.0, 0.72 ) * 0.45;
           // parte alta (paredes acima das prateleiras e teto) mais escura
           nightL *= mix( 1.0, 0.45, smoothstep( 1.6, 2.5, vMioY ) );
           nightL += nLed * vec3( 1.25, 1.0, 0.7 ) * 1.7 * ( 1.0 - uLedOff );
           // penumbra mínima: teto e cantos nunca ficam pretos
-          nightL += vec3( 0.04, 0.03, 0.022 );
+          nightL += vec3( 0.055, 0.042, 0.03 );
           #ifdef MIO_NIGHT_ZERO
             nightL = vec3( 0.0 );
             irradiance += mix( dayL, nightL, 1.0 ) * lightMapIntensity;
@@ -128,7 +128,7 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
       // o bloco original do lightmap fica desligado (já somado acima)
       .replace("vec4 lightMapTexel = texture2D( lightMap, vLightMapUv );", "vec4 lightMapTexel = vec4( 0.0 );");
   };
-  mat.customProgramCacheKey = () => "mio-lm10";
+  mat.customProgramCacheKey = () => "mio-lm11";
   mat.needsUpdate = true;
 }
 
