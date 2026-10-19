@@ -43,8 +43,8 @@ rmSync(join(OUT, "lightmaps.json"), { force: true });
 if (BAKED) copyFileSync(join(BUILD, "lightmaps.json"), join(OUT, "lightmaps.json"));
 for (const f of BAKED ? readdirSync(join(BUILD, "lightmaps")).filter((f) => f.includes("__") && f.endsWith(".png")) : []) {
   const out = join(OUT, "lightmaps", f.replace(/\.png$/, ".webp"));
-  // desfoque leve tira o granulado do bake (poucas amostras); a margem de 4 px evita vazamento
-  await sharp(join(BUILD, "lightmaps", f)).blur(2).webp({ quality: 82 }).toFile(out);
+  // mediana 3 tira o ruído do bake sem misturar ilhas com o fundo (o desfoque escurecia bordas)
+  await sharp(join(BUILD, "lightmaps", f)).median(3).webp({ quality: 85 }).toFile(out);
   total += statSync(out).size;
 }
 console.log(`total da cena: ${(total / 1e6).toFixed(1)} MB`);

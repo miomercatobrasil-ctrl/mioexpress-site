@@ -34,6 +34,8 @@ SCALE = float(args[args.index("--scale") + 1]) if "--scale" in args else 1.0
 os.makedirs(os.path.join(OUT, "lightmaps"), exist_ok=True)
 
 SIZE = {"armario_mio": 2048, "paredes": 2048, "piso": 1024, "jardim": 1024, "totem_pagamento": 512, "banco": 512}
+SMALL_FACE = 0.006  # m²: faces menores que ~8×8 cm usam a luz média
+STRIPE = 0.97  # u > STRIPE: faixa da luz média
 LED_OBJECTS = {"armario_mio", "totem_pagamento", "piso"}  # objetos em que o LED do armário faz diferença visível
 # centro da área por onde a câmera anda (site: x, y, z)
 CAM = Vector((3.2, 1.4, 1.6))
@@ -106,9 +108,28 @@ def lightmap_uv(o):
     bpy.context.view_layer.objects.active = o
     bpy.ops.object.mode_set(mode="EDIT")
     bpy.ops.mesh.select_all(action="SELECT")
-    bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.004, area_weight=0.0, scale_to_bounds=True)
+    # só faces grandes ganham espaço no lightmap; faces pequenas (produtos, latas) apontam para uma
+    # faixa "média" no canto (preenchida depois do bake com a luz média da variante)
+    bm = bmesh.from_edit_mesh(me)
+    mw = o.matrix_world
+    small = [f for f in bm.faces if (mw.to_3x3() @ f.normal).length > 0 and f.calc_area() * mw.to_scale().x ** 2 < SMALL_FACE]
+    for f in bm.faces:
+        f.select = f not in set(small)
+    bmesh.update_edit_mesh(me)
+    bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.003, area_weight=0.0, scale_to_bounds=True)
+    bm = bmesh.from_edit_mesh(me)
+    uv = bm.loops.layers.uv["lightmap"]
+    smallset = set(small)
+    for f in bm.faces:
+        for loop in f.loops:
+            if f in smallset:
+                loop[uv].uv = (STRIPE + (1 - STRIPE) / 2, 0.5)
+            else:
+                loop[uv].uv = (loop[uv].uv.x * (STRIPE - 0.01), loop[uv].uv.y)
+    bmesh.update_edit_mesh(me)
     bpy.ops.object.mode_set(mode="OBJECT")
     me.uv_layers.active = me.uv_layers["UVMap"]
+    return len(small)
 
 
 # ───────────────────────── luzes ─────────────────────────
@@ -213,6 +234,14 @@ def bake(o, variant):
         lit = rgb[rgb.max(axis=1) > 1e-4]
         GAIN["g"] = float(0.8 / max(1e-4, np.percentile(lit.max(axis=1), 92))) if len(lit) else 1.0
         log("ganho", GAIN["g"])
+    # faixa da luz média: média das superfícies iluminadas (mais clara que a média geral, como um produto na prateleira)
+    img2 = rgb.reshape(size, size, 3)
+    cut = int(size * STRIPE)
+    body = img2[:, :cut].reshape(-1, 3)
+    lit_px = body[body.max(axis=1) > 1e-4]
+    avg = np.percentile(lit_px, 70, axis=0) if len(lit_px) else np.zeros(3)
+    img2[:, cut:] = avg
+    rgb = img2.reshape(-1, 3)
     enc = np.clip(rgb * GAIN["g"], 0, 1) ** (1 / 2.2)
     out = np.concatenate([enc, np.ones((enc.shape[0], 1), np.float32)], axis=1).ravel()
     save = bpy.data.images.new(f"lm8_{o.name}_{variant}", size, size)
@@ -233,8 +262,8 @@ objs = [o for o in bpy.data.objects if o.type == "MESH" and o.parent is None]
 for o in objs:
     before = len(o.data.polygons)
     removed = clean(o)
-    lightmap_uv(o)
-    log(f"{o.name}: {before} -> {len(o.data.polygons)} faces ({removed} versos removidos)")
+    nsmall = lightmap_uv(o)
+    log(f"{o.name}: {before} -> {len(o.data.polygons)} faces ({removed} versos removidos, {nsmall} pequenas com luz média)")
 
 glb = os.path.join(OUT, "mio-terracos-baked.glb")
 bpy.ops.export_scene.gltf(filepath=glb, export_format="GLB", export_yup=True, export_lights=False, export_cameras=False, export_texcoords=True, export_normals=True)
