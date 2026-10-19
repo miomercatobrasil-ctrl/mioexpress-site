@@ -106,9 +106,8 @@ export const HOTSPOTS: Hotspot[] = [
   },
   {
     id: "totem",
-    // CONFIRMAR formas de pagamento (a sinalização da loja fala em cartão por chip/aproximação).
     title: "Totem de autoatendimento",
-    text: "Passou o código, pagou. Cartão por aproximação ou chip, em segundos.",
+    text: "Passou o código, pagou. Pix ou cartão (aproximação ou chip), em segundos.",
     anchor: [0.55, 1.2, 1.3],
     view: { position: [1.55, 1.4, 1.0], target: [0.3, 1.0, 1.3] },
   },

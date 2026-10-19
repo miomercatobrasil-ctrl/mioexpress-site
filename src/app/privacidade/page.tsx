@@ -10,7 +10,6 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacidade" },
 };
 
-// TEXTO-BASE: substituir/ajustar pelo texto jurídico enviado pela Mio antes da publicação.
 export default function Privacidade() {
   return (
     <>
@@ -50,7 +49,7 @@ export default function Privacidade() {
           <h2>4. Compartilhamento</h2>
           <p>
             Não vendemos dados pessoais. Os dados podem ser tratados por fornecedores que nos ajudam a operar o site e a comunicação, como
-            WhatsApp e Meta Platforms (mensagens e medição de anúncios) e Vercel (hospedagem), sempre limitados à finalidade descrita.
+            WhatsApp e Meta Platforms (mensagens e medição de anúncios) e Cloudflare (hospedagem), sempre limitados à finalidade descrita.
           </p>
 
           <h2>5. Câmeras nas lojas</h2>
@@ -59,19 +58,25 @@ export default function Privacidade() {
             protegidas e acessadas apenas quando necessário, nos termos da lei.
           </p>
 
-          <h2>6. Por quanto tempo guardamos</h2>
+          <h2>6. Pagamentos nas lojas</h2>
+          <p>
+            Os pagamentos por Pix e cartão no totem são processados por instituições de pagamento e pelos bancos envolvidos. A Mio Express
+            recebe apenas as informações necessárias para registrar a venda; os dados completos do cartão não são armazenados por nós.
+          </p>
+
+          <h2>7. Por quanto tempo guardamos</h2>
           <p>Mantemos os dados pelo tempo necessário para as finalidades acima ou para cumprir obrigações legais, e depois os excluímos.</p>
 
-          <h2>7. Seus direitos</h2>
+          <h2>8. Seus direitos</h2>
           <p>
             Você pode solicitar confirmação de tratamento, acesso, correção, anonimização, portabilidade, eliminação e informações sobre
             compartilhamento, além de revogar consentimentos, pelo WhatsApp {SITE.whatsappDisplay}.
           </p>
 
-          <h2>8. Cookies</h2>
+          <h2>9. Cookies</h2>
           <p>Você pode bloquear ou apagar cookies nas configurações do seu navegador. Isso pode afetar algumas medições do site.</p>
 
-          <h2>9. Alterações</h2>
+          <h2>10. Alterações</h2>
           <p>Esta política pode ser atualizada. A versão vigente estará sempre nesta página.</p>
 
           <p className="legal__back">

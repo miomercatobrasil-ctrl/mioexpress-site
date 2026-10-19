@@ -88,6 +88,10 @@ export const faq: { q: string; a: string }[] = [
     a: "Todos os moradores e visitantes cadastrados no condomínio, com pagamento direto no totem.",
   },
   {
+    q: "Quais as formas de pagamento?",
+    a: "Pix e cartão de crédito ou débito, por aproximação ou chip, direto no totem de autoatendimento.",
+  },
+  {
     q: "Qual o tamanho mínimo do condomínio?",
     a: "Atendemos condomínios a partir de 80 apartamentos. Esse é o número ideal para garantir variedade de produtos e reposição constante.",
   },
