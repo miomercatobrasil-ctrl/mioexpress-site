@@ -31,13 +31,20 @@ function useLightmaps(scene: THREE.Object3D, url: string) {
   const [, setDone] = useState(false);
   useEffect(() => {
     const base = assetsBase(url) + "lightmaps/";
-    const loader = new THREE.TextureLoader();
     let alive = true;
+    const load = async (src: string) => {
+      const res = await fetch(src);
+      if (!res.ok) throw new Error(String(res.status));
+      const bmp = await createImageBitmap(await res.blob(), { colorSpaceConversion: "none" });
+      const t = new THREE.Texture(bmp as unknown as HTMLImageElement);
+      t.needsUpdate = true;
+      return t;
+    };
     Promise.all(
       LIGHTMAPPED.map(async (name) => {
         const obj = scene.getObjectByName(name);
         if (!obj) return;
-        const tex = await loader.loadAsync(`${base}${name}.webp`).catch(() => null);
+        const tex = await load(`${base}${name}.webp`).catch(() => null);
         if (!tex || !alive) return;
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.channel = 1;
@@ -93,8 +100,28 @@ function useModel(url: string, gl: THREE.WebGLRenderer) {
     loader.setDRACOLoader(new DRACOLoader().setDecoderPath(DRACO_PATH));
     loader.setKTX2Loader(new KTX2Loader().setTranscoderPath(KTX2_PATH).detectSupport(gl) as never);
     loader.register((parser) => {
-      (parser as unknown as { textureLoader: THREE.Loader }).textureLoader = new THREE.TextureLoader(parser.options.manager);
-      return { name: "mio_img_textures" } as never;
+      // decodifica as imagens embutidas direto dos bytes (createImageBitmap), sem criar URLs de imagem:
+      // funciona também em páginas com política de segurança restrita (prévia publicada)
+      const p = parser as unknown as {
+        json: { images: { bufferView?: number; mimeType?: string; uri?: string }[] };
+        getDependency: (type: string, index: number) => Promise<ArrayBuffer>;
+        sourceCache: Record<string, Promise<THREE.Texture>>;
+        loadImageSource: (i: number, loader: THREE.Loader) => Promise<THREE.Texture>;
+      };
+      const original = p.loadImageSource.bind(parser);
+      p.loadImageSource = (index, ldr) => {
+        const src = p.json.images[index];
+        if (src.bufferView === undefined) return original(index, ldr);
+        const key = `mio-${index}`;
+        p.sourceCache[key] ??= p.getDependency("bufferView", src.bufferView).then(async (bytes) => {
+          const bmp = await createImageBitmap(new Blob([bytes], { type: src.mimeType }), { colorSpaceConversion: "none", premultiplyAlpha: "none" });
+          const tex = new THREE.Texture(bmp as unknown as HTMLImageElement);
+          tex.needsUpdate = true;
+          return tex;
+        });
+        return p.sourceCache[key].then((t) => t.clone());
+      };
+      return { name: "mio_bitmap_textures" } as never;
     });
     const gltf = await loader.parseAsync(buf, "");
     return gltf.scene;

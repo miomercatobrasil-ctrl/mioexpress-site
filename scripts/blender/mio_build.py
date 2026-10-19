@@ -48,16 +48,12 @@ TOL = 0.06
 AREA = ((-0.3, 9.5), (-0.2, 3.6), (-2.6, 5.6))
 
 # orçamento de triângulos por objeto
+# só geladeiras (latas/garrafas muito detalhadas); armário, totem e ecobag ficam como no projeto
 BUDGET = {
-    "armario_mio": 90000,
-    "geladeira_coca": 40000,
-    "geladeira_mio_1": 26000,
-    "geladeira_mio_2": 26000,
-    "geladeira_mio_3": 26000,
-    "freezer_loslos": 16000,
-    "totem_pagamento": 10000,
-    "jardim": 30000,
-    "paredes": 30000,
+    "geladeira_coca": 60000,
+    "geladeira_mio_1": 40000,
+    "geladeira_mio_2": 40000,
+    "geladeira_mio_3": 40000,
 }
 
 
@@ -194,6 +190,17 @@ def decimate_group(name, objs):
         o.modifiers.clear()
         o.data = me
 
+
+# geladeiras Mio são vinho (o material "METAL PRETO" do SketchUp sai quase preto)
+vinho = [(c / 255) ** 2.2 for c in (110, 28, 36)] + [1]
+for name in ("geladeira_mio_1", "geladeira_mio_2", "geladeira_mio_3"):
+    for o in groups.get(name, []):
+        for slot in o.material_slots:
+            m = slot.material
+            if m and "metal_preto" in m.name.lower() and m.node_tree:
+                b = m.node_tree.nodes.get("Principled BSDF")
+                if b:
+                    b.inputs["Base Color"].default_value = vinho
 
 final = {}
 for name, objs in groups.items():
