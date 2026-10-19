@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Fx, Reveal } from "./Reveal";
 import { ArrowIcon } from "./Icons";
 import { unidades } from "@/lib/content";
+import { CountUp } from "./CountUp";
 
 export function Hero() {
   return (
@@ -24,13 +25,13 @@ export function Hero() {
           </Fx>
           <Fx as="ul" className="hero__facts" delay={950} once>
             <li>
-              <strong>24h</strong> aberto todos os dias
+              <strong><CountUp to={24} suffix="h" /></strong> aberto todos os dias
             </li>
             <li>
               <strong>R$ 0</strong> de implantação
             </li>
             <li>
-              <strong>{unidades.length} condomínios</strong> já atendidos
+              <strong><CountUp to={unidades.length} suffix=" condomínios" /></strong> já atendidos
             </li>
           </Fx>
         </div>

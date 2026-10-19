@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SITE, whatsappLink } from "@/lib/site";
 import { FacebookIcon, InstagramIcon, WhatsAppIcon } from "./Icons";
@@ -65,15 +68,31 @@ export function Footer() {
 }
 
 export function WhatsAppFloat() {
+  // celular: barra fixa com WhatsApp + "Quero no meu condomínio" depois do topo; computador: botão flutuante
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const on = () => {
+      const contato = document.getElementById("contato");
+      const nearForm = contato ? Math.abs(contato.getBoundingClientRect().top) < window.innerHeight * 0.9 : false;
+      setShow(window.scrollY > window.innerHeight * 0.7 && !nearForm);
+    };
+    on();
+    window.addEventListener("scroll", on, { passive: true });
+    return () => window.removeEventListener("scroll", on);
+  }, []);
   return (
-    <a
-      className="wa-float"
-      href={whatsappLink("Olá! Vim pelo site da Mio Express.")}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Falar com a Mio Express no WhatsApp"
-    >
-      <WhatsAppIcon size={26} />
-    </a>
+    <>
+      <a className="wa-float" href={whatsappLink("Olá! Vim pelo site da Mio Express.")} target="_blank" rel="noopener noreferrer" aria-label="Falar com a Mio Express no WhatsApp">
+        <WhatsAppIcon size={26} />
+      </a>
+      <div className={`mobile-bar${show ? " is-visible" : ""}`} aria-hidden={!show}>
+        <a href={whatsappLink("Olá! Vim pelo site da Mio Express.")} target="_blank" rel="noopener noreferrer" className="mobile-bar__wa" aria-label="WhatsApp" tabIndex={show ? 0 : -1}>
+          <WhatsAppIcon size={22} />
+        </a>
+        <a href="/#contato" className="btn btn--primary mobile-bar__cta" tabIndex={show ? 0 : -1}>
+          Quero no meu condomínio
+        </a>
+      </div>
+    </>
   );
 }
