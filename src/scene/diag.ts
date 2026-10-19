@@ -1,5 +1,5 @@
 // Diagnóstico do carregamento 3D. Abra a página com "#debug3d" no fim do endereço para ver o painel.
-export const BUILD_TAG = "v21";
+export const BUILD_TAG = "v22";
 
 export const diag = {
   model: "aguardando",
@@ -27,4 +27,7 @@ export const FLAGS = {
   effects: params?.get("fx") !== "0",
   lightOnly: params?.get("lmuv") === "1",
   nightZero: params?.get("lmzero") === "1",
+  // ajuste fino da noite pelo endereço (?ng=ganho&ne=curva), para comparar opções no aparelho real
+  nightGain: Number(params?.get("ng")) || 1.5,
+  nightExp: Number(params?.get("ne")) || 1.15,
 };

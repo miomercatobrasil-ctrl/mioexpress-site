@@ -75,6 +75,7 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
   mat.lightMapIntensity = LIGHTMAP_EXPOSURE;
   mat.envMapIntensity = 0;
   mat.side = THREE.DoubleSide;
+  mat.defines = { ...mat.defines, MIO_NIGHT_GAIN: FLAGS.nightGain.toFixed(3), MIO_NIGHT_EXP: FLAGS.nightExp.toFixed(3) };
   if (FLAGS.nightZero) mat.defines = { ...mat.defines, MIO_NIGHT_ZERO: "" };
   if (FLAGS.lightOnly) mat.defines = { ...mat.defines, MIO_LIGHT_ONLY: "" };
   diag.lmPatched++;
@@ -109,7 +110,7 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
           // dia: leve curva de contraste
           vec3 dayL = pow( lmDs, vec3( 1.12 ) );
           // noite: luminárias do teto acesas (luz quente, com contraste) e a fita de LED por cima no armário
-          vec3 nightL = pow( lmNs, vec3( 1.6 ) ) * vec3( 1.25, 1.0, 0.72 ) * 0.8;
+          vec3 nightL = pow( lmNs, vec3( MIO_NIGHT_EXP ) ) * vec3( 1.25, 1.0, 0.72 ) * MIO_NIGHT_GAIN;
           // teto branco: as luminárias apontam para baixo, então o teto recebe a luz rebatida do piso
           nightL += vec3( 0.34, 0.3, 0.24 ) * smoothstep( 2.25, 2.55, vMioY ) * step( uNightBoost, 1.0 );
           nightL *= uNightBoost;
