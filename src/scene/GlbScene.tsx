@@ -55,6 +55,10 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
       .replace(
         "#include <lights_fragment_maps>",
         `#ifdef USE_LIGHTMAP
+          // superfície com luz assada: ignora as luzes dinâmicas (só a luz do bake)
+          irradiance = vec3( 0.0 );
+          reflectedLight.directDiffuse = vec3( 0.0 );
+          reflectedLight.directSpecular *= 0.25;
           vec4 lmD = mix( texture2D( lightMap, vLightMapUv ), texture2D( uLmDayOff, vLightMapUv ), uLedOff );
           vec4 lmN = mix( texture2D( uLmNight, vLightMapUv ), texture2D( uLmNightOff, vLightMapUv ), uLedOff );
           irradiance += mix( lmD, lmN, uNight ).rgb * lightMapIntensity;
@@ -103,7 +107,9 @@ async function applyLightmaps(scene: THREE.Object3D, base: string) {
         const m = o as THREE.Mesh;
         if (!m.isMesh || !m.geometry.attributes.uv1) return;
         const swap = (mat: THREE.Material) => {
-          if (mat.transparent || mat.alphaTest > 0 || !(mat as THREE.MeshStandardMaterial).isMeshStandardMaterial) return mat;
+          // materiais com transparência (rótulos recortados, vidros, logos) saem pretos no bake: ficam com luz dinâmica
+          const std = mat as THREE.MeshStandardMaterial;
+          if (!std.isMeshStandardMaterial || mat.transparent || mat.alphaTest > 0) return mat;
           if (!cache.has(mat)) {
             const c = (mat as THREE.MeshStandardMaterial).clone();
             patchLightmapMaterial(c, tex);

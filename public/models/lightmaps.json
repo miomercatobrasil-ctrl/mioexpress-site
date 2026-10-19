@@ -1,0 +1,63 @@
+{
+ "gain": 0.4390365183353424,
+ "objects": {
+  "paredes": [
+   "dia",
+   "noite"
+  ],
+  "armario_mio": [
+   "dia",
+   "noite",
+   "dia_semled",
+   "noite_semled"
+  ],
+  "banco": [
+   "dia",
+   "noite"
+  ],
+  "divisoria_ripada_1": [
+   "dia",
+   "noite"
+  ],
+  "divisoria_ripada_2": [
+   "dia",
+   "noite"
+  ],
+  "freezer_loslos": [
+   "dia",
+   "noite"
+  ],
+  "geladeira_coca": [
+   "dia",
+   "noite"
+  ],
+  "geladeira_mio_1": [
+   "dia",
+   "noite"
+  ],
+  "geladeira_mio_2": [
+   "dia",
+   "noite"
+  ],
+  "geladeira_mio_3": [
+   "dia",
+   "noite"
+  ],
+  "jardim": [
+   "dia",
+   "noite"
+  ],
+  "piso": [
+   "dia",
+   "noite",
+   "dia_semled",
+   "noite_semled"
+  ],
+  "totem_pagamento": [
+   "dia",
+   "noite",
+   "dia_semled",
+   "noite_semled"
+  ]
+ }
+}

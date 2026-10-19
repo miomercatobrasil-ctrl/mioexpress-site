@@ -56,7 +56,7 @@ export function LightRig({ reducedMotion }: { reducedMotion: boolean }) {
     u.uNight.value = damp(u.uNight.value, night ? 1 : 0, k, dt);
     u.uLedOff.value = damp(u.uLedOff.value, led ? 0 : 1, k, dt);
     const dyn = baked ? 0 : 1;
-    if (hemi.current) hemi.current.intensity = damp(hemi.current.intensity, baked ? (night ? 0.12 : 0.35) : night ? 0.38 : 1.5, k, dt);
+    if (hemi.current) hemi.current.intensity = damp(hemi.current.intensity, baked ? (night ? 0.6 : 1.4) : night ? 0.38 : 1.5, k, dt);
     if (amb.current) amb.current.intensity = damp(amb.current.intensity, dyn * (night ? 0.1 : 0.35), k, dt);
     if (sun.current) sun.current.intensity = damp(sun.current.intensity, dyn * (night ? 0 : 1.3), k, dt);
     leds.current.forEach((l) => {
