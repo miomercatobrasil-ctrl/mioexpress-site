@@ -30,6 +30,22 @@ if (!THREE.ShaderChunk.opaque_fragment.includes("mio-clamp")) {
     "// mio-clamp\noutgoingLight = clamp( outgoingLight, vec3( 1e-4 ), vec3( 16.0 ) );\n" + THREE.ShaderChunk.opaque_fragment;
 }
 
+/** UV do lightmap vem quantizado (inteiro normalizado, meshopt); o Chrome do Mac lia esse atributo como zero
+ *  e a luz assada saía do canto preto da textura. Em float funciona em qualquer navegador. */
+function floatLightmapUvs(scene: THREE.Object3D) {
+  scene.traverse((o) => {
+    const g = (o as THREE.Mesh).geometry as THREE.BufferGeometry | undefined;
+    const a = g?.attributes.uv1 as THREE.BufferAttribute | THREE.InterleavedBufferAttribute | undefined;
+    if (!g || !a || (a.array instanceof Float32Array && !a.normalized && !(a as THREE.InterleavedBufferAttribute).isInterleavedBufferAttribute)) return;
+    const out = new Float32Array(a.count * 2);
+    for (let i = 0; i < a.count; i++) {
+      out[i * 2] = a.getX(i);
+      out[i * 2 + 1] = a.getY(i);
+    }
+    g.setAttribute("uv1", new THREE.BufferAttribute(out, 2));
+  });
+}
+
 /** Nenhum material do projeto é espelhado: rugosidade mínima evita reflexos pontuais estourados. */
 function tameSpecular(scene: THREE.Object3D) {
   scene.traverse((o) => {
@@ -358,6 +374,7 @@ function useModel(url: string, gl: THREE.WebGLRenderer) {
       throw e;
     });
     diag.model = "ok";
+    floatLightmapUvs(gltf.scene);
     tameSpecular(gltf.scene);
     tintMioFridges(gltf.scene);
     await fixTotem(gltf.scene);
