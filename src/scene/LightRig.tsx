@@ -12,7 +12,8 @@ import { lightmapUniforms } from "./GlbScene";
 
 const LED = new THREE.Color(COLORS.led);
 const DAY_BG = new THREE.Color("#efe6d8");
-const NIGHT_BG = new THREE.Color("#1b1714");
+// acima das paredes aparece o fundo (o modelo não tem laje): à noite, tom de teto claro com as luminárias acesas
+const NIGHT_BG = new THREE.Color("#a39683");
 
 // medidas do projeto (site, metros): frente do armário em x = 0,33; módulos z 1,52–4,57
 const SHELF_Y = [0.53, 1.34, 1.61, 1.97];

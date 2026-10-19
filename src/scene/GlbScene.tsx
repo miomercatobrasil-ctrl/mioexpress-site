@@ -59,7 +59,18 @@ async function loadBitmapTexture(src: string) {
   return t;
 }
 
-function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Variant, THREE.Texture>) {
+// à noite, o que vende fica em destaque: armário e geladeiras recebem mais luz que paredes e piso
+const NIGHT_BOOST: Record<string, number> = {
+  armario_mio: 1.6,
+  totem_pagamento: 1.3,
+  geladeira_mio_1: 1.25,
+  geladeira_mio_2: 1.25,
+  geladeira_mio_3: 1.25,
+  geladeira_coca: 1.25,
+  freezer_loslos: 1.2,
+};
+
+function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Variant, THREE.Texture>, nightBoost = 1) {
   mat.lightMap = tex.dia;
   mat.lightMapIntensity = LIGHTMAP_EXPOSURE;
   mat.envMapIntensity = 0;
@@ -73,6 +84,7 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
     shader.uniforms.uLmDayOff = { value: tex.dia_semled };
     shader.uniforms.uLmNightOff = { value: tex.noite_semled };
     shader.uniforms.uNight = lightmapUniforms.uNight;
+    shader.uniforms.uNightBoost = { value: nightBoost };
     shader.uniforms.uLedOff = lightmapUniforms.uLedOff;
     shader.vertexShader = shader.vertexShader
       .replace("#include <common>", "#include <common>\nvarying float vMioY;")
@@ -96,14 +108,14 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
           vec3 lmNs = max( nOff * mix( 1.0, 0.9, uLedOff ), vec3( 1e-4 ) );
           // dia: leve curva de contraste
           vec3 dayL = pow( lmDs, vec3( 1.12 ) );
-          // noite: o bake das luminárias sai quase tão forte quanto o dia; aqui vira penumbra quente
-          // com contraste, e a luz da fita de LED entra por cima (é ela que dá vida ao armário)
-          vec3 nightL = pow( lmNs, vec3( 1.6 ) ) * vec3( 1.25, 1.0, 0.72 ) * 0.45;
-          // parte alta (paredes acima das prateleiras e teto) mais escura
-          nightL *= mix( 1.0, 0.45, smoothstep( 1.6, 2.5, vMioY ) );
-          nightL += nLed * vec3( 1.25, 1.0, 0.7 ) * 1.7 * ( 1.0 - uLedOff );
+          // noite: luminárias do teto acesas (luz quente, com contraste) e a fita de LED por cima no armário
+          vec3 nightL = pow( lmNs, vec3( 1.6 ) ) * vec3( 1.25, 1.0, 0.72 ) * 0.8;
+          // teto branco: as luminárias apontam para baixo, então o teto recebe a luz rebatida do piso
+          nightL += vec3( 0.34, 0.3, 0.24 ) * smoothstep( 2.25, 2.55, vMioY ) * step( uNightBoost, 1.0 );
+          nightL *= uNightBoost;
+          nightL += nLed * vec3( 1.25, 1.0, 0.7 ) * 2.6 * ( 1.0 - uLedOff );
           // penumbra mínima: teto e cantos nunca ficam pretos
-          nightL += vec3( 0.055, 0.042, 0.03 );
+          nightL += vec3( 0.07, 0.056, 0.042 );
           #ifdef MIO_NIGHT_ZERO
             nightL = vec3( 0.0 );
             irradiance += mix( dayL, nightL, 1.0 ) * lightMapIntensity;
@@ -124,11 +136,11 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
           radiance *= mix( 0.35, 0.0, uNight );
         #endif`,
       )
-      .replace("#include <common>", "#include <common>\nvarying float vMioY;\nuniform sampler2D uLmNight;\nuniform sampler2D uLmDayOff;\nuniform sampler2D uLmNightOff;\nuniform float uNight;\nuniform float uLedOff;")
+      .replace("#include <common>", "#include <common>\nvarying float vMioY;\nuniform sampler2D uLmNight;\nuniform sampler2D uLmDayOff;\nuniform sampler2D uLmNightOff;\nuniform float uNight;\nuniform float uNightBoost;\nuniform float uLedOff;")
       // o bloco original do lightmap fica desligado (já somado acima)
       .replace("vec4 lightMapTexel = texture2D( lightMap, vLightMapUv );", "vec4 lightMapTexel = vec4( 0.0 );");
   };
-  mat.customProgramCacheKey = () => "mio-lm11";
+  mat.customProgramCacheKey = () => "mio-lm13";
   mat.needsUpdate = true;
 }
 
@@ -171,7 +183,7 @@ async function applyLightmaps(scene: THREE.Object3D, base: string) {
           if (!std.isMeshStandardMaterial || mat.transparent || mat.alphaTest > 0) return mat;
           if (!cache.has(mat)) {
             const c = (mat as THREE.MeshStandardMaterial).clone();
-            patchLightmapMaterial(c, tex);
+            patchLightmapMaterial(c, tex, NIGHT_BOOST[name] ?? 1);
             cache.set(mat, c);
           }
           return cache.get(mat)!;
