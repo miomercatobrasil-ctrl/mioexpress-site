@@ -93,6 +93,13 @@ def classify(o):
     # objetos soltos no meio da circulação (figuras/props de referência do SketchUp)
     if 0.8 < c[0] < 3.3 and 0.95 < c[2] < 4.3 and 0.15 < c[1] < 2.4 and max(size) < 1.0:
         return None
+    # esferas brancas de referência (marcadores de luz do SketchUp)
+    mats = [m.name for m in o.data.materials if m]
+    if mats == ["material"] and 0.2 < min(size) and max(size) < 0.4 and c[1] > 0.9:
+        return None
+    # banco de madeira junto à parede da janela
+    if 2.95 < c[0] < 3.7 and -1.7 < c[2] < 0.0 and bb[1][1] < 0.6:
+        return "banco"
     for name, *box in BOXES:
         if inside(bb, box):
             return name
@@ -179,9 +186,13 @@ def decimate_group(name, objs):
     total = sum(t for _, t in counts)
     if not budget or total <= budget:
         return
-    heavy = [(o, t) for o, t in counts if t > 24]  # caixa simples = 12 triângulos
+    # só peças pequenas e detalhadas (latas, garrafas, pacotes, folhas): carcaças e painéis ficam intactos
+    def small(o):
+        (x0, x1), (y0, y1), (z0, z1) = site_bbox(o)
+        return math.dist((x0, y0, z0), (x1, y1, z1)) < 0.45
+    heavy = [(o, t) for o, t in counts if t > 24 and small(o)]
     light = total - sum(t for _, t in heavy)
-    ratio = max(0.04, (budget - light) / max(1, sum(t for _, t in heavy)))
+    ratio = max(0.08, (budget - light) / max(1, sum(t for _, t in heavy)))
     dg = bpy.context.evaluated_depsgraph_get()
     for o, _ in heavy:
         mod = o.modifiers.new("decimate", "DECIMATE")
@@ -198,10 +209,6 @@ final = {}
 for name, objs in groups.items():
     decimate_group(name, objs)
     o = join(name, objs)
-    bpy.ops.object.mode_set(mode="EDIT")
-    bpy.ops.mesh.select_all(action="SELECT")
-    bpy.ops.mesh.remove_doubles(threshold=0.0003)
-    bpy.ops.object.mode_set(mode="OBJECT")
     # origem no centro da base: o contorno de hover do site escala a partir dela
     (x0, x1), (y0, y1), (z0, z1) = site_bbox(o)
     bpy.context.scene.cursor.location = Vector(((x0 + x1) / 2, -(z0 + z1) / 2, y0))
