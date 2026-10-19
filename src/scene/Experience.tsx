@@ -15,7 +15,13 @@ const GLB_URL = process.env.NEXT_PUBLIC_SCENE_GLB ?? "/models/mio-terracos.glb";
 
 // Com o .glb a iluminação vem assada nas texturas; fica só um preenchimento leve.
 function BakedLights() {
-  return <hemisphereLight args={["#fff4e2", "#b79a77", 0.35]} />;
+  // luz ambiente suave por baixo da luz assada: nenhuma superfície fica preta
+  return (
+    <>
+      <hemisphereLight args={["#fff4e2", "#c9b090", 0.9]} />
+      <directionalLight position={[8, 6, 2]} intensity={0.5} color="#fff1d6" />
+    </>
+  );
 }
 
 function Lights() {

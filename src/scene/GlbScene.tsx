@@ -19,7 +19,7 @@ const DRACO_PATH = "/libs/draco/";
 
 // Iluminação assada no Blender (scripts/blender/mio_build.py): uma textura por objeto de primeiro nível,
 // no UV2 ("lightmap"), gravada como luz/2 em sRGB. A exposição compensa a luz física (fraca) do bake.
-const LIGHTMAP_EXPOSURE = 3;
+const LIGHTMAP_EXPOSURE = 2.4;
 // pasta com lightmaps/ e plants.json (padrão: a mesma do .glb)
 const assetsBase = (url: string) => process.env.NEXT_PUBLIC_SCENE_ASSETS || url.replace(/[^/]+$/, "");
 
@@ -60,6 +60,9 @@ function useLightmaps(scene: THREE.Object3D, url: string) {
           const m = o as THREE.Mesh;
           if (!m.isMesh || !m.geometry.attributes.uv1) return;
           const swap = (mat: THREE.Material) => {
+            // logos, vidros e películas (transparentes) ficam fora da luz assada: no bake eles
+            // ficam colados em outra superfície e saem pretos
+            if (mat.transparent || mat.alphaTest > 0) return mat;
             if (!cache.has(mat)) {
               const c = mat.clone() as THREE.MeshStandardMaterial;
               c.lightMap = tex;
