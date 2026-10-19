@@ -10,7 +10,8 @@ import { COLORS, INTRO_PATH } from "./layout";
 import { PlaceholderScene } from "./Placeholders";
 import { sceneStore } from "./store";
 
-const GLB_URL = process.env.NEXT_PUBLIC_SCENE_GLB || "";
+// modelo final por padrão; NEXT_PUBLIC_SCENE_GLB="" volta para a cena de placeholders
+const GLB_URL = process.env.NEXT_PUBLIC_SCENE_GLB ?? "/models/mio-terracos.glb";
 
 // Com o .glb a iluminação vem assada nas texturas; fica só um preenchimento leve.
 function BakedLights() {

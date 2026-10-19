@@ -17,7 +17,11 @@ const KTX2_PATH = "/libs/basis/";
 const DRACO_PATH = "/libs/draco/";
 
 // Iluminação assada no Blender (scripts/blender/mio_build.py): uma textura por objeto de primeiro nível,
-// no UV2 ("lightmap"), gravada como luz/2 em sRGB -> lightMapIntensity 2.
+// no UV2 ("lightmap"), gravada como luz/2 em sRGB. A exposição compensa a luz física (fraca) do bake.
+const LIGHTMAP_EXPOSURE = 3;
+// pasta com lightmaps/ e plants.json (padrão: a mesma do .glb)
+const assetsBase = (url: string) => process.env.NEXT_PUBLIC_SCENE_ASSETS || url.replace(/[^/]+$/, "");
+
 const LIGHTMAPPED = [
   "armario_mio", "totem_pagamento", "geladeira_mio_1", "geladeira_mio_2", "geladeira_mio_3", "geladeira_coca",
   "freezer_loslos", "divisoria_ripada_1", "divisoria_ripada_2", "banco", "jardim", "piso", "paredes",
@@ -26,7 +30,7 @@ const LIGHTMAPPED = [
 function useLightmaps(scene: THREE.Object3D, url: string) {
   const [, setDone] = useState(false);
   useEffect(() => {
-    const base = url.replace(/[^/]+$/, "lightmaps/");
+    const base = assetsBase(url) + "lightmaps/";
     const loader = new THREE.TextureLoader();
     let alive = true;
     Promise.all(
@@ -46,7 +50,7 @@ function useLightmaps(scene: THREE.Object3D, url: string) {
             if (!cache.has(mat)) {
               const c = mat.clone() as THREE.MeshStandardMaterial;
               c.lightMap = tex;
-              c.lightMapIntensity = 2;
+              c.lightMapIntensity = LIGHTMAP_EXPOSURE;
               c.envMapIntensity = 0;
               cache.set(mat, c);
             }
@@ -123,7 +127,7 @@ export function GlbScene({ url }: { url: string }) {
 
   const [plants, setPlants] = useState<PlantSpot[]>([]);
   useEffect(() => {
-    fetch(url.replace(/[^/]+$/, "plants.json"))
+    fetch(assetsBase(url) + "plants.json")
       .then((r) => (r.ok ? r.json() : []))
       .then(setPlants)
       .catch(() => setPlants([]));

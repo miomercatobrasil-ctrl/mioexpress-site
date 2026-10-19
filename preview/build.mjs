@@ -21,7 +21,9 @@ const result = await build({
   define: {
     "process.env.NODE_ENV": '"production"',
     "process.env.NEXT_PUBLIC_META_PIXEL_ID": '""',
-    "process.env.NEXT_PUBLIC_SCENE_GLB": hasGlb ? '"models/mio-terracos.glb"' : '""',
+    // o visualizador de artifacts não serve .glb: o modelo vai embutido na página (data URI)
+    "process.env.NEXT_PUBLIC_SCENE_GLB": hasGlb ? '"__MIO_GLB__"' : '""',
+    "process.env.NEXT_PUBLIC_SCENE_ASSETS": hasGlb ? '"models/"' : '""',
   },
   loader: { ".css": "empty" },
   logLevel: "warning",
@@ -53,6 +55,8 @@ for (const p of assets) {
 // links internos
 js = js.split('"/privacidade"').join('"#privacidade"').split('"/#').join('"#').split('href:"/"').join('href:"#inicio"');
 
+if (hasGlb) js = js.split('"__MIO_GLB__"').join(`"data:model/gltf-binary;base64,${readFileSync(resolve(root, "public/models/mio-terracos.glb")).toString("base64")}"`);
+
 css = `:root{--font:"Montserrat"}\n` + css;
 const html = `<title>Mio Express</title>
 <meta name="description" content="Prévia do novo site da Mio Express">
@@ -69,5 +73,8 @@ ${css}
 mkdirSync(resolve(root, "preview/dist"), { recursive: true });
 const out = resolve(root, "preview/dist/mio-express-preview.html");
 writeFileSync(out, html);
-if (hasGlb) cpSync(resolve(root, "public/models"), resolve(root, "preview/dist/models"), { recursive: true });
+if (hasGlb) {
+  cpSync(resolve(root, "public/models/lightmaps"), resolve(root, "preview/dist/models/lightmaps"), { recursive: true });
+  cpSync(resolve(root, "public/models/plants.json"), resolve(root, "preview/dist/models/plants.json"));
+}
 console.log(out, (html.length / 1024 / 1024).toFixed(2) + " MB");

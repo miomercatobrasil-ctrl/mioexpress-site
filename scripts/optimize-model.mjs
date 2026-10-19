@@ -21,6 +21,7 @@ execFileSync(
     "--join-named", "false",
     "--instance", "false",
     "--simplify", "false",     // a simplificação já foi feita no Blender
+    "--prune-attributes", "false", // mantém o UV2 (TEXCOORD_1) usado pelos lightmaps
   ],
   { stdio: "inherit" },
 );
@@ -29,7 +30,8 @@ if (existsSync(join(BUILD, "plants.json"))) copyFileSync(join(BUILD, "plants.jso
 let total = statSync(join(OUT, "mio-terracos.glb")).size;
 for (const f of readdirSync(join(BUILD, "lightmaps")).filter((f) => f.endsWith(".png"))) {
   const out = join(OUT, "lightmaps", f.replace(/\.png$/, ".webp"));
-  await sharp(join(BUILD, "lightmaps", f)).webp({ quality: 82 }).toFile(out);
+  // desfoque leve tira o granulado do bake (poucas amostras); a margem de 4 px evita vazamento
+  await sharp(join(BUILD, "lightmaps", f)).blur(2).webp({ quality: 82 }).toFile(out);
   total += statSync(out).size;
 }
 console.log(`total da cena: ${(total / 1e6).toFixed(1)} MB`);
