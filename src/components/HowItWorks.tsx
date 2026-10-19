@@ -18,9 +18,17 @@ export function HowItWorks() {
         <ol className="how__steps">
           {STEPS.map((s, i) => (
             <Fx as="li" key={s.n} className="how__step" delay={i * 120}>
-              <span className="how__n">{s.n}</span>
-              <h3>{s.title}</h3>
-              <p>{s.text}</p>
+              <span className="how__badge" aria-hidden>
+                <svg viewBox="0 0 100 100">
+                  <circle className="how__ring-base" cx="50" cy="50" r="47" />
+                  <circle className="how__ring" cx="50" cy="50" r="47" pathLength="1" />
+                </svg>
+                <span className="how__n">{s.n}</span>
+              </span>
+              <div className="how__body">
+                <h3>{s.title}</h3>
+                <p>{s.text}</p>
+              </div>
             </Fx>
           ))}
         </ol>

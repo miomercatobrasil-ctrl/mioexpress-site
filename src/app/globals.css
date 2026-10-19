@@ -7,6 +7,7 @@
   --bege-2: #ece1d2;
   --bege-3: #e2d3bf;
   --madeira: #d6bf9e;
+  --dourado: #b08d57;
   --ink: #2b1d1a;
   --muted: #6e5d56;
   --line: rgba(43, 29, 26, 0.12);
@@ -994,19 +995,70 @@ p {
 .how__step.fx--in::before {
   transform: scaleX(1);
 }
-.how__n {
-  display: block;
-  font-size: clamp(3rem, 6vw, 5rem);
-  font-weight: 600;
-  letter-spacing: -0.05em;
-  line-height: 1;
-  /* número sólido e suave (contorno vazado mostrava os traços internos da fonte) */
-  color: rgba(122, 31, 43, 0.16);
+/* número em círculo dourado: o anel se desenha no hover */
+.how__badge {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(84px, 9vw, 108px);
+  aspect-ratio: 1;
   margin-bottom: 28px;
-  transition: color 0.6s var(--ease);
+  border-radius: 50%;
+  transition:
+    background 0.6s var(--ease),
+    box-shadow 0.6s var(--ease),
+    transform 0.6s var(--ease);
+}
+.how__badge svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.how__ring-base,
+.how__ring {
+  fill: none;
+  stroke-width: 1.4;
+}
+.how__ring-base {
+  stroke: rgba(176, 141, 87, 0.28);
+}
+.how__ring {
+  stroke: var(--dourado);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1s var(--ease);
+}
+.how__n {
+  font-size: clamp(1.9rem, 3.4vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: rgba(122, 31, 43, 0.28);
+  transition:
+    color 0.6s var(--ease),
+    transform 0.6s var(--ease);
+}
+.how__body {
+  transition: transform 0.7s var(--ease);
+}
+.how__step:hover .how__badge {
+  background: radial-gradient(circle, rgba(214, 191, 158, 0.28), rgba(214, 191, 158, 0) 70%);
+  box-shadow: 0 10px 30px rgba(176, 141, 87, 0.18);
+  transform: translateY(-2px);
+}
+.how__step:hover .how__ring {
+  stroke-dashoffset: 0;
 }
 .how__step:hover .how__n {
-  color: var(--vinho);
+  color: var(--dourado);
+  transform: scale(1.06);
+}
+.how__step:hover .how__body {
+  transform: translateX(6px);
 }
 .how__step h3 {
   font-size: 1.4rem;
