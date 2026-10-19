@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     siteName: "Mio Express",
     title,
     description,
-    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "Mini mercado Mio Express no hall de um condomínio" }],
+    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "Mini mercado Mio Express em um condomínio" }],
   },
   twitter: { card: "summary_large_image", title, description, images: ["/og.jpg"] },
   icons: { icon: "/icon.svg" },

@@ -269,7 +269,7 @@ export function AmbienteSection() {
             <SceneBoundary
               fallback={
                 <div className="scene-fallback">
-                  <Image src="/images/loja-angulo.webp" alt="Mini mercado Mio Express instalado no hall de um condomínio" fill sizes="100vw" quality={70} />
+                  <Image src="/images/loja-angulo.webp" alt="Mini mercado Mio Express instalado em um condomínio" fill sizes="100vw" quality={70} />
                 </div>
               }
             >
@@ -281,7 +281,7 @@ export function AmbienteSection() {
           </>
         ) : (
           <div className="scene-fallback">
-            <Image src="/images/loja-angulo.webp" alt="Mini mercado Mio Express instalado no hall de um condomínio" fill sizes="100vw" quality={70} />
+            <Image src="/images/loja-angulo.webp" alt="Mini mercado Mio Express instalado em um condomínio" fill sizes="100vw" quality={70} />
           </div>
         )}
 

@@ -137,7 +137,7 @@ export const HOTSPOTS: Hotspot[] = [
     id: "ambientacao",
     // CONFIRMAR se o projeto de ambientação faz parte da implantação.
     title: "Ambientação",
-    text: "Projeto que valoriza o hall do condomínio.",
+    text: "Projeto que valoriza o espaço do condomínio.",
     anchor: [3.1, 2.0, 0.35],
     view: { position: [6.3, 1.55, 0.7], target: [3.0, 1.35, 1.3] },
   },

@@ -7,7 +7,7 @@ export function Unidades() {
       <div className="container">
         <div className="section__head">
           <Reveal as="p" className="eyebrow" text="Nossas unidades" />
-          <Reveal as="h2" className="h2" text={"Condomínios que já têm\numa Mio no hall."} accent={["Mio"]} />
+          <Reveal as="h2" className="h2" text={"Condomínios que já têm\numa Mio."} accent={["Mio"]} />
           <Fx as="p" className="section__lead units__count" delay={150}>
             {unidades.length} condomínios em São José dos Campos e mais de{" "}
             {(Math.floor(unidades.reduce((t, u) => t + (u.unidades ?? 0), 0) / 100) * 100).toLocaleString("pt-BR")} apartamentos com uma Mio a poucos passos de casa.
