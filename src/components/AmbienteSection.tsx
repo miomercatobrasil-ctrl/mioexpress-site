@@ -288,7 +288,7 @@ export function AmbienteSection() {
         <DiagPanel />
         <div className="scene-ui">
           <div className={`scene-intro${mode === "intro" ? " is-visible" : ""}`} style={{ opacity: mode === "intro" ? Math.max(0, 1 - progress * 1.6) : 0 }}>
-            <Reveal as="p" className="eyebrow eyebrow--light" text="Ambiente 3D" />
+            <Reveal as="p" className="eyebrow eyebrow--pill" text="Ambiente 3D" />
             <Reveal as="h2" className="scene-title" text="Entre e conheça uma unidade Mio." />
             <p className="scene-sub">Role para entrar pelo jardim ou explore livremente.</p>
           </div>

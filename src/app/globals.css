@@ -1469,3 +1469,15 @@ body:has(.ambiente.is-explore) .wa-float {
 .units__count {
   margin-top: 18px;
 }
+
+/* selo "Ambiente 3D" sobre a cena: legível em qualquer fundo */
+.eyebrow--pill {
+  display: inline-block;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--vinho);
+  color: var(--white);
+  font-size: 0.82rem;
+  letter-spacing: 0.16em;
+  box-shadow: 0 6px 18px rgba(43, 29, 26, 0.25);
+}
