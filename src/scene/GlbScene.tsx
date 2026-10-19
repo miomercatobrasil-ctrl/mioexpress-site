@@ -7,6 +7,7 @@ import { useThree, type ThreeEvent } from "@react-three/fiber";
 import { KTX2Loader } from "three-stdlib";
 import { COLORS, OBJECT_TO_HOTSPOT, type ObjectId } from "./layout";
 import { sceneStore, useScene } from "./store";
+import { Vegetation, type PlantSpot } from "./Vegetation";
 
 // Cena final exportada do Blender (ver docs/PIPELINE-3D.md).
 // Os objetos de primeiro nível precisam ter os nomes de `ObjectId` (armario_mio, totem_pagamento…).
@@ -120,5 +121,18 @@ export function GlbScene({ url }: { url: string }) {
     sceneStore.set({ active: hs, touring: false, interacted: true, lastInteraction: performance.now() });
   };
 
-  return <primitive object={scene} onPointerOver={over} onPointerOut={out} onClick={click} />;
+  const [plants, setPlants] = useState<PlantSpot[]>([]);
+  useEffect(() => {
+    fetch(url.replace(/[^/]+$/, "plants.json"))
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setPlants)
+      .catch(() => setPlants([]));
+  }, [url]);
+
+  return (
+    <>
+      <primitive object={scene} onPointerOver={over} onPointerOut={out} onClick={click} />
+      <Vegetation spots={plants} />
+    </>
+  );
 }

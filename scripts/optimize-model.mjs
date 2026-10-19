@@ -1,7 +1,7 @@
 // Comprime o .glb gerado pelo Blender e converte os lightmaps para WebP.
 // Uso: node scripts/optimize-model.mjs [assets/source/export/build]
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readdirSync, statSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
 
@@ -25,6 +25,7 @@ execFileSync(
   { stdio: "inherit" },
 );
 
+if (existsSync(join(BUILD, "plants.json"))) copyFileSync(join(BUILD, "plants.json"), join(OUT, "plants.json"));
 let total = statSync(join(OUT, "mio-terracos.glb")).size;
 for (const f of readdirSync(join(BUILD, "lightmaps")).filter((f) => f.endsWith(".png"))) {
   const out = join(OUT, "lightmaps", f.replace(/\.png$/, ".webp"));
