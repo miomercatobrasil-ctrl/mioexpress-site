@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { COLORS } from "./layout";
 import { sceneStore } from "./store";
+import { lightmapUniforms } from "./GlbScene";
 
 // Iluminação em tempo real com dois controles: dia/noite e LED do armário.
 // Dia: luz natural pelo jardim. Noite: céu escuro, spots/anéis do teto e luz das geladeiras acesos.
@@ -46,19 +47,33 @@ export function LightRig({ reducedMotion }: { reducedMotion: boolean }) {
   useEffect(() => () => stripMat.dispose(), [stripMat]);
 
   useFrame((_, dt) => {
-    const { night, led } = sceneStore.get();
+    const { night, led, baked } = sceneStore.get();
     const k = reducedMotion ? 100 : 4;
     const ledOn = led ? 1 : 0;
-    if (hemi.current) hemi.current.intensity = damp(hemi.current.intensity, night ? 0.38 : 1.5, k, dt);
-    if (amb.current) amb.current.intensity = damp(amb.current.intensity, night ? 0.1 : 0.35, k, dt);
-    if (sun.current) sun.current.intensity = damp(sun.current.intensity, night ? 0 : 1.3, k, dt);
-    leds.current.forEach((l) => l && (l.intensity = damp(l.intensity, ledOn * (night ? 2.2 : 1.2), k, dt)));
-    ceiling.current.forEach((l) => {
+    // com luz assada, as variantes do lightmap fazem a transição; as luzes dinâmicas ficam só como
+    // preenchimento leve para o que não tem lightmap (plantas, adesivo)
+    const u = lightmapUniforms;
+    u.uNight.value = damp(u.uNight.value, night ? 1 : 0, k, dt);
+    u.uLedOff.value = damp(u.uLedOff.value, led ? 0 : 1, k, dt);
+    const dyn = baked ? 0 : 1;
+    if (hemi.current) hemi.current.intensity = damp(hemi.current.intensity, baked ? (night ? 0.12 : 0.35) : night ? 0.38 : 1.5, k, dt);
+    if (amb.current) amb.current.intensity = damp(amb.current.intensity, dyn * (night ? 0.1 : 0.35), k, dt);
+    if (sun.current) sun.current.intensity = damp(sun.current.intensity, dyn * (night ? 0 : 1.3), k, dt);
+    leds.current.forEach((l) => {
       if (!l) return;
-      l.intensity = damp(l.intensity, night ? 4 : 0, k, dt);
+      l.intensity = damp(l.intensity, dyn * ledOn * (night ? 2.2 : 1.2), k, dt);
       l.visible = l.intensity > 0.02;
     });
-    fridges.current.forEach((l) => l && (l.intensity = damp(l.intensity, night ? 1.6 : 0.7, k, dt)));
+    ceiling.current.forEach((l) => {
+      if (!l) return;
+      l.intensity = damp(l.intensity, dyn * (night ? 4 : 0), k, dt);
+      l.visible = l.intensity > 0.02;
+    });
+    fridges.current.forEach((l) => {
+      if (!l) return;
+      l.intensity = damp(l.intensity, dyn * (night ? 1.6 : 0.7), k, dt);
+      l.visible = l.intensity > 0.02;
+    });
     // fita de LED: acesa = cor quente forte, apagada = cinza
     const target = led ? 1 : 0.15;
     const cur = stripMat.userData.v ?? 1;

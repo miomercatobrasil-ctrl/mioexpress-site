@@ -14,6 +14,7 @@ export type SceneState = {
   loadProgress: number;
   night: boolean; // false = dia (luz natural), true = noite (todas as luzes acesas)
   led: boolean; // fita de LED do armário
+  baked: boolean; // cena com luz assada (lightmaps)
 };
 
 let state: SceneState = {
@@ -29,6 +30,7 @@ let state: SceneState = {
   loadProgress: 0,
   night: false,
   led: true,
+  baked: false,
 };
 
 const listeners = new Set<() => void>();

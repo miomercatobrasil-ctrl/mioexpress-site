@@ -14,78 +14,112 @@ import { diag, diagError } from "./diag";
 // Os objetos de primeiro nível precisam ter os nomes de `ObjectId` (armario_mio, totem_pagamento…).
 
 // decodificadores servidos localmente (copiados de three/examples/jsm/libs)
-const STICKER_URL = (process.env.NEXT_PUBLIC_SCENE_ASSETS || "/") .replace(/models\/$/, "") + "textures/adesivo-como-funciona.jpg";
+const STICKER_URL = (process.env.NEXT_PUBLIC_SCENE_ASSETS || "/") .replace(/models\/$/, "") + "textures/adesivo-como-funciona.png";
 const KTX2_PATH = "/libs/basis/";
 const DRACO_PATH = "/libs/draco/";
 
-// Iluminação assada no Blender (scripts/blender/mio_build.py): uma textura por objeto de primeiro nível,
-// no UV2 ("lightmap"), gravada como luz/2 em sRGB. A exposição compensa a luz física (fraca) do bake.
-const LIGHTMAP_EXPOSURE = 2.4;
+// Iluminação assada no Blender (scripts/blender/mio_bake2.py): por objeto, até 4 variantes no UV2 ("lightmap"):
+// dia, noite, dia_semled, noite_semled. O shader mistura as variantes conforme os botões Dia/Noite e LED.
+// Ligado quando existe lightmaps.json ao lado do modelo.
+const LIGHTMAP_EXPOSURE = 2.2;
+const VARIANTS = ["dia", "noite", "dia_semled", "noite_semled"] as const;
+type Variant = (typeof VARIANTS)[number];
+
+// uniforms compartilhados por todos os materiais com lightmap
+export const lightmapUniforms = { uNight: { value: 0 }, uLedOff: { value: 0 } };
+
+async function loadBitmapTexture(src: string) {
+  const res = await fetch(src);
+  if (!res.ok) throw new Error(String(res.status));
+  const bmp = await createImageBitmap(await res.blob(), { colorSpaceConversion: "none" });
+  const t = new THREE.Texture(bmp as unknown as HTMLImageElement);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.channel = 1;
+  t.flipY = false;
+  t.needsUpdate = true;
+  return t;
+}
+
+function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Variant, THREE.Texture>) {
+  mat.lightMap = tex.dia;
+  mat.lightMapIntensity = LIGHTMAP_EXPOSURE;
+  mat.envMapIntensity = 0;
+  mat.side = THREE.DoubleSide;
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.uLmNight = { value: tex.noite };
+    shader.uniforms.uLmDayOff = { value: tex.dia_semled };
+    shader.uniforms.uLmNightOff = { value: tex.noite_semled };
+    shader.uniforms.uNight = lightmapUniforms.uNight;
+    shader.uniforms.uLedOff = lightmapUniforms.uLedOff;
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "#include <lights_fragment_maps>",
+        `#ifdef USE_LIGHTMAP
+          vec4 lmD = mix( texture2D( lightMap, vLightMapUv ), texture2D( uLmDayOff, vLightMapUv ), uLedOff );
+          vec4 lmN = mix( texture2D( uLmNight, vLightMapUv ), texture2D( uLmNightOff, vLightMapUv ), uLedOff );
+          irradiance += mix( lmD, lmN, uNight ).rgb * lightMapIntensity;
+        #endif
+        #include <lights_fragment_maps>`,
+      )
+      .replace("#include <common>", "#include <common>\nuniform sampler2D uLmNight;\nuniform sampler2D uLmDayOff;\nuniform sampler2D uLmNightOff;\nuniform float uNight;\nuniform float uLedOff;")
+      // o bloco original do lightmap fica desligado (já somado acima)
+      .replace("vec4 lightMapTexel = texture2D( lightMap, vLightMapUv );", "vec4 lightMapTexel = vec4( 0.0 );");
+  };
+  mat.customProgramCacheKey = () => "mio-lm4";
+  mat.needsUpdate = true;
+}
+
+/** Aplica os lightmaps; retorna true se a cena tem luz assada. */
+async function applyLightmaps(scene: THREE.Object3D, base: string) {
+  const res = await fetch(base + "lightmaps.json").catch(() => null);
+  if (!res || !res.ok) return false;
+  const manifest = (await res.json()) as { objects: Record<string, Variant[]> };
+  await Promise.all(
+    Object.entries(manifest.objects).map(async ([name, variants]) => {
+      const obj = scene.getObjectByName(name);
+      if (!obj) return;
+      const loaded: Partial<Record<Variant, THREE.Texture>> = {};
+      await Promise.all(
+        variants.map(async (v) => {
+          loaded[v] = await loadBitmapTexture(`${base}lightmaps/${name}__${v}.webp`).then(
+            (t) => (diag.lmOk++, t),
+            (e) => {
+              diag.lmFail++;
+              diagError(`lightmap ${name} ${v}`, e);
+              return undefined;
+            },
+          );
+        }),
+      );
+      if (!loaded.dia) return;
+      const tex: Record<Variant, THREE.Texture> = {
+        dia: loaded.dia,
+        noite: loaded.noite ?? loaded.dia,
+        dia_semled: loaded.dia_semled ?? loaded.dia,
+        noite_semled: loaded.noite_semled ?? loaded.noite ?? loaded.dia,
+      };
+      const cache = new Map<THREE.Material, THREE.Material>();
+      obj.traverse((o) => {
+        const m = o as THREE.Mesh;
+        if (!m.isMesh || !m.geometry.attributes.uv1) return;
+        const swap = (mat: THREE.Material) => {
+          if (mat.transparent || mat.alphaTest > 0 || !(mat as THREE.MeshStandardMaterial).isMeshStandardMaterial) return mat;
+          if (!cache.has(mat)) {
+            const c = (mat as THREE.MeshStandardMaterial).clone();
+            patchLightmapMaterial(c, tex);
+            cache.set(mat, c);
+          }
+          return cache.get(mat)!;
+        };
+        m.material = Array.isArray(m.material) ? m.material.map(swap) : swap(m.material);
+      });
+    }),
+  );
+  return true;
+}
+
 // pasta com lightmaps/ e plants.json (padrão: a mesma do .glb)
 const assetsBase = (url: string) => process.env.NEXT_PUBLIC_SCENE_ASSETS || url.replace(/[^/]+$/, "");
-
-const LIGHTMAPPED = [
-  "armario_mio", "totem_pagamento", "geladeira_mio_1", "geladeira_mio_2", "geladeira_mio_3", "geladeira_coca",
-  "freezer_loslos", "divisoria_ripada_1", "divisoria_ripada_2", "banco", "jardim", "piso", "paredes",
-];
-
-// lightmaps desligados até o bake ser refeito (o bake atual estragava geometria e texturas)
-const USE_LIGHTMAPS = process.env.NEXT_PUBLIC_LIGHTMAPS === "1";
-
-function useLightmaps(scene: THREE.Object3D, url: string) {
-  const [, setDone] = useState(false);
-  useEffect(() => {
-    if (!USE_LIGHTMAPS) return;
-    const base = assetsBase(url) + "lightmaps/";
-    let alive = true;
-    const load = async (src: string) => {
-      const res = await fetch(src);
-      if (!res.ok) throw new Error(String(res.status));
-      const bmp = await createImageBitmap(await res.blob(), { colorSpaceConversion: "none" });
-      const t = new THREE.Texture(bmp as unknown as HTMLImageElement);
-      t.needsUpdate = true;
-      return t;
-    };
-    Promise.all(
-      LIGHTMAPPED.map(async (name) => {
-        const obj = scene.getObjectByName(name);
-        if (!obj) return;
-        const tex = await load(`${base}${name}.webp`).catch((e) => {
-          diag.lmFail++;
-          diagError(`lightmap ${name}`, e);
-          return null;
-        });
-        if (!tex || !alive) return;
-        diag.lmOk++;
-        tex.colorSpace = THREE.SRGBColorSpace;
-        tex.channel = 1;
-        tex.flipY = false;
-        const cache = new Map<THREE.Material, THREE.Material>();
-        obj.traverse((o) => {
-          const m = o as THREE.Mesh;
-          if (!m.isMesh || !m.geometry.attributes.uv1) return;
-          const swap = (mat: THREE.Material) => {
-            // logos, vidros e películas (transparentes) ficam fora da luz assada: no bake eles
-            // ficam colados em outra superfície e saem pretos
-            if (mat.transparent || mat.alphaTest > 0) return mat;
-            if (!cache.has(mat)) {
-              const c = mat.clone() as THREE.MeshStandardMaterial;
-              c.lightMap = tex;
-              c.lightMapIntensity = LIGHTMAP_EXPOSURE;
-              c.envMapIntensity = 0;
-              cache.set(mat, c);
-            }
-            return cache.get(mat)!;
-          };
-          m.material = Array.isArray(m.material) ? m.material.map(swap) : swap(m.material);
-        });
-      }),
-    ).then(() => alive && setDone(true));
-    return () => {
-      alive = false;
-    };
-  }, [scene, url]);
-}
 
 function findObjectId(o: THREE.Object3D | null): ObjectId | null {
   while (o) {
@@ -140,9 +174,10 @@ async function fixTotem(scene: THREE.Object3D) {
     // painel: frente em x = 0,41; z 1,22–1,47; arte 512×1450
     const w = 0.24;
     const h = w * (1450 / 512);
-    const plane = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8 }));
+    const plane = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8, transparent: true, alphaTest: 0.04, depthWrite: false }));
     plane.name = "adesivo_como_funciona";
-    plane.position.set(0.413, 1.99 - h / 2, 1.345);
+    plane.position.set(0.414, 1.99 - h / 2, 1.345);
+    plane.renderOrder = 2;
     plane.rotation.y = Math.PI / 2;
     scene.add(plane);
   } catch (e) {
@@ -229,7 +264,13 @@ function GlbModel({ url }: { url: string }) {
   }, [gl]);
   const scene = useModel(url, gl);
   const hovered = useScene((s) => s.hovered);
-  useLightmaps(scene, url);
+  useEffect(() => {
+    let alive = true;
+    applyLightmaps(scene, assetsBase(url)).then((baked) => alive && sceneStore.set({ baked }));
+    return () => {
+      alive = false;
+    };
+  }, [scene, url]);
 
   // hover: brilho vinho suave no objeto (troca temporária dos materiais)
   useEffect(() => {
@@ -241,6 +282,9 @@ function GlbModel({ url }: { url: string }) {
       const m = mat as THREE.MeshStandardMaterial;
       if (!("emissive" in m)) return mat;
       const c = m.clone();
+      // clone() não copia o patch do shader de lightmap
+      c.onBeforeCompile = m.onBeforeCompile;
+      c.customProgramCacheKey = m.customProgramCacheKey;
       c.emissive = new THREE.Color(COLORS.vinho);
       c.emissiveIntensity = 0.22;
       return c;
