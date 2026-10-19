@@ -1022,10 +1022,10 @@ p {
   stroke-width: 1.4;
 }
 .how__ring-base {
-  stroke: rgba(176, 141, 87, 0.28);
+  stroke: rgba(122, 31, 43, 0.18);
 }
 .how__ring {
-  stroke: var(--dourado);
+  stroke: var(--vinho);
   stroke-width: 2;
   stroke-linecap: round;
   stroke-dasharray: 1;
@@ -1046,15 +1046,15 @@ p {
   transition: transform 0.7s var(--ease);
 }
 .how__step:hover .how__badge {
-  background: radial-gradient(circle, rgba(214, 191, 158, 0.28), rgba(214, 191, 158, 0) 70%);
-  box-shadow: 0 10px 30px rgba(176, 141, 87, 0.18);
+  background: radial-gradient(circle, rgba(122, 31, 43, 0.07), rgba(122, 31, 43, 0) 70%);
+  box-shadow: 0 10px 30px rgba(122, 31, 43, 0.12);
   transform: translateY(-2px);
 }
 .how__step:hover .how__ring {
   stroke-dashoffset: 0;
 }
 .how__step:hover .how__n {
-  color: var(--dourado);
+  color: var(--vinho);
   transform: scale(1.06);
 }
 .how__step:hover .how__body {
