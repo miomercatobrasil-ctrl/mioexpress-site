@@ -1,10 +1,12 @@
 // Gera uma prévia do site em UM arquivo HTML (JS, CSS, imagens e logo embutidos).
 // Uso: node preview/build.mjs  ->  preview/dist/mio-express-preview.html
 import { build } from "esbuild";
-import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync, cpSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
+// com o modelo final em public/models, a prévia publica o .glb e os lightmaps ao lado da página
+const hasGlb = existsSync(resolve(root, "public/models/mio-terracos.glb")) && !process.argv.includes("--no-glb");
 const shims = { "next/image": "image.tsx", "next/link": "link.tsx", "next/dynamic": "dynamic.tsx", "next/script": "script.tsx" };
 
 const result = await build({
@@ -19,7 +21,7 @@ const result = await build({
   define: {
     "process.env.NODE_ENV": '"production"',
     "process.env.NEXT_PUBLIC_META_PIXEL_ID": '""',
-    "process.env.NEXT_PUBLIC_SCENE_GLB": '""',
+    "process.env.NEXT_PUBLIC_SCENE_GLB": hasGlb ? '"models/mio-terracos.glb"' : '""',
   },
   loader: { ".css": "empty" },
   logLevel: "warning",
@@ -67,4 +69,5 @@ ${css}
 mkdirSync(resolve(root, "preview/dist"), { recursive: true });
 const out = resolve(root, "preview/dist/mio-express-preview.html");
 writeFileSync(out, html);
+if (hasGlb) cpSync(resolve(root, "public/models"), resolve(root, "preview/dist/models"), { recursive: true });
 console.log(out, (html.length / 1024 / 1024).toFixed(2) + " MB");

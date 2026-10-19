@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
 import { useGLTF } from "@react-three/drei";
 import { useThree, type ThreeEvent } from "@react-three/fiber";
@@ -14,6 +14,52 @@ import { sceneStore, useScene } from "./store";
 // decodificadores servidos localmente (copiados de three/examples/jsm/libs)
 const KTX2_PATH = "/libs/basis/";
 const DRACO_PATH = "/libs/draco/";
+
+// Iluminação assada no Blender (scripts/blender/mio_build.py): uma textura por objeto de primeiro nível,
+// no UV2 ("lightmap"), gravada como luz/2 em sRGB -> lightMapIntensity 2.
+const LIGHTMAPPED = [
+  "armario_mio", "totem_pagamento", "geladeira_mio_1", "geladeira_mio_2", "geladeira_mio_3", "geladeira_coca",
+  "freezer_loslos", "divisoria_ripada_1", "divisoria_ripada_2", "banco", "jardim", "piso", "paredes",
+];
+
+function useLightmaps(scene: THREE.Object3D, url: string) {
+  const [, setDone] = useState(false);
+  useEffect(() => {
+    const base = url.replace(/[^/]+$/, "lightmaps/");
+    const loader = new THREE.TextureLoader();
+    let alive = true;
+    Promise.all(
+      LIGHTMAPPED.map(async (name) => {
+        const obj = scene.getObjectByName(name);
+        if (!obj) return;
+        const tex = await loader.loadAsync(`${base}${name}.webp`).catch(() => null);
+        if (!tex || !alive) return;
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.channel = 1;
+        tex.flipY = false;
+        const cache = new Map<THREE.Material, THREE.Material>();
+        obj.traverse((o) => {
+          const m = o as THREE.Mesh;
+          if (!m.isMesh || !m.geometry.attributes.uv1) return;
+          const swap = (mat: THREE.Material) => {
+            if (!cache.has(mat)) {
+              const c = mat.clone() as THREE.MeshStandardMaterial;
+              c.lightMap = tex;
+              c.lightMapIntensity = 2;
+              c.envMapIntensity = 0;
+              cache.set(mat, c);
+            }
+            return cache.get(mat)!;
+          };
+          m.material = Array.isArray(m.material) ? m.material.map(swap) : swap(m.material);
+        });
+      }),
+    ).then(() => alive && setDone(true));
+    return () => {
+      alive = false;
+    };
+  }, [scene, url]);
+}
 
 function findObjectId(o: THREE.Object3D | null): ObjectId | null {
   while (o) {
@@ -30,6 +76,7 @@ export function GlbScene({ url }: { url: string }) {
     loader.setKTX2Loader(ktx2 as never);
   });
   const hovered = useScene((s) => s.hovered);
+  useLightmaps(scene, url);
 
   // contorno de hover: cópia do objeto com material de casco invertido
   const outlineMat = useMemo(

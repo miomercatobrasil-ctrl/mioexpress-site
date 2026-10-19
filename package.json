@@ -8,8 +8,9 @@
     "start": "next start",
     "lint": "tsc --noEmit",
     "images": "node scripts/prepare-images.mjs",
-    "glb:optimize": "npx -y @gltf-transform/cli@4 optimize assets/source/export/mio-terracos-raw.glb public/models/mio-terracos.glb --compress meshopt --texture-compress ktx2 --texture-size 2048 --simplify false",
-    "glb:inspect": "npx -y @gltf-transform/cli@4 inspect public/models/mio-terracos.glb"
+    "glb:optimize": "node scripts/optimize-model.mjs",
+    "glb:inspect": "npx -y @gltf-transform/cli@4 inspect public/models/mio-terracos.glb",
+    "glb:build": "python scripts/blender/mio_build.py assets/source/export/terracos-raw.glb assets/source/export/build --bake"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

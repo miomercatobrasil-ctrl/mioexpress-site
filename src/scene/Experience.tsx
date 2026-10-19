@@ -12,6 +12,11 @@ import { sceneStore } from "./store";
 
 const GLB_URL = process.env.NEXT_PUBLIC_SCENE_GLB || "";
 
+// Com o .glb a iluminação vem assada nas texturas; fica só um preenchimento leve.
+function BakedLights() {
+  return <hemisphereLight args={["#fff4e2", "#b79a77", 0.35]} />;
+}
+
 function Lights() {
   return (
     <>
@@ -65,10 +70,10 @@ export default function Experience({ mobile, reducedMotion, running }: { mobile:
       <PerformanceMonitor onDecline={() => setDprMax(1)} />
       <AdaptiveDpr pixelated={false} />
       <fog attach="fog" args={["#efe6d8", 9, 20]} />
-      <Lights />
+      {GLB_URL ? <BakedLights /> : <Lights />}
       <Suspense fallback={null}>
         {GLB_URL ? <GlbScene url={GLB_URL} /> : <PlaceholderScene />}
-        <ContactShadows position={[2.5, 0.006, 1.7]} scale={[10, 8]} resolution={mobile ? 512 : 1024} blur={2.4} opacity={0.45} far={2.2} frames={1} />
+        {!GLB_URL && <ContactShadows position={[2.5, 0.006, 1.7]} scale={[10, 8]} resolution={mobile ? 512 : 1024} blur={2.4} opacity={0.45} far={2.2} frames={1} />}
         <Hotspots />
         <Ready />
       </Suspense>
