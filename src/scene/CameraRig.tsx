@@ -63,6 +63,9 @@ export function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
       target: c.target.toArray() as View["target"],
     };
     const az = azimuthOf(to);
+    // vistas de cima (freezer) precisam de um ângulo vertical maior que o padrão
+    const polar = Math.acos(THREE.MathUtils.clamp((to.position[1] - to.target[1]) / v3(to.position).distanceTo(v3(to.target)), -1, 1));
+    c.minPolarAngle = Math.min(ORBIT.minPolarAngle, polar - 0.05);
     c.minAzimuthAngle = az - (Math.PI - ORBIT.minAzimuthAngle * 2) / 2;
     c.maxAzimuthAngle = az + (Math.PI - ORBIT.minAzimuthAngle * 2) / 2;
     if (reducedMotion) {

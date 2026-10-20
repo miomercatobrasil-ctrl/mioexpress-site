@@ -65,7 +65,14 @@ export function CartBar() {
     <div className="shop-bar" role="status" aria-live="polite">
       {cart.length === 0 ? (
         <p className="shop-bar__tip">
-          <CartIcon /> Faça uma compra de teste: toque nos produtos para pegar
+          <span className="shop-bar__pulse">
+            <CartIcon />
+          </span>
+          <span>
+            <strong>Faça uma compra de teste</strong>
+            <br />
+            Toque nos produtos para colocar na cesta
+          </span>
         </p>
       ) : (
         <>
@@ -73,7 +80,7 @@ export function CartBar() {
             <CartIcon /> {itens(cart.length)}
           </span>
           <span key={last?.t} className="shop-bar__last">
-            + {last?.label}
+            {cart.length >= 12 ? "Cesta cheia (12 itens)" : `+ ${last?.label}`}
           </span>
           <button type="button" className="btn btn--primary btn--sm" onClick={goTotem}>
             Ir ao totem →

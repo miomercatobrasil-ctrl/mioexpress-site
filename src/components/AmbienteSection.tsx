@@ -361,12 +361,12 @@ export function AmbienteSection() {
                   Continuar ↓
                 </button>
               </div>
-              <div className={`scene-hint${interacted ? " is-hidden" : ""}`} aria-hidden>
+              <div className={`scene-hint scene-hint--raised${interacted ? " is-hidden" : ""}`} aria-hidden>
                 <span className="scene-hint__icon" />
                 {mobile ? "Arraste para explorar · pinça para zoom" : "Arraste para explorar · Ctrl + rolagem para zoom"}
               </div>
               <Card />
-              {interacted && <CartBar />}
+              <CartBar />
               <TotemOverlay />
             </>
           )}
