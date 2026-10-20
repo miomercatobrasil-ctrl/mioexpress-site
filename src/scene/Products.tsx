@@ -43,6 +43,7 @@ const SHAPES = {
   yopro: { kind: "box", w: 0.05, h: 0.13, d: 0.036 },
   toddynho: { kind: "box", w: 0.063, h: 0.075, d: 0.04 },
   pote: tub(0.07, 0.045),
+  picole: { kind: "box", w: 0.07, h: 0.19, d: 0.022 },
 } satisfies Record<string, Shape>;
 type ShapeId = keyof typeof SHAPES;
 
@@ -55,6 +56,7 @@ const PRODUCT: Record<string, ShapeId> = {
   gatorade: "petPequena", powerade: "petPequena", natural_one: "petPequena", crystal: "agua",
   puro_coco: "caixa1l", delvalle_uva: "caixa1l", delvalle_laranja: "caixa1l", kero_coco: "caixa1l",
   yopro: "yopro", toddynho: "toddynho", requeijao: "pote",
+  picole_coco: "picole", picole_coco_zero: "picole", picole_ovomaltine: "picole",
 };
 
 function footprint(s: Shape) {
@@ -185,6 +187,20 @@ function layoutInstances(tiles: Record<string, number[]>) {
       });
     });
   }
+  // freezer Los Los (frente para −x, tampa de vidro em y ≈ 0,87): picolés deitados nas cestas, uma cesta por sabor
+  const flavors = ["picole_coco", "picole_ovomaltine", "picole_coco_zero", "picole_coco"];
+  flavors.forEach((n, col) => {
+    const z = 2.22 + col * 0.155;
+    for (let row = 0; row < 2; row++)
+      for (let side = 0; side < 2; side++)
+        for (let layer = 0; layer < 3; layer++) {
+          o.position.set(3.86 + row * 0.19 + (rnd() - 0.5) * 0.01, 0.62 + layer * 0.024, z + (side - 0.5) * 0.074 + (rnd() - 0.5) * 0.008);
+          // deitado com a frente para cima e o comprimento ao longo de x; leve inclinação dentro da cesta
+          o.rotation.set(-Math.PI / 2 + 0.18 + (rnd() - 0.5) * 0.1, Math.PI / 2 + (rnd() - 0.5) * 0.12, 0, "YXZ");
+          o.updateMatrix();
+          out.push({ shape: "picole", tile: tiles[n], m: o.matrix.clone() });
+        }
+  });
   return out;
 }
 
