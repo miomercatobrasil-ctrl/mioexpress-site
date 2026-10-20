@@ -58,6 +58,12 @@
    "noite",
    "dia_semled",
    "noite_semled"
+  ],
+  "teto": [
+   "dia",
+   "dia_semled",
+   "noite",
+   "noite_semled"
   ]
  }
 }
