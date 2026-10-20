@@ -49,7 +49,7 @@ export function FridgeLights() {
     [],
   );
   useFrame((_, dt) => {
-    const target = sceneStore.get().night ? 1 : 0.5;
+    const target = sceneStore.get().night ? 1.1 : 0.65;
     glow.opacity += (target - glow.opacity) * (1 - Math.exp(-4 * dt));
   });
   return (
@@ -64,6 +64,15 @@ export function FridgeLights() {
           </mesh>
         </group>
       ))}
+      {/* freezer Los Los (deitado, tampa de vidro em y ≈ 0,87): fita no fundo e brilho sobre as cestas */}
+      <group position={[4.0, 0.835, 2.5]} rotation={[0, Math.PI / 2, 0]}>
+        <mesh material={strip} raycast={() => null}>
+          <boxGeometry args={[0.68, 0.01, 0.012]} />
+        </mesh>
+        <mesh material={glow} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.005, 0.2]} raycast={() => null}>
+          <planeGeometry args={[0.68, 0.4]} />
+        </mesh>
+      </group>
     </group>
   );
 }
