@@ -128,7 +128,7 @@ export const HOTSPOTS: Hotspot[] = [
   {
     id: "freezer",
     title: "Freezer de sorvetes",
-    text: "Picolés Los Los: 9 sabores para qualquer hora.",
+    text: "Picolés Los Los para qualquer hora.",
     anchor: [3.55, 1.1, 2.45],
     // de cima, pelo vidro da tampa, para ver todos os sabores
     view: { position: [3.25, 1.75, 2.5], target: [3.9, 0.6, 2.5] },
