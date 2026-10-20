@@ -22,7 +22,7 @@ export const SITE = {
   instagramHandle: "@mioexpressbrasil",
   facebook: "https://www.facebook.com/profile.php?id=61580459421097",
   // Google Analytics 4 (ID de medição "G-…"); vazio = desligado
-  gaId: "",
+  gaId: "G-066E2MVTX1",
   architectCredit: "Daniele Faustino Arquitetura & Interiores",
 } as const;
 
