@@ -252,7 +252,8 @@ const FRIDGES: Fridge[] = [
 ];
 
 type Tile = { atlas: number; uv: number[] };
-type Inst = { shape: ShapeId; tile: Tile; m: THREE.Matrix4; name: string };
+// lit: [brilho da posição na geladeira (prateleira de cima e fileira da frente mais iluminadas), 1 = dentro de geladeira]
+type Inst = { shape: ShapeId; tile: Tile; m: THREE.Matrix4; name: string; lit: [number, number] };
 
 function layoutInstances(tiles: Record<string, Tile>) {
   const out: Inst[] = [];
@@ -262,6 +263,7 @@ function layoutInstances(tiles: Record<string, Tile>) {
   })();
   const o = new THREE.Object3D();
   for (const f of [...FRIDGES, ...ARMARIO]) {
+    const inFridge = FRIDGES.includes(f);
     const [ix, iz] = f.inward;
     const rx = -iz, rz = ix; // direita de quem olha a porta
     const yaw = Math.atan2(-ix, -iz);
@@ -286,7 +288,9 @@ function layoutInstances(tiles: Record<string, Tile>) {
               );
               o.rotation.set(0, yaw + (rnd() - 0.5) * 0.18, 0);
               o.updateMatrix();
-              out.push({ shape, tile: tiles[n], m: o.matrix.clone(), name: n });
+              const L = f.layout.length;
+              const lit: [number, number] = inFridge ? [(0.8 + 0.4 * (lv / Math.max(1, L - 1))) * (d === 0 ? 1 : 0.72), 1] : [1, 0];
+              out.push({ shape, tile: tiles[n], m: o.matrix.clone(), name: n, lit });
             }
           }
         }
@@ -306,7 +310,7 @@ function layoutInstances(tiles: Record<string, Tile>) {
           // deitado com a frente para cima e o comprimento ao longo de x; leve inclinação dentro da cesta
           o.rotation.set(-Math.PI / 2 + 0.18 + (rnd() - 0.5) * 0.1, Math.PI / 2 + (rnd() - 0.5) * 0.12, 0, "YXZ");
           o.updateMatrix();
-          out.push({ shape: "picole", tile: tiles[n], m: o.matrix.clone(), name: n });
+          out.push({ shape: "picole", tile: tiles[n], m: o.matrix.clone(), name: n, lit: [0.85 + layer * 0.12, 1] });
         }
       }
   return out;
@@ -316,20 +320,34 @@ const glow = { value: 0.12 };
 
 /** cutout: latas, garrafas e pacotes recortados pelo contorno; caixas são opacas (o recorte deixava as
  *  laterais e partes brancas da embalagem transparentes, ex.: leite Italac). */
-function makeMaterial(map: THREE.Texture, cutout: boolean) {
-  const m = new THREE.MeshStandardMaterial({ map, roughness: 0.42, metalness: 0, alphaTest: cutout ? 0.5 : 0, side: cutout ? THREE.DoubleSide : THREE.FrontSide });
+function makeMaterial(map: THREE.Texture, cutout: boolean, shiny = false) {
+  // latas e garrafas: superfície lisa que pega o reflexo da luz (alumínio/PET)
+  const m = new THREE.MeshStandardMaterial({
+    map,
+    roughness: shiny ? 0.24 : 0.42,
+    metalness: shiny ? 0.12 : 0,
+    alphaTest: cutout ? 0.5 : 0,
+    side: cutout ? THREE.DoubleSide : THREE.FrontSide,
+  });
   m.onBeforeCompile = (sh) => {
     sh.uniforms.uGlow = glow;
     sh.vertexShader = sh.vertexShader
-      .replace("#include <common>", "#include <common>\nattribute vec4 aTile;")
-      .replace("#include <uv_vertex>", "#include <uv_vertex>\n#ifdef USE_MAP\nvMapUv = aTile.xy + uv * aTile.zw;\n#endif");
+      .replace("#include <common>", "#include <common>\nattribute vec4 aTile;\nattribute vec2 aLit;\nvarying vec3 vLit;")
+      .replace("#include <uv_vertex>", "#include <uv_vertex>\n#ifdef USE_MAP\nvMapUv = aTile.xy + uv * aTile.zw;\n#endif\nvLit = vec3( aLit, uv.y );");
     // luz interna da geladeira: os produtos brilham um pouco com a própria cor
     sh.fragmentShader = sh.fragmentShader
-      .replace("#include <common>", "#include <common>\nuniform float uGlow;")
+      .replace("#include <common>", "#include <common>\nuniform float uGlow;\nvarying vec3 vLit;")
       .replace("#include <map_fragment>", cutout ? "#include <map_fragment>" : "#include <map_fragment>\ndiffuseColor.rgb = mix( vec3( 0.93 ), diffuseColor.rgb, diffuseColor.a );\ndiffuseColor.a = 1.0;")
-      .replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += diffuseColor.rgb * uGlow;");
+      .replace(
+        "#include <emissivemap_fragment>",
+        `#include <emissivemap_fragment>
+        // dentro da geladeira: luz do LED vindo de cima (topo do produto mais claro, base na sombra da prateleira)
+        float fr = vLit.x * mix( 0.62, 1.2, smoothstep( 0.0, 1.0, vLit.z ) );
+        totalEmissiveRadiance += diffuseColor.rgb * uGlow * mix( 0.7, fr * 2.2, vLit.y );
+        diffuseColor.rgb *= mix( 1.0, mix( 0.78, 1.0, vLit.z ), vLit.y );`,
+      );
   };
-  m.customProgramCacheKey = () => (cutout ? "mio-produtos" : "mio-produtos-caixa");
+  m.customProgramCacheKey = () => (cutout ? (shiny ? "mio-produtos-liso" : "mio-produtos") : "mio-produtos-caixa");
   return m;
 }
 
@@ -417,7 +435,7 @@ export function Products() {
   const meshes = useMemo(() => {
     if (!atlas) return [];
     const inst = layoutInstances(atlas.tiles).filter((i) => i.tile);
-    const mats = atlas.maps.map((map) => [makeMaterial(map, true), makeMaterial(map, false)]);
+    const mats = atlas.maps.map((map) => [makeMaterial(map, true), makeMaterial(map, false), makeMaterial(map, true, true)]);
     const groups = new Map<string, Inst[]>();
     inst.forEach((i) => {
       const k = `${i.tile.atlas}:${i.shape}`;
@@ -429,7 +447,11 @@ export function Products() {
       const tile = new Float32Array(list.length * 4);
       list.forEach((i, k) => tile.set(i.tile.uv, k * 4));
       g.setAttribute("aTile", new THREE.InstancedBufferAttribute(tile, 4));
-      const mesh = new THREE.InstancedMesh(g, mats[list[0].tile.atlas][SHAPES[shape].kind === "box" ? 1 : 0], list.length);
+      const lit = new Float32Array(list.length * 2);
+      list.forEach((i, k) => lit.set(i.lit, k * 2));
+      g.setAttribute("aLit", new THREE.InstancedBufferAttribute(lit, 2));
+      const kind = SHAPES[shape].kind;
+      const mesh = new THREE.InstancedMesh(g, mats[list[0].tile.atlas][kind === "box" ? 1 : kind === "lathe" ? 2 : 0], list.length);
       list.forEach((i, k) => mesh.setMatrixAt(k, i.m));
       mesh.instanceMatrix.needsUpdate = true;
       mesh.computeBoundingSphere();
