@@ -39,7 +39,7 @@ const SHAPES = {
   agua: bottle(0.28, 0.044, 0.7, 0.88, 0.014),
   caixa1l: { kind: "box", w: 0.07, h: 0.2, d: 0.07 },
   yopro: { kind: "box", w: 0.05, h: 0.13, d: 0.036 },
-  toddynho: { kind: "box", w: 0.055, h: 0.1, d: 0.035 },
+  toddynho: { kind: "box", w: 0.063, h: 0.075, d: 0.04 },
   pote: tub(0.07, 0.045),
 } satisfies Record<string, Shape>;
 type ShapeId = keyof typeof SHAPES;
