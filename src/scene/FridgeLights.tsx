@@ -130,13 +130,21 @@ export function FridgeLights() {
       ))}
       {/* freezer Los Los (deitado, tampa de vidro em y ≈ 0,87): fita no fundo e brilho sobre as cestas */}
       <group position={[4.0, 0.835, 2.5]} rotation={[0, Math.PI / 2, 0]}>
+        {/* fita fina (5 mm) com halo suave em volta */}
         <mesh material={strip} raycast={() => null}>
-          <boxGeometry args={[0.68, 0.01, 0.012]} />
+          <boxGeometry args={[0.66, 0.005, 0.005]} />
+        </mesh>
+        <mesh material={glow} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.002, 0.02]} raycast={() => null}>
+          <planeGeometry args={[0.66, 0.05]} />
         </mesh>
         <mesh material={glow} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.005, 0.2]} raycast={() => null}>
           <planeGeometry args={[0.68, 0.4]} />
         </mesh>
       </group>
+      {/* reflexo na tampa de vidro do freezer */}
+      <mesh material={reflection} position={[3.815, 0.915, 2.5]} rotation={[-Math.PI / 2, 0, Math.PI / 2]} raycast={() => null}>
+        <planeGeometry args={[0.7, 0.44]} />
+      </mesh>
     </group>
   );
 }

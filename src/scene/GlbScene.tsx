@@ -101,6 +101,14 @@ function tameSpecular(scene: THREE.Object3D) {
     if (!m.isMesh) return;
     for (const mat of Array.isArray(m.material) ? m.material : [m.material]) {
       const std = mat as THREE.MeshStandardMaterial;
+      if (std.isMeshStandardMaterial && std.transparent && /glass|vidro|acrylic/i.test(std.name)) {
+        // vidros (janelas, portas, tampas): liso e refletindo o ambiente, para "parecer vidro"
+        std.roughness = 0.04;
+        std.metalness = 0;
+        std.envMapIntensity = 1.4;
+        std.opacity = Math.max(std.opacity, 0.18);
+        continue;
+      }
       if (std.isMeshStandardMaterial) std.roughness = Math.max(std.roughness, 0.3);
       // sacola: recorte em vez de mistura (a ordenação da transparência deixava o tecido picotado e escuro)
       if (/sacolinha/i.test(std.name)) {
