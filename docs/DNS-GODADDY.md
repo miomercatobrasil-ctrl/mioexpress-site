@@ -18,6 +18,11 @@ GoDaddy → **Meus produtos** → `mioexpress.com.br` → **DNS** → tire print
    precisam estar lá. Se faltar algum, clique em **Add record** e copie do print.
 3. A Cloudflare mostra **2 nameservers** (ex.: `xxx.ns.cloudflare.com`). Deixe essa tela aberta.
 
+> **Feito em 20/10/2026.** Registros conferidos (2 MX, SPF, DMARC, TXT T4207587, CNAME email) e todos em
+> "DNS only". Nameservers da Cloudflare para este domínio: **donna.ns.cloudflare.com** e **ray.ns.cloudflare.com**.
+> No GoDaddy hoje estão ns51/ns52.domaincontrol.com (trocar só no lançamento). DNSSEC: conferir se está desligado
+> na GoDaddy antes da troca.
+>
 > Pode fazer o passo 1 com antecedência: enquanto os nameservers não mudam na GoDaddy, nada muda no ar.
 > O passo 2 é o "botão de lançar".
 
