@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
 
 // Plantas leves no lugar dos blocos de vegetação do SketchUp: cada planta é um maço de "cards"
 // (planos com folhas desenhadas e fundo recortado). Posição e tamanho vêm de plants.json,
@@ -57,18 +58,37 @@ function cardGeometry(kind: Kind) {
 
 type Card = { p: THREE.Vector3; s: number; yaw: number; tilt: number; tint: number };
 
+// brisa leve: o topo das folhas balança devagar (cada planta num ritmo)
+const wind = { value: 0 };
+
 function Cards({ kind, cards, map }: { kind: Kind; cards: Card[]; map: THREE.Texture }) {
   const ref = useRef<THREE.InstancedMesh>(null);
   const geo = useMemo(() => cardGeometry(kind), [kind]);
-  const mat = useMemo(
-    () =>
-      new THREE.MeshLambertMaterial({
-        map,
-        alphaTest: 0.45,
-        side: THREE.DoubleSide,
-      }),
-    [map],
-  );
+  const mat = useMemo(() => {
+    const m = new THREE.MeshLambertMaterial({
+      map,
+      alphaTest: 0.45,
+      // bordas das folhas suavizadas (com antisserrilhado ligado), sem o contorno "serrilhado" de recorte
+      alphaToCoverage: true,
+      side: THREE.DoubleSide,
+    });
+    m.onBeforeCompile = (sh) => {
+      sh.uniforms.uWind = wind;
+      sh.vertexShader = sh.vertexShader
+        .replace("#include <common>", "#include <common>\nuniform float uWind;")
+        .replace(
+          "#include <begin_vertex>",
+          `#include <begin_vertex>
+          #ifdef USE_INSTANCING
+            float ph = instanceMatrix[3].x * 3.1 + instanceMatrix[3].z * 2.3;
+            transformed.x += sin( uWind * 1.1 + ph ) * 0.035 * position.y * position.y;
+            transformed.z += cos( uWind * 0.8 + ph ) * 0.02 * position.y * position.y;
+          #endif`,
+        );
+    };
+    m.customProgramCacheKey = () => "mio-folhas";
+    return m;
+  }, [map]);
   useLayoutEffect(() => {
     const m = ref.current;
     if (!m) return;
@@ -80,7 +100,9 @@ function Cards({ kind, cards, map }: { kind: Kind; cards: Card[]; map: THREE.Tex
       o.scale.setScalar(c.s);
       o.updateMatrix();
       m.setMatrixAt(i, o.matrix);
-      m.setColorAt(i, col.setScalar(c.tint));
+      // variação de tom entre as folhas (mais amarelada / mais azulada), como numa planta de verdade
+      const h = ((i * 0.6180339887) % 1) - 0.5;
+      m.setColorAt(i, col.setRGB(c.tint * (1 + h * 0.12), c.tint * (1 + h * 0.04), c.tint * (1 - h * 0.1)));
     });
     m.instanceMatrix.needsUpdate = true;
     if (m.instanceColor) m.instanceColor.needsUpdate = true;
@@ -92,10 +114,17 @@ function Cards({ kind, cards, map }: { kind: Kind; cards: Card[]; map: THREE.Tex
 
 export function Vegetation({ spots }: { spots: PlantSpot[] }) {
   const map = useLeafAtlas();
+  const still = useMemo(() => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches, []);
+  useFrame((_, dt) => {
+    if (!still) wind.value += dt;
+  });
   const byKind = useMemo(() => {
     const r = rng(29);
     const out: Card[][] = [[], [], [], []];
     spots.forEach((s, idx) => {
+      // restos minúsculos do projeto (hastes finas, tufos soltos flutuando nas paredes) não viram planta;
+      // o sorteio continua o mesmo para as outras (mesma cor e formato de antes)
+      const skip = s.w < 0.25 || s.h < 0.25;
       // jardim do lado do banco (z < 0,2) tem a planta vermelha e capim; o outro lado, arbustos verdes
       const redSide = s.z < 0.2;
       const tall = s.h > 1.2;
@@ -106,13 +135,14 @@ export function Vegetation({ spots }: { spots: PlantSpot[] }) {
         const kind: Kind = redSide ? (idx % 3 === 0 ? 3 : r() < 0.6 ? 2 : 0) : tall ? (r() < 0.7 ? 0 : 1) : r() < 0.55 ? 0 : 1;
         const size = (0.45 + r() * 0.35) * Math.min(s.h, s.w * 1.2) * (kind === 3 ? 1.1 : 0.85);
         const baseY = s.y + r() * Math.max(0, s.h - size) * 0.6;
-        out[kind].push({
+        const card = {
           p: new THREE.Vector3(s.x + Math.cos(a) * rad, baseY, s.z + Math.sin(a) * rad),
           s: size,
           yaw: r() * Math.PI,
           tilt: (r() - 0.5) * 0.5,
           tint: 0.78 + r() * 0.3,
-        });
+        };
+        if (!skip) out[kind].push(card);
       }
     });
     return out;

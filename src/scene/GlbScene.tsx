@@ -47,6 +47,32 @@ function floatLightmapUvs(scene: THREE.Object3D) {
   });
 }
 
+/** Bloco branco de referência do SketchUp na entrada (volume de ~3 m à direita de quem chega pelo jardim). */
+function removeEntranceBlock(scene: THREE.Object3D) {
+  scene.getObjectByName("paredes")?.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh || Array.isArray(m.material) || m.material.name !== "material" || !m.geometry.index) return;
+    m.updateWorldMatrix(true, false);
+    const g = m.geometry;
+    const idx = g.index!;
+    const pos = g.attributes.position as THREE.BufferAttribute;
+    const v = new THREE.Vector3();
+    const keep: number[] = [];
+    for (let t = 0; t < idx.count; t += 3) {
+      let cx = 0, cz = 0;
+      for (let k = 0; k < 3; k++) {
+        v.fromBufferAttribute(pos, idx.getX(t + k)).applyMatrix4(m.matrixWorld);
+        cx += v.x / 3;
+        cz += v.z / 3;
+      }
+      if (!(cx > 4.6 && cz < -0.8)) keep.push(idx.getX(t), idx.getX(t + 1), idx.getX(t + 2));
+    }
+    const ng = g.clone();
+    ng.setIndex(keep);
+    m.geometry = ng;
+  });
+}
+
 /** Nenhum material do projeto é espelhado: rugosidade mínima evita reflexos pontuais estourados. */
 function tameSpecular(scene: THREE.Object3D) {
   scene.traverse((o) => {
@@ -428,6 +454,7 @@ function useModel(url: string, gl: THREE.WebGLRenderer, root: THREE.Scene, camer
     tameSpecular(gltf.scene);
     tintMioFridges(gltf.scene);
     hideGenericFridgeProducts(gltf.scene);
+    removeEntranceBlock(gltf.scene);
     await fixTotem(gltf.scene);
     // tudo pronto antes de entrar na cena: luz assada aplicada, texturas na GPU aos poucos e shaders
     // compilados em paralelo (sem isso o primeiro quadro compilava ~200 materiais de uma vez)
