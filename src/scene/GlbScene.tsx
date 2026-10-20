@@ -332,9 +332,9 @@ function tintMioFridges(scene: THREE.Object3D) {
   }
 }
 
-const LOGO_URL = (process.env.NEXT_PUBLIC_SCENE_ASSETS || "/").replace(/models\/$/, "") + "brand/logo-white.svg";
+const LOGO_URL = (process.env.NEXT_PUBLIC_SCENE_ASSETS || "/").replace(/models\/$/, "") + "brand/logo.svg";
 
-/** Tela do totem acesa: fundo vinho com o logo Mio e a instrução de uso (MeshBasic: não recebe a luz assada). */
+/** Tela do totem acesa: fundo branco com o logo Mio e textos em bordô e a instrução de uso (MeshBasic: não recebe a luz assada). */
 async function lightTotemScreen(mesh: THREE.Mesh) {
   const W = 360, H = 512;
   const c = document.createElement("canvas");
@@ -342,8 +342,8 @@ async function lightTotemScreen(mesh: THREE.Mesh) {
   c.height = H;
   const g = c.getContext("2d")!;
   const grad = g.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0, "#8a2430");
-  grad.addColorStop(1, "#5a141c");
+  grad.addColorStop(0, "#ffffff");
+  grad.addColorStop(1, "#f3ece4");
   g.fillStyle = grad;
   g.fillRect(0, 0, W, H);
   try {
@@ -353,13 +353,13 @@ async function lightTotemScreen(mesh: THREE.Mesh) {
     const lw = W * 0.8, lh = (lw * 204) / 720;
     g.drawImage(img, (W - lw) / 2, H * 0.3, lw, lh);
   } catch {}
-  g.fillStyle = "rgba(255,255,255,.9)";
-  g.font = "600 26px system-ui, sans-serif";
+  g.fillStyle = "#6e1c24";
+  g.font = "700 30px system-ui, sans-serif";
   g.textAlign = "center";
   g.fillText("Passe o código", W / 2, H * 0.68);
   g.fillText("de barras", W / 2, H * 0.68 + 32);
-  g.fillStyle = "rgba(255,255,255,.55)";
-  g.font = "500 20px system-ui, sans-serif";
+  g.fillStyle = "#8a3a42";
+  g.font = "600 24px system-ui, sans-serif";
   g.fillText("Pix ou cartão", W / 2, H * 0.86);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -375,7 +375,7 @@ async function lightTotemScreen(mesh: THREE.Mesh) {
   pts.forEach((p, i) => uv.set([(z1 - p.z) / (z1 - z0), (p.y - y0) / (y1 - y0)], i * 2));
   mesh.geometry = mesh.geometry.clone();
   mesh.geometry.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
-  mesh.material = new THREE.MeshBasicMaterial({ map: tex });
+  mesh.material = new THREE.MeshBasicMaterial({ map: tex, toneMapped: false });
 }
 
 /** Painel lateral do totem: os adesivos do SketchUp perderam a imagem na conversão (saem brancos);

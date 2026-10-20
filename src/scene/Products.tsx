@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { sceneStore } from "./store";
 
-// Produtos de verdade nas geladeiras Mio: rótulos recortados das fotos da loja (scripts/products-atlas.mjs)
+// Produtos de verdade nas geladeiras, no freezer e no armário: rótulos recortados das fotos da loja (scripts/products-atlas.mjs)
 // "vestidos" em formas simples (lata, garrafa, caixa). A textura é projetada de frente sobre a forma,
 // como numa foto: o gargalo usa só o meio da imagem e a forma ganha volume e luz da cena.
 
@@ -48,6 +48,20 @@ const SHAPES = {
   marmita: { kind: "box", w: 0.2, h: 0.14, d: 0.045 },
   escondidinho: { kind: "box", w: 0.21, h: 0.14, d: 0.05 },
   picole: { kind: "pillow", w: 0.072, h: 0.2, d: 0.03 },
+  // armário
+  salgadinho: { kind: "pillow", w: 0.19, h: 0.27, d: 0.08 },
+  pouchMedio: { kind: "pillow", w: 0.15, h: 0.21, d: 0.06 },
+  pouch: { kind: "pillow", w: 0.13, h: 0.17, d: 0.05 },
+  pouchPequeno: { kind: "pillow", w: 0.11, h: 0.16, d: 0.035 },
+  lamen: { kind: "pillow", w: 0.19, h: 0.12, d: 0.045 },
+  pringles: can(0.235, 0.038),
+  copoLamen: tub(0.105, 0.046),
+  omo: { kind: "box", w: 0.17, h: 0.14, d: 0.06 },
+  neve: { kind: "pillow", w: 0.23, h: 0.21, d: 0.11 },
+  condensado: { kind: "box", w: 0.065, h: 0.12, d: 0.045 },
+  chocolate: { kind: "box", w: 0.15, h: 0.094, d: 0.02 },
+  bis: { kind: "box", w: 0.06, h: 0.135, d: 0.03 },
+  detergente: bottle(0.24, 0.031, 0.72, 0.86, 0.013),
 } satisfies Record<string, Shape>;
 type ShapeId = keyof typeof SHAPES;
 
@@ -63,6 +77,14 @@ const PRODUCT: Record<string, ShapeId> = {
   pizza_frango: "pizza", pizza_calabresa: "pizza", escondidinho: "escondidinho",
   marmita_frango: "marmita", marmita_lentilha: "marmita", marmita_almondega: "marmita",
   picole_7belo: "picole", picole_doce_leite: "picole", picole_speculoos: "picole", picole_banoffee: "picole",
+  arm_ruffles: "salgadinho", arm_ruffles_churrasco: "salgadinho", arm_doritos: "salgadinho", arm_cheetos: "salgadinho",
+  arm_yoki_palha: "pouchMedio", arm_yoki_japones: "pouchMedio",
+  arm_mms_amendoim: "pouch", arm_mms_chocolate: "pouch", arm_mms_crispy: "pouch",
+  arm_fini_dentadura: "pouchPequeno", arm_fini_tubes: "pouchPequeno", arm_heinz: "pouchPequeno",
+  arm_nissin_galinha: "lamen", arm_nissin_carne: "lamen", arm_cupnoodles: "copoLamen",
+  arm_pringles: "pringles", arm_pringles_creme: "pringles",
+  arm_omo: "omo", arm_neve: "neve", arm_italac_leite: "caixa1l", arm_italac_condensado: "condensado",
+  arm_kitkat: "chocolate", arm_kitkat_white: "chocolate", arm_bis: "bis", arm_ype_neutro: "detergente", arm_ype_limao: "detergente",
   picole_pudim: "picole", picole_ovomaltine: "picole", picole_choco_dubai: "picole", picole_pistache: "picole", picole_nuts: "picole",
 };
 
@@ -109,7 +131,49 @@ function buildGeometry(s: Shape) {
 // prateleiras (altura da grade) de baixo para cima; a de cima tem ~15 cm livres
 const LEVELS = [0.563, 0.873, 1.173, 1.483, 1.803];
 type Item = [name: string, count: number, stack?: number];
-type Fridge = { front: [number, number]; inward: [number, number]; layout: Item[][]; levels?: number[]; shape?: Partial<Record<string, ShapeId>> };
+type Fridge = {
+  front: [number, number];
+  inward: [number, number];
+  layout: Item[][];
+  levels?: number[];
+  shape?: Partial<Record<string, ShapeId>>;
+  /** profundidade útil da prateleira e recuo da primeira fileira (padrão: geladeira) */
+  depth?: number;
+  inset?: number;
+};
+
+// armário Mio: 3 módulos de 1 m (frente para +x), prateleiras de baixo para cima; arrumação da foto da loja
+const ARM_LEVELS = [0.12, 0.56, 0.85, 1.09, 1.36, 1.62, 1.98];
+const armModule = (z: number, layout: Item[][]): Fridge => ({ front: [0.25, z], inward: [-1, 0], levels: ARM_LEVELS, depth: 0.2, inset: 0.012, layout });
+const ARMARIO: Fridge[] = [
+  armModule(2.03, [
+    [["arm_omo", 2, 2], ["arm_ype_neutro", 4], ["arm_ype_limao", 4]],
+    [["arm_ruffles", 2], ["arm_ruffles_churrasco", 2]],
+    [["arm_italac_leite", 6], ["arm_italac_condensado", 4]],
+    [["arm_mms_amendoim", 2], ["arm_mms_chocolate", 2], ["arm_mms_crispy", 2]],
+    [["arm_kitkat", 3, 2], ["arm_kitkat_white", 2, 2]],
+    [["arm_nissin_galinha", 4, 2]],
+    [["arm_cupnoodles", 8, 2]],
+  ]),
+  armModule(3.05, [
+    [["arm_ype_neutro", 7], ["arm_ype_limao", 7]],
+    [["arm_doritos", 2], ["arm_cheetos", 2]],
+    [["arm_heinz", 4], ["arm_bis", 6]],
+    [["arm_fini_dentadura", 3], ["arm_fini_tubes", 3]],
+    [["arm_kitkat_white", 3, 2], ["arm_kitkat", 2, 2]],
+    [["arm_nissin_carne", 4, 2]],
+    [["arm_cupnoodles", 8, 2]],
+  ]),
+  armModule(4.07, [
+    [["arm_ype_limao", 4], ["arm_ype_neutro", 4], ["arm_omo", 2, 2]],
+    [["arm_yoki_palha", 3], ["arm_yoki_japones", 2]],
+    [["arm_pringles", 6], ["arm_pringles_creme", 6]],
+    [["arm_ruffles", 2], ["arm_doritos", 2]],
+    [["arm_mms_chocolate", 3], ["arm_mms_amendoim", 3]],
+    [["arm_pringles_creme", 6], ["arm_pringles", 6]],
+    [["arm_cupnoodles", 8, 2]],
+  ]),
+];
 
 const FRIDGES: Fridge[] = [
   {
@@ -166,16 +230,17 @@ const FRIDGES: Fridge[] = [
   },
 ];
 
-type Inst = { shape: ShapeId; tile: number[]; m: THREE.Matrix4 };
+type Tile = { atlas: number; uv: number[] };
+type Inst = { shape: ShapeId; tile: Tile; m: THREE.Matrix4 };
 
-function layoutInstances(tiles: Record<string, number[]>) {
+function layoutInstances(tiles: Record<string, Tile>) {
   const out: Inst[] = [];
   const rnd = (() => {
     let s = 7;
     return () => ((s = (s * 16807) % 2147483647) - 1) / 2147483646;
   })();
   const o = new THREE.Object3D();
-  for (const f of FRIDGES) {
+  for (const f of [...FRIDGES, ...ARMARIO]) {
     const [ix, iz] = f.inward;
     const rx = -iz, rz = ix; // direita de quem olha a porta
     const yaw = Math.atan2(-ix, -iz);
@@ -186,12 +251,12 @@ function layoutInstances(tiles: Record<string, number[]>) {
       row.forEach(([n, count, stack = 1]) => {
         const shape = f.shape?.[n] ?? PRODUCT[n];
         const fp = footprint(SHAPES[shape]);
-        const depthRows = Math.min(fp.d < 0.06 ? 5 : 2, Math.floor(0.34 / (fp.d + gap)));
+        const depthRows = Math.min(fp.d < 0.06 ? 5 : 2, Math.floor((f.depth ?? 0.34) / (fp.d + gap)));
         for (let k = 0; k < count; k++) {
           const across = cursor + fp.w / 2;
           cursor += fp.w + gap;
           for (let d = 0; d < depthRows; d++) {
-            const inward = 0.03 + fp.d / 2 + d * (fp.d + gap);
+            const inward = (f.inset ?? 0.03) + fp.d / 2 + d * (fp.d + gap);
             for (let s = 0; s < stack; s++) {
               o.position.set(
                 f.front[0] + rx * across + ix * inward + (rnd() - 0.5) * 0.004,
@@ -244,22 +309,28 @@ function makeMaterial(map: THREE.Texture) {
   return m;
 }
 
-function useAtlas() {
-  const [data, setData] = useState<{ map: THREE.Texture; tiles: Record<string, number[]> } | null>(null);
+const ATLASES = ["produtos", "produtos-armario"];
+
+function useAtlases() {
+  const [data, setData] = useState<{ maps: THREE.Texture[]; tiles: Record<string, Tile> } | null>(null);
   useEffect(() => {
     let alive = true;
-    (async () => {
-      const tiles = (await (await fetch(BASE + "produtos.json")).json()) as Record<string, number[]>;
-      const img = new Image();
-      img.decoding = "async";
-      img.src = BASE + "produtos.webp";
-      await img.decode();
-      const map = new THREE.Texture(img);
-      map.colorSpace = THREE.SRGBColorSpace;
-      map.anisotropy = 4;
-      map.needsUpdate = true;
-      if (alive) setData({ map, tiles });
-    })().catch(() => {});
+    Promise.all(
+      ATLASES.map(async (name, atlas) => {
+        const json = (await (await fetch(BASE + name + ".json")).json()) as Record<string, number[]>;
+        const img = new Image();
+        img.decoding = "async";
+        img.src = BASE + name + ".webp";
+        await img.decode();
+        const map = new THREE.Texture(img);
+        map.colorSpace = THREE.SRGBColorSpace;
+        map.anisotropy = 8;
+        map.needsUpdate = true;
+        return { map, tiles: Object.fromEntries(Object.entries(json).map(([k, uv]) => [k, { atlas, uv }])) };
+      }),
+    )
+      .then((list) => alive && setData({ maps: list.map((l) => l.map), tiles: Object.assign({}, ...list.map((l) => l.tiles)) }))
+      .catch(() => {});
     return () => {
       alive = false;
     };
@@ -278,27 +349,37 @@ export function hideGenericFridgeProducts(scene: THREE.Object3D) {
       if (m.isMesh && !Array.isArray(m.material) && generic.test(m.material.name)) m.visible = false;
     });
   }
+  // armário: fica só a marcenaria (o resto são os produtos genéricos do projeto)
+  const structure = /^(Color_A07|Color_B03|__Wood_Bamboo_2|Color_E01|__Color_E01_1|logo_novo-removebg-preview|ModelUp_Tote-bag.*|Color_008|Color_007|Translucent_Glass_Blue\.001|_0131_Silver)$/;
+  scene.getObjectByName("armario_mio")?.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (m.isMesh && !Array.isArray(m.material) && !structure.test(m.material.name)) m.visible = false;
+  });
 }
 
 export function Products() {
-  const atlas = useAtlas();
+  const atlas = useAtlases();
   const meshes = useMemo(() => {
     if (!atlas) return [];
     const inst = layoutInstances(atlas.tiles).filter((i) => i.tile);
-    const mat = makeMaterial(atlas.map);
-    const byShape = new Map<ShapeId, Inst[]>();
-    inst.forEach((i) => byShape.set(i.shape, [...(byShape.get(i.shape) ?? []), i]));
-    return [...byShape].map(([shape, list]) => {
+    const mats = atlas.maps.map(makeMaterial);
+    const groups = new Map<string, Inst[]>();
+    inst.forEach((i) => {
+      const k = `${i.tile.atlas}:${i.shape}`;
+      groups.set(k, [...(groups.get(k) ?? []), i]);
+    });
+    return [...groups].map(([key, list]) => {
+      const shape = list[0].shape;
       const g = buildGeometry(SHAPES[shape]);
       const tile = new Float32Array(list.length * 4);
-      list.forEach((i, k) => tile.set(i.tile, k * 4));
+      list.forEach((i, k) => tile.set(i.tile.uv, k * 4));
       g.setAttribute("aTile", new THREE.InstancedBufferAttribute(tile, 4));
-      const mesh = new THREE.InstancedMesh(g, mat, list.length);
+      const mesh = new THREE.InstancedMesh(g, mats[list[0].tile.atlas], list.length);
       list.forEach((i, k) => mesh.setMatrixAt(k, i.m));
       mesh.instanceMatrix.needsUpdate = true;
       mesh.computeBoundingSphere();
       mesh.raycast = () => {};
-      mesh.name = `produtos_${shape}`;
+      mesh.name = `produtos_${key}`;
       return mesh;
     });
   }, [atlas]);
