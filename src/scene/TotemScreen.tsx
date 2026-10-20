@@ -21,6 +21,31 @@ const CORNERS = [
   C.clone().sub(RIGHT).sub(UP),
 ];
 const v = new THREE.Vector3();
+const W = 320, H = 450;
+
+/** Homografia que leva o retângulo W×H da interface aos 4 cantos projetados (perspectiva exata da tela). */
+function homography(dst: [number, number][]) {
+  const src: [number, number][] = [[0, 0], [W, 0], [0, H], [W, H]];
+  const A: number[][] = [];
+  src.forEach(([x, y], i) => {
+    const [u, w] = dst[i];
+    A.push([x, y, 1, 0, 0, 0, -u * x, -u * y, u]);
+    A.push([0, 0, 0, x, y, 1, -w * x, -w * y, w]);
+  });
+  for (let c = 0; c < 8; c++) {
+    let p = c;
+    for (let r = c + 1; r < 8; r++) if (Math.abs(A[r][c]) > Math.abs(A[p][c])) p = r;
+    [A[c], A[p]] = [A[p], A[c]];
+    for (let r = 0; r < 8; r++) {
+      if (r === c) continue;
+      const f = A[r][c] / A[c][c];
+      for (let k = c; k < 9; k++) A[r][k] -= f * A[c][k];
+    }
+  }
+  const h = A.map((row, i) => row[8] / row[i]);
+  // matrix3d em ordem de coluna
+  return `matrix3d(${h[0]},${h[3]},0,${h[6]},${h[1]},${h[4]},0,${h[7]},0,0,1,0,${h[2]},${h[5]},0,1)`;
+}
 
 export function TotemScreen() {
   const camera = useThree((s) => s.camera);
@@ -29,17 +54,12 @@ export function TotemScreen() {
     if (sceneStore.get().checkout === "off") return;
     const el = document.querySelector<HTMLElement>(".totem-overlay");
     if (!el) return;
-    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-    for (const c of CORNERS) {
+    const p = CORNERS.map((c) => {
       v.copy(c).project(camera);
-      const x = (v.x * 0.5 + 0.5) * size.width;
-      const y = (-v.y * 0.5 + 0.5) * size.height;
-      x0 = Math.min(x0, x);
-      x1 = Math.max(x1, x);
-      y0 = Math.min(y0, y);
-      y1 = Math.max(y1, y);
-    }
-    el.style.transform = `translate(${x0}px, ${y0}px) scale(${(x1 - x0) / 320}, ${(y1 - y0) / 450})`;
+      return [(v.x * 0.5 + 0.5) * size.width, (-v.y * 0.5 + 0.5) * size.height] as [number, number];
+    });
+    // ordem da interface: topo-esq, topo-dir, base-esq, base-dir
+    el.style.transform = homography([p[1], p[0], p[3], p[2]]);
   });
   return null;
 }

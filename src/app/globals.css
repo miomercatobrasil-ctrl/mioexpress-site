@@ -2738,3 +2738,16 @@ body:has(.ambiente.is-explore) .wa-float {
     height: 32px;
   }
 }
+/* vidro da tela do totem: canto arredondado, sombra interna e reflexo diagonal por cima da interface */
+.totem-overlay .totem-screen {
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08), inset 0 0 24px rgba(0, 0, 0, 0.06);
+}
+.totem-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  pointer-events: none;
+  background: linear-gradient(125deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.06) 28%, transparent 42%, transparent 78%, rgba(255, 255, 255, 0.08) 100%);
+}
