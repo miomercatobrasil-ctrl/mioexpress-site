@@ -7,6 +7,7 @@ import { HOTSPOTS, TOUR_ORDER } from "@/scene/layout";
 import { sceneStore, useScene } from "@/scene/store";
 import { Reveal } from "./Reveal";
 import { CartBar, TotemOverlay } from "./Shop";
+import { ga } from "@/lib/pixel";
 
 /** Se o 3D falhar (WebGL, rede, modelo), a página segue normal e mostra a foto no lugar. */
 class SceneBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
@@ -258,7 +259,10 @@ export function AmbienteSection({ standalone = false }: { standalone?: boolean }
       const p = Math.min(1, Math.max(0, (t - t0) / dur));
       sceneStore.set({ introProgress: p });
       if (p < 1) raf = requestAnimationFrame(step);
-      else sceneStore.set({ mode: "explore", lastInteraction: performance.now() });
+      else {
+        sceneStore.set({ mode: "explore", lastInteraction: performance.now() });
+        ga("experiencia_3d_inicio", { origem: "pagina_experiencia" });
+      }
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
@@ -277,6 +281,7 @@ export function AmbienteSection({ standalone = false }: { standalone?: boolean }
   }, []);
 
   const explore = () => {
+    ga("experiencia_3d_inicio", { origem: "site" });
     sceneStore.set({ mode: "explore", introProgress: 1, lastInteraction: performance.now() });
     const el = wrapRef.current;
     if (el) {

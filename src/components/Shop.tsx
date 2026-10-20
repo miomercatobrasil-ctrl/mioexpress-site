@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { sceneStore, useScene } from "@/scene/store";
 import { whatsappLink } from "@/lib/site";
-import { track } from "@/lib/pixel";
+import { ga, track } from "@/lib/pixel";
 
 // Simulação de compra no ambiente 3D: o visitante pega produtos das prateleiras (Products.tsx), vai ao
 // totem, "passa" os itens e paga. Tudo simulado, sem valores: só mostra como é simples comprar na Mio.
@@ -63,7 +63,10 @@ export function CartBar() {
     return () => window.clearTimeout(t);
   }, [last]);
   if (checkout !== "off") return null;
-  const goTotem = () => sceneStore.set({ checkout: "scan", active: "totem", touring: false, hovered: null, lastInteraction: performance.now() });
+  const goTotem = () => {
+    ga("experiencia_3d_totem", { itens: cart.length });
+    sceneStore.set({ checkout: "scan", active: "totem", touring: false, hovered: null, lastInteraction: performance.now() });
+  };
   return (
     <div className="shop-bar" role="status" aria-live="polite">
       {cart.length === 0 ? (
@@ -129,6 +132,7 @@ export function Checkout() {
     if (checkout !== "paying") return;
     const t = window.setTimeout(() => {
       sceneStore.set({ checkout: "done" });
+      ga("experiencia_3d_compra", { itens: sceneStore.get().cart.length, pagamento: method });
       beep(1400, 120);
       window.setTimeout(() => beep(2100, 160), 140);
     }, 1800);

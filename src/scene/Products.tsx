@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { sceneStore } from "./store";
+import { ga } from "@/lib/pixel";
 
 // Produtos de verdade nas geladeiras, no freezer e no armário: rótulos recortados das fotos da loja (scripts/products-atlas.mjs)
 // "vestidos" em formas simples (lata, garrafa, caixa). A textura é projetada de frente sobre a forma,
@@ -467,6 +468,7 @@ export function Products() {
     const label = labelOf(key);
     m.setMatrixAt(e.instanceId, ZERO);
     m.instanceMatrix.needsUpdate = true;
+    ga("experiencia_3d_produto", { produto: label });
     sceneStore.set({ cart: [...st.cart, { key, label }], lastAdded: { label, t: performance.now() }, interacted: true, lastInteraction: performance.now() });
   };
   const over = (e: ThreeEvent<PointerEvent>) => {

@@ -3,6 +3,7 @@ import { Montserrat } from "next/font/google";
 import { SITE } from "@/lib/site";
 import { faq } from "@/lib/content";
 import { MetaPixel } from "@/components/MetaPixel";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 const font = Montserrat({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap", variable: "--font" });
@@ -90,6 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <MetaPixel />
+        <GoogleAnalytics />
       </body>
     </html>
   );
