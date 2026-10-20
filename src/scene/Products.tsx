@@ -313,8 +313,10 @@ function layoutInstances(tiles: Record<string, Tile>) {
 
 const glow = { value: 0.12 };
 
-function makeMaterial(map: THREE.Texture) {
-  const m = new THREE.MeshStandardMaterial({ map, roughness: 0.42, metalness: 0, alphaTest: 0.5, side: THREE.DoubleSide });
+/** cutout: latas, garrafas e pacotes recortados pelo contorno; caixas são opacas (o recorte deixava as
+ *  laterais e partes brancas da embalagem transparentes, ex.: leite Italac). */
+function makeMaterial(map: THREE.Texture, cutout: boolean) {
+  const m = new THREE.MeshStandardMaterial({ map, roughness: 0.42, metalness: 0, alphaTest: cutout ? 0.5 : 0, side: cutout ? THREE.DoubleSide : THREE.FrontSide });
   m.onBeforeCompile = (sh) => {
     sh.uniforms.uGlow = glow;
     sh.vertexShader = sh.vertexShader
@@ -323,9 +325,10 @@ function makeMaterial(map: THREE.Texture) {
     // luz interna da geladeira: os produtos brilham um pouco com a própria cor
     sh.fragmentShader = sh.fragmentShader
       .replace("#include <common>", "#include <common>\nuniform float uGlow;")
+      .replace("#include <map_fragment>", cutout ? "#include <map_fragment>" : "#include <map_fragment>\ndiffuseColor.rgb = mix( vec3( 0.93 ), diffuseColor.rgb, diffuseColor.a );\ndiffuseColor.a = 1.0;")
       .replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += diffuseColor.rgb * uGlow;");
   };
-  m.customProgramCacheKey = () => "mio-produtos";
+  m.customProgramCacheKey = () => (cutout ? "mio-produtos" : "mio-produtos-caixa");
   return m;
 }
 
@@ -393,8 +396,11 @@ function stripLooseBoxes(mesh: THREE.Mesh) {
   for (let t = 0; t < idx.count; t += 3) {
     const v = [w[idx.getX(t)], w[idx.getX(t + 1)], w[idx.getX(t + 2)]];
     const inside = v.every((p) => p.x > 0.03 && p.x < 0.252 && p.y > 0.58 && p.y < 1.95);
-    const nearShelf = v.some((p) => SHELF_TOPS.some((y) => Math.abs(p.y - y) < 0.025));
-    if (!inside || nearShelf) keep.push(idx.getX(t), idx.getX(t + 1), idx.getX(t + 2));
+    // fica: tábua da prateleira (faces horizontais na altura de uma prateleira e as bordas finas dela)
+    const ys = v.map((p) => p.y);
+    const span = Math.max(...ys) - Math.min(...ys);
+    const shelf = span < 0.035 && v.every((p) => SHELF_TOPS.some((y) => Math.abs(p.y - y) < 0.035));
+    if (!inside || shelf) keep.push(idx.getX(t), idx.getX(t + 1), idx.getX(t + 2));
   }
   const ng = g.clone();
   ng.setIndex(keep);
@@ -406,7 +412,7 @@ export function Products() {
   const meshes = useMemo(() => {
     if (!atlas) return [];
     const inst = layoutInstances(atlas.tiles).filter((i) => i.tile);
-    const mats = atlas.maps.map(makeMaterial);
+    const mats = atlas.maps.map((map) => [makeMaterial(map, true), makeMaterial(map, false)]);
     const groups = new Map<string, Inst[]>();
     inst.forEach((i) => {
       const k = `${i.tile.atlas}:${i.shape}`;
@@ -418,7 +424,7 @@ export function Products() {
       const tile = new Float32Array(list.length * 4);
       list.forEach((i, k) => tile.set(i.tile.uv, k * 4));
       g.setAttribute("aTile", new THREE.InstancedBufferAttribute(tile, 4));
-      const mesh = new THREE.InstancedMesh(g, mats[list[0].tile.atlas], list.length);
+      const mesh = new THREE.InstancedMesh(g, mats[list[0].tile.atlas][SHAPES[shape].kind === "box" ? 1 : 0], list.length);
       list.forEach((i, k) => mesh.setMatrixAt(k, i.m));
       mesh.instanceMatrix.needsUpdate = true;
       mesh.computeBoundingSphere();

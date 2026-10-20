@@ -325,7 +325,7 @@ export function AmbienteSection() {
                 </span>
                 Explorar o ambiente
               </button>
-              <p className="scene-actions__note">Toque, gire e faça uma compra de teste no totem</p>
+              <p className="scene-actions__note">Toque, gire e experimente comprar no totem</p>
             </div>
           )}
 

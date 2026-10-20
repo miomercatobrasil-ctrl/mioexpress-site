@@ -69,7 +69,7 @@ export function CartBar() {
             <CartIcon />
           </span>
           <span>
-            <strong>Faça uma compra de teste</strong>
+            <strong>Experimente comprar</strong>
             <br />
             Toque nos produtos para colocar na cesta
           </span>
