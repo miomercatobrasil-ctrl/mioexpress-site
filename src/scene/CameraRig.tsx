@@ -9,7 +9,6 @@ import { HOTSPOTS, INTRO_PATH, ORBIT, OVERVIEW, OVERVIEW_PORTRAIT, TOUR_ORDER, c
 import { sceneStore, useScene } from "./store";
 import { TOTEM_SCREEN } from "./TotemScreen";
 
-const IDLE_MS = 7000;
 const TOUR_STEP_MS = 5200;
 
 type Tween = { from: View; to: View; t: number; duration: number };
@@ -180,15 +179,8 @@ export function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
     // na compra a câmera fica parada de frente para o totem
     if (s.checkout !== "off") return;
 
-    // rotação lenta quando ocioso (vai e volta dentro dos limites)
-    const idle = !s.touring && !s.active && performance.now() - s.lastInteraction > IDLE_MS && !reducedMotion;
-    c.autoRotate = idle;
-    if (idle) {
-      const az = c.getAzimuthalAngle();
-      if (az >= c.maxAzimuthAngle - 0.02) c.autoRotateSpeed = -0.35;
-      else if (az <= c.minAzimuthAngle + 0.02) c.autoRotateSpeed = 0.35;
-      else if (c.autoRotateSpeed === 0) c.autoRotateSpeed = 0.35;
-    }
+    // câmera parada quando ninguém mexe (a rotação automática de ocioso parecia que a cena "andava sozinha")
+    c.autoRotate = false;
     c.update();
     clampCamera(camera.position);
   });
