@@ -44,6 +44,9 @@ const SHAPES = {
   yopro: { kind: "box", w: 0.05, h: 0.13, d: 0.036 },
   toddynho: { kind: "box", w: 0.063, h: 0.075, d: 0.04 },
   pote: tub(0.07, 0.045),
+  pizza: { kind: "box", w: 0.27, h: 0.25, d: 0.04 },
+  marmita: { kind: "box", w: 0.2, h: 0.14, d: 0.045 },
+  escondidinho: { kind: "box", w: 0.21, h: 0.14, d: 0.05 },
   picole: { kind: "pillow", w: 0.072, h: 0.2, d: 0.03 },
 } satisfies Record<string, Shape>;
 type ShapeId = keyof typeof SHAPES;
@@ -57,6 +60,8 @@ const PRODUCT: Record<string, ShapeId> = {
   gatorade: "petPequena", powerade: "petPequena", natural_one: "petPequena", crystal: "agua",
   puro_coco: "caixa1l", delvalle_uva: "caixa1l", delvalle_laranja: "caixa1l", kero_coco: "caixa1l",
   yopro: "yopro", toddynho: "toddynho", requeijao: "pote",
+  pizza_frango: "pizza", pizza_calabresa: "pizza", escondidinho: "escondidinho",
+  marmita_frango: "marmita", marmita_lentilha: "marmita", marmita_almondega: "marmita",
   picole_7belo: "picole", picole_doce_leite: "picole", picole_speculoos: "picole", picole_banoffee: "picole",
   picole_pudim: "picole", picole_ovomaltine: "picole", picole_choco_dubai: "picole", picole_pistache: "picole", picole_nuts: "picole",
 };
@@ -123,17 +128,18 @@ const FRIDGES: Fridge[] = [
     ],
   },
   {
-    // geladeira_mio_1: porta para +z
+    // geladeira_mio_1: usada como freezer (congelados Sadia e Liv Up); porta para +z
     front: [1.545, 0.62],
     inward: [0, -1],
     layout: [
-      [["guarana_2l", 2], ["crystal", 2]],
-      [["redbull", 3], ["fanta", 1], ["cocazero_220", 1], ["schweppes", 1], ["delvalle_lata", 1]],
-      [["coca_2l", 4]],
-      [["budweiser", 1, 2], ["brahma", 1, 2], ["spaten", 1, 2], ["eisenbahn", 1, 2], ["heineken_lata", 2, 2]],
-      [["toddynho", 2], ["requeijao", 1], ["coca_lata", 2], ["guarana_lata", 1]],
+      [["pizza_frango", 1], ["escondidinho", 1]],
+      [["pizza_calabresa", 1], ["escondidinho", 1]],
+      [["marmita_frango", 1], ["marmita_lentilha", 1]],
+      [["marmita_almondega", 1], ["marmita_frango", 1]],
+      [["marmita_lentilha", 1], ["marmita_almondega", 1]],
     ],
   },
+
   {
     // geladeira_mio_2: porta para −x
     front: [3.575, 3.32],
@@ -180,7 +186,7 @@ function layoutInstances(tiles: Record<string, number[]>) {
       row.forEach(([n, count, stack = 1]) => {
         const shape = f.shape?.[n] ?? PRODUCT[n];
         const fp = footprint(SHAPES[shape]);
-        const depthRows = Math.min(2, Math.floor(0.34 / (fp.d + gap)));
+        const depthRows = Math.min(fp.d < 0.06 ? 5 : 2, Math.floor(0.34 / (fp.d + gap)));
         for (let k = 0; k < count; k++) {
           const across = cursor + fp.w / 2;
           cursor += fp.w + gap;
