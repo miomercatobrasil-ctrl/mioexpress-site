@@ -48,6 +48,23 @@ function floatLightmapUvs(scene: THREE.Object3D) {
   });
 }
 
+/** Paredes e teto em cor gelo (o branco puro do projeto ficava "estourado" na tela). */
+function iceWalls(scene: THREE.Object3D) {
+  const gelo = new THREE.Color("#ebe5dc");
+  const done = new Set<THREE.Material>();
+  scene.getObjectByName("paredes")?.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh) return;
+    for (const mat of Array.isArray(m.material) ? m.material : [m.material]) {
+      const std = mat as THREE.MeshStandardMaterial;
+      if (!std.isMeshStandardMaterial || done.has(std) || mat.transparent) continue;
+      done.add(std);
+      const c = std.color;
+      if (c.r > 0.85 && c.g > 0.85 && c.b > 0.85) c.multiply(gelo);
+    }
+  });
+}
+
 /** Bloco branco de referência do SketchUp na entrada (volume de ~3 m à direita de quem chega pelo jardim). */
 function removeEntranceBlock(scene: THREE.Object3D) {
   scene.getObjectByName("paredes")?.traverse((o) => {
@@ -66,7 +83,10 @@ function removeEntranceBlock(scene: THREE.Object3D) {
         cx += v.x / 3;
         cz += v.z / 3;
       }
-      if (!(cx > 4.6 && cz < -0.8)) keep.push(idx.getX(t), idx.getX(t + 1), idx.getX(t + 2));
+      // blocos de referência: na entrada (direita do jardim) e à esquerda do armário, em frente à porta
+      const entrada = cx > 4.6 && cz < -0.8;
+      const ladoArmario = cx > -0.95 && cx < 0.1 && cz > 4.62 && cz < 6.6;
+      if (!(entrada || ladoArmario)) keep.push(idx.getX(t), idx.getX(t + 1), idx.getX(t + 2));
     }
     const ng = g.clone();
     ng.setIndex(keep);
@@ -456,6 +476,7 @@ function useModel(url: string, gl: THREE.WebGLRenderer, root: THREE.Scene, camer
     tintMioFridges(gltf.scene);
     hideGenericFridgeProducts(gltf.scene);
     removeEntranceBlock(gltf.scene);
+    iceWalls(gltf.scene);
     await fixTotem(gltf.scene);
     // tudo pronto antes de entrar na cena: luz assada aplicada, texturas na GPU aos poucos e shaders
     // compilados em paralelo (sem isso o primeiro quadro compilava ~200 materiais de uma vez)
