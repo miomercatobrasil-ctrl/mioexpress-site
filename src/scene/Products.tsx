@@ -36,6 +36,7 @@ const SHAPES = {
   longneck: bottle(0.23, 0.031, 0.55, 0.8, 0.012),
   coronita: bottle(0.19, 0.027, 0.5, 0.78, 0.011),
   pet2l: bottle(0.28, 0.05, 0.62, 0.85, 0.014),
+  pet15: bottle(0.235, 0.045, 0.62, 0.85, 0.013),
   petPequena: bottle(0.21, 0.034, 0.78, 0.9, 0.017),
   agua: bottle(0.28, 0.044, 0.7, 0.88, 0.014),
   caixa1l: { kind: "box", w: 0.07, h: 0.2, d: 0.07 },
@@ -87,9 +88,24 @@ function buildGeometry(s: Shape) {
 // prateleiras (altura da grade) de baixo para cima; a de cima tem ~15 cm livres
 const LEVELS = [0.563, 0.873, 1.173, 1.483, 1.803];
 type Item = [name: string, count: number, stack?: number];
-type Fridge = { front: [number, number]; inward: [number, number]; layout: Item[][] };
+type Fridge = { front: [number, number]; inward: [number, number]; layout: Item[][]; levels?: number[]; shape?: Partial<Record<string, ShapeId>> };
 
 const FRIDGES: Fridge[] = [
+  {
+    // geladeira da Coca (porta para +z): só produtos da linha Coca-Cola; prateleiras a cada ~30 cm
+    front: [2.245, 0.6],
+    inward: [0, -1],
+    levels: [0.41, 0.66, 0.965, 1.255, 1.555, 1.815],
+    shape: { coca_2l: "pet15", cocazero_2l: "pet15" },
+    layout: [
+      [["powerade", 6]],
+      [["coca_2l", 3], ["cocazero_2l", 2]],
+      [["fanta", 4], ["schweppes", 4]],
+      [["coca_lata", 4, 2], ["cocazero_lata", 4, 2]],
+      [["delvalle_uva", 3], ["delvalle_laranja", 3]],
+      [["coca_lata", 4], ["cocazero_220", 4]],
+    ],
+  },
   {
     // geladeira_mio_1: porta para +z
     front: [1.545, 0.62],
@@ -143,10 +159,10 @@ function layoutInstances(tiles: Record<string, number[]>) {
     const yaw = Math.atan2(-ix, -iz);
     f.layout.forEach((row, lv) => {
       const gap = 0.004;
-      const widths = row.map(([n, c]) => footprint(SHAPES[PRODUCT[n]]).w * c + gap * c);
+      const widths = row.map(([n, c]) => footprint(SHAPES[f.shape?.[n] ?? PRODUCT[n]]).w * c + gap * c);
       let cursor = -widths.reduce((a, b) => a + b, 0) / 2;
       row.forEach(([n, count, stack = 1]) => {
-        const shape = PRODUCT[n];
+        const shape = f.shape?.[n] ?? PRODUCT[n];
         const fp = footprint(SHAPES[shape]);
         const depthRows = Math.min(2, Math.floor(0.34 / (fp.d + gap)));
         for (let k = 0; k < count; k++) {
@@ -157,7 +173,7 @@ function layoutInstances(tiles: Record<string, number[]>) {
             for (let s = 0; s < stack; s++) {
               o.position.set(
                 f.front[0] + rx * across + ix * inward + (rnd() - 0.5) * 0.004,
-                LEVELS[lv] + s * fp.h,
+                (f.levels ?? LEVELS)[lv] + s * fp.h,
                 f.front[1] + rz * across + iz * inward + (rnd() - 0.5) * 0.004,
               );
               o.rotation.set(0, yaw + (rnd() - 0.5) * 0.18, 0);
@@ -213,10 +229,12 @@ function useAtlas() {
   return data;
 }
 
-/** Esconde as latas genéricas do projeto SketchUp dentro das geladeiras Mio. */
+/** Esconde as latas genéricas do projeto SketchUp dentro das geladeiras. */
 export function hideGenericFridgeProducts(scene: THREE.Object3D) {
-  const generic = /^(Color_A05\.001|Color_A3|__Color_006_3|Color_A10)$/;
-  for (const name of ["geladeira_mio_1", "geladeira_mio_2", "geladeira_mio_3"]) {
+  // latas/garrafas do SketchUp: das geladeiras Mio e da Coca (parte das latas da Coca caiu no grupo da Mio 1)
+  const generic =
+    /^(Color_A05\.001|Color_A3|__Color_006_3|Color_A10|coca-cola-fanta-sprite-cans.*|Metal_Aluminum_Anodized|__Color_007_1|_20124204932-Coca_Zero_Lata|images|Acrylic_Trasparent_Green|__auto_\d?)$/;
+  for (const name of ["geladeira_mio_1", "geladeira_mio_2", "geladeira_mio_3", "geladeira_coca"]) {
     scene.getObjectByName(name)?.traverse((o) => {
       const m = o as THREE.Mesh;
       if (m.isMesh && !Array.isArray(m.material) && generic.test(m.material.name)) m.visible = false;
