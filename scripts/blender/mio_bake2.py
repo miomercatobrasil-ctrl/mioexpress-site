@@ -33,12 +33,14 @@ VARIANTS = args[args.index("--variants") + 1].split(",") if "--variants" in args
 REUSE = "--reuse-geometry" in args  # refaz só a luz, sobre o mio-terracos-baked.glb existente (mesmos UVs)
 ONLY = args[args.index("--only") + 1].split(",") if "--only" in args else None
 SCALE = float(args[args.index("--scale") + 1]) if "--scale" in args else 1.0
+CEILING = "--ceiling" in args  # cria o teto (laje) sobre a loja; o SketchUp não tinha teto, aparecia o fundo da cena
+SUNSET = "--sunset" in args  # sol baixo de fim de tarde (sombras das ripas no piso) e luminárias acesas também de dia
 os.makedirs(os.path.join(OUT, "lightmaps"), exist_ok=True)
 
-SIZE = {"armario_mio": 2048, "paredes": 2048, "piso": 1024, "jardim": 1024, "totem_pagamento": 512, "banco": 512}
+SIZE = {"teto": 1024, "armario_mio": 2048, "paredes": 2048, "piso": 1024, "jardim": 1024, "totem_pagamento": 512, "banco": 512}
 SMALL_PIECE = 0.05  # m²: peças (faces conectadas) menores que isso usam a luz média
 STRIPE = 0.97  # u > STRIPE: faixa da luz média
-LED_OBJECTS = {"armario_mio", "totem_pagamento", "piso"}  # objetos em que o LED do armário faz diferença visível
+LED_OBJECTS = {"armario_mio", "totem_pagamento", "piso", "teto"}  # objetos em que o LED do armário faz diferença visível
 # centro da área por onde a câmera anda (site: x, y, z)
 CAM = Vector((3.2, 1.4, 1.6))
 
@@ -191,6 +193,12 @@ def rig():
     sun_d.angle = math.radians(24)
     sun = bpy.data.objects.new("sol", sun_d)
     aim(sun, (-1.0, 0.3, -0.7))
+    if SUNSET:
+        # fim de tarde: sol baixo (~22°), dourado e com disco menor (faixas de sombra das ripas definidas)
+        sun_d.energy = 3.6
+        sun_d.color = (1.0, 0.7, 0.42)
+        sun_d.angle = math.radians(7)
+        aim(sun, (-1.0, 0.42, -0.45))
     sc.collection.objects.link(sun)
     LIGHTS["dia"].append(sun)
     warm = (1.0, 0.8, 0.56)
@@ -218,12 +226,16 @@ def rig():
 
 def set_variant(night: bool, led: bool):
     bg = bpy.context.scene.world.node_tree.nodes["Background"]
-    bg.inputs["Color"].default_value = (1.0, 0.95, 0.88, 1) if not night else (0.25, 0.3, 0.45, 1)
+    bg.inputs["Color"].default_value = ((1.0, 0.82, 0.62, 1) if SUNSET else (1.0, 0.95, 0.88, 1)) if not night else (0.25, 0.3, 0.45, 1)
     bg.inputs["Strength"].default_value = 1.1 if not night else 0.015
     for o in LIGHTS["dia"]:
         o.hide_render = night
     for o in LIGHTS["noite"]:
-        o.hide_render = not night
+        # fim de tarde: luminárias do teto já acesas (mais fracas que à noite), como na loja de verdade
+        base = o.get("base_energy") or o.data.energy
+        o["base_energy"] = base
+        o.data.energy = base if night else base * 0.45
+        o.hide_render = not night and not SUNSET
     for o in LIGHTS["led"]:
         o.hide_render = not led
 
@@ -301,7 +313,38 @@ if REUSE:
             o.data.uv_layers[1].name = "lightmap"
         o.data.uv_layers[0].name = "UVMap"
         o.data.uv_layers.active = o.data.uv_layers[0]
-if not REUSE:
+def add_ceiling():
+    """Laje lisa sobre a loja (site: x −0,25…4,58; z −0,2…6,6; y 2,505), com UV de lightmap próprio."""
+    x0, x1, z0, z1, y = -0.25, 4.58, -0.2, 6.6, 2.505
+    me = bpy.data.meshes.new("teto")
+    verts = [S(x0, y, z0), S(x1, y, z0), S(x1, y, z1), S(x0, y, z1)]
+    me.from_pydata([tuple(v) for v in verts], [], [(0, 1, 2, 3)])  # normal para baixo (para dentro da loja)
+    me.update()
+    o = bpy.data.objects.new("teto", me)
+    bpy.context.scene.collection.objects.link(o)
+    # subdivide para a luz (bake por pixel não precisa, mas ajuda a normal/sombra ficar estável)
+    bpy.context.view_layer.objects.active = o
+    uv = me.uv_layers.new(name="UVMap")
+    lm = me.uv_layers.new(name="lightmap")
+    for loop in me.loops:
+        co = verts[loop.vertex_index]
+        u = (co.x - x0) / (x1 - x0)
+        v = (-co.y - z0) / (z1 - z0)
+        uv.data[loop.index].uv = (u, v)
+        lm.data[loop.index].uv = (0.01 + u * (STRIPE - 0.02), 0.01 + v * 0.98)
+    mat = bpy.data.materials.new("teto_gelo")
+    mat.use_nodes = True
+    b = mat.node_tree.nodes.get("Principled BSDF")
+    b.inputs["Base Color"].default_value = (0.83, 0.79, 0.74, 1)
+    b.inputs["Roughness"].default_value = 0.9
+    me.materials.append(mat)
+    return o
+
+
+if CEILING and not any(o.name == "teto" for o in objs):
+    objs.append(add_ceiling())
+    log("teto criado")
+if not REUSE or CEILING:
   bpy.ops.export_scene.gltf(filepath=glb, export_format="GLB", export_yup=True, export_lights=False, export_cameras=False, export_texcoords=True, export_normals=True)
 log("geometria exportada", glb, f"{os.path.getsize(glb) / 1e6:.1f} MB")
 

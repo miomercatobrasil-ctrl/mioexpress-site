@@ -34,6 +34,12 @@ function sunTexture() {
   return t;
 }
 
+// manchas de sol no piso: entrada (entre o jardim e o armário) e corredor do armário, até a porta de vidro
+const PATCHES = [
+  { x: 3.1, z: 1.95, w: 2.6, d: 2.1, rot: 0 },
+  { x: 1.75, z: 3.75, w: 1.9, d: 1.5, rot: 0.35 },
+];
+
 export function SunLight() {
   const mat = useMemo(
     () =>
@@ -54,9 +60,12 @@ export function SunLight() {
     mat.visible = mat.opacity > 0.01;
   });
   return (
-    // piso entre a entrada e o armário: x 1,8–4,4 (luz vem do jardim), z 0,9–3,0
-    <mesh material={mat} position={[3.1, 0.004, 1.95]} rotation={[-Math.PI / 2, 0, 0]} raycast={() => null}>
-      <planeGeometry args={[2.6, 2.1]} />
-    </mesh>
+    <group name="sol">
+      {PATCHES.map((p, i) => (
+        <mesh key={i} material={mat} position={[p.x, 0.004, p.z]} rotation={[-Math.PI / 2, 0, p.rot]} raycast={() => null}>
+          <planeGeometry args={[p.w, p.d]} />
+        </mesh>
+      ))}
+    </group>
   );
 }
