@@ -143,18 +143,19 @@ export function FridgeLights() {
           fita fina nos 4 cantos logo abaixo do vidro, halo de luz para dentro e vidro levemente tingido com reflexo */}
       {(
         [
-          [3.815, 2.16, 0.42, 0],
-          [3.815, 2.84, 0.42, 0],
-          [3.615, 2.5, 0.68, Math.PI / 2],
-          [4.015, 2.5, 0.68, Math.PI / 2],
+          // encostadas nas bordas, embaixo do aro do freezer (só o brilho aparece)
+          [3.815, 2.128, 0.44, 0],
+          [3.815, 2.872, 0.44, 0],
+          [3.592, 2.5, 0.74, Math.PI / 2],
+          [4.038, 2.5, 0.74, Math.PI / 2],
         ] as const
       ).map(([x, z, len, ry], i) => (
-        <group key={`fz${i}`} position={[x, 0.835, z]} rotation={[0, ry, 0]}>
+        <group key={`fz${i}`} position={[x, 0.86, z]} rotation={[0, ry, 0]}>
           <mesh material={strip} raycast={() => null}>
             <boxGeometry args={[len, 0.004, 0.004]} />
           </mesh>
           <mesh material={glow} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.002, 0]} raycast={() => null}>
-            <planeGeometry args={[len, 0.07]} />
+            <planeGeometry args={[len, 0.05]} />
           </mesh>
         </group>
       ))}
