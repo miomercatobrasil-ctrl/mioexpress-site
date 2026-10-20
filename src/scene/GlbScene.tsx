@@ -174,7 +174,8 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
           #endif
           // o que vende (armário, geladeiras) fica em destaque
           nightL *= MIO_NIGHT_BOOST;
-          nightL += vec3( 0.07, 0.056, 0.042 );
+          // piso de luz: peças pequenas (produtos) que saíram escuras no bake não viram manchas pretas
+          nightL += vec3( 0.07, 0.056, 0.042 ) * MIO_NIGHT_BOOST * MIO_NIGHT_BOOST;
           irradiance += mix( dayL, nightL, uNight ) * lightMapIntensity;
           #ifdef MIO_LIGHT_ONLY
             diffuseColor.rgb = vec3( 0.6 );
@@ -194,7 +195,7 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
       // o bloco original do lightmap fica desligado (já somado acima)
       .replace("vec4 lightMapTexel = texture2D( lightMap, vLightMapUv );", "vec4 lightMapTexel = vec4( 0.0 );");
   };
-  mat.customProgramCacheKey = () => "mio-lm15";
+  mat.customProgramCacheKey = () => "mio-lm16";
   mat.needsUpdate = true;
 }
 
