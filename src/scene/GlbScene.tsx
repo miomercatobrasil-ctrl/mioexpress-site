@@ -326,12 +326,12 @@ async function fixTotem(scene: THREE.Object3D) {
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.anisotropy = 4;
     tex.needsUpdate = true;
-    // painel: frente em x = 0,41; z 1,22–1,47; arte 512×1450
+    // painel de madeira da ponta do armário: frente em x = 0,330 (z 1,195–1,525); arte 512×1450
     const w = 0.24;
     const h = w * (1450 / 512);
     const plane = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8, transparent: true, alphaTest: 0.04, depthWrite: false }));
     plane.name = "adesivo_como_funciona";
-    plane.position.set(0.413, 1.99 - h / 2, 1.345);
+    plane.position.set(0.3315, 1.99 - h / 2, 1.36);
     plane.renderOrder = 2;
     plane.rotation.y = Math.PI / 2;
     scene.add(plane);
