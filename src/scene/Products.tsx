@@ -13,7 +13,8 @@ const BASE = (process.env.NEXT_PUBLIC_SCENE_ASSETS || "/").replace(/models\/$/, 
 
 type Shape =
   | { kind: "lathe"; profile: [number, number][]; H: number; R: number }
-  | { kind: "box"; w: number; h: number; d: number };
+  | { kind: "box"; w: number; h: number; d: number }
+  | { kind: "pillow"; w: number; h: number; d: number };
 
 function can(H: number, R: number): Shape {
   const p: [number, number][] = [[0, 0], [R * 0.86, 0], [R, H * 0.06], [R, H * 0.88], [R * 0.84, H * 0.97], [R * 0.82, H], [0, H]];
@@ -43,7 +44,7 @@ const SHAPES = {
   yopro: { kind: "box", w: 0.05, h: 0.13, d: 0.036 },
   toddynho: { kind: "box", w: 0.063, h: 0.075, d: 0.04 },
   pote: tub(0.07, 0.045),
-  picole: { kind: "box", w: 0.07, h: 0.19, d: 0.022 },
+  picole: { kind: "pillow", w: 0.072, h: 0.2, d: 0.03 },
 } satisfies Record<string, Shape>;
 type ShapeId = keyof typeof SHAPES;
 
@@ -56,17 +57,30 @@ const PRODUCT: Record<string, ShapeId> = {
   gatorade: "petPequena", powerade: "petPequena", natural_one: "petPequena", crystal: "agua",
   puro_coco: "caixa1l", delvalle_uva: "caixa1l", delvalle_laranja: "caixa1l", kero_coco: "caixa1l",
   yopro: "yopro", toddynho: "toddynho", requeijao: "pote",
-  picole_coco: "picole", picole_coco_zero: "picole", picole_ovomaltine: "picole",
+  picole_7belo: "picole", picole_doce_leite: "picole", picole_speculoos: "picole", picole_banoffee: "picole",
+  picole_pudim: "picole", picole_ovomaltine: "picole", picole_choco_dubai: "picole", picole_pistache: "picole", picole_nuts: "picole",
 };
 
 function footprint(s: Shape) {
-  return s.kind === "box" ? { w: s.w, d: s.d, h: s.h } : { w: s.R * 2, d: s.R * 2, h: s.H };
+  return s.kind === "lathe" ? { w: s.R * 2, d: s.R * 2, h: s.H } : { w: s.w, d: s.d, h: s.h };
 }
 
 function buildGeometry(s: Shape) {
   let g: THREE.BufferGeometry;
   let W: number, H: number;
-  if (s.kind === "box") {
+  if (s.kind === "pillow") {
+    // embalagem flexível: estufada no meio, achatada nas bordas e soldada nas pontas
+    g = new THREE.BoxGeometry(s.w, s.h, s.d, 12, 16, 1);
+    const p = g.attributes.position as THREE.BufferAttribute;
+    for (let i = 0; i < p.count; i++) {
+      const fx = 1 - Math.pow((2 * p.getX(i)) / s.w, 2);
+      const fy = 1 - Math.pow((2 * p.getY(i)) / s.h, 8);
+      p.setZ(i, p.getZ(i) * Math.max(0.08, fx * fy));
+    }
+    g.translate(0, s.h / 2, 0);
+    W = s.w;
+    H = s.h;
+  } else if (s.kind === "box") {
     g = new THREE.BoxGeometry(s.w, s.h, s.d);
     g.translate(0, s.h / 2, 0);
     W = s.w;
@@ -187,20 +201,22 @@ function layoutInstances(tiles: Record<string, number[]>) {
       });
     });
   }
-  // freezer Los Los (frente para −x, tampa de vidro em y ≈ 0,87): picolés deitados nas cestas, uma cesta por sabor
-  const flavors = ["picole_coco", "picole_ovomaltine", "picole_coco_zero", "picole_coco"];
-  flavors.forEach((n, col) => {
-    const z = 2.22 + col * 0.155;
+  // freezer Los Los (frente para −x, tampa de vidro em y ≈ 0,87): picolés deitados nas cestas, um sabor por pilha
+  const flavors = ["7belo", "doce_leite", "speculoos", "banoffee", "pudim", "ovomaltine", "choco_dubai", "pistache", "nuts"];
+  let f = 0;
+  for (let col = 0; col < 4; col++)
     for (let row = 0; row < 2; row++)
-      for (let side = 0; side < 2; side++)
+      for (let side = 0; side < 2; side++) {
+        const n = "picole_" + flavors[f++ % flavors.length];
+        const z = 2.22 + col * 0.155 + (side - 0.5) * 0.076;
         for (let layer = 0; layer < 3; layer++) {
-          o.position.set(3.86 + row * 0.19 + (rnd() - 0.5) * 0.01, 0.62 + layer * 0.024, z + (side - 0.5) * 0.074 + (rnd() - 0.5) * 0.008);
+          o.position.set(3.86 + row * 0.2 + (rnd() - 0.5) * 0.01, 0.6 + layer * 0.028, z + (rnd() - 0.5) * 0.008);
           // deitado com a frente para cima e o comprimento ao longo de x; leve inclinação dentro da cesta
           o.rotation.set(-Math.PI / 2 + 0.18 + (rnd() - 0.5) * 0.1, Math.PI / 2 + (rnd() - 0.5) * 0.12, 0, "YXZ");
           o.updateMatrix();
           out.push({ shape: "picole", tile: tiles[n], m: o.matrix.clone() });
         }
-  });
+      }
   return out;
 }
 
