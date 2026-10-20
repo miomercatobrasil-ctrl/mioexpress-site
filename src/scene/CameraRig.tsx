@@ -105,7 +105,8 @@ export function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
       i += 1;
       if (i >= TOUR_ORDER.length) {
         window.clearInterval(id);
-        sceneStore.set({ touring: false, active: null, lastInteraction: performance.now() });
+        // fim do tour: volta à visão geral e convida a experimentar a compra
+        sceneStore.set({ touring: false, active: null, lastInteraction: performance.now(), nudge: sceneStore.get().nudge + 1 });
         return;
       }
       sceneStore.set({ active: TOUR_ORDER[i] });

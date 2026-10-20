@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { sceneStore, useScene } from "@/scene/store";
+import { whatsappLink } from "@/lib/site";
+import { track } from "@/lib/pixel";
 
 // Simulação de compra no ambiente 3D: o visitante pega produtos das prateleiras (Products.tsx), vai ao
 // totem, "passa" os itens e paga. Tudo simulado, sem valores: só mostra como é simples comprar na Mio.
@@ -52,6 +54,7 @@ export function CartBar() {
   const cart = useScene((s) => s.cart);
   const checkout = useScene((s) => s.checkout);
   const last = useScene((s) => s.lastAdded);
+  const nudge = useScene((s) => s.nudge);
   const [bump, setBump] = useState(false);
   useEffect(() => {
     if (!last) return;
@@ -64,12 +67,12 @@ export function CartBar() {
   return (
     <div className="shop-bar" role="status" aria-live="polite">
       {cart.length === 0 ? (
-        <p className="shop-bar__tip">
+        <p key={nudge} className={`shop-bar__tip${nudge ? " is-nudge" : ""}`}>
           <span className="shop-bar__pulse">
             <CartIcon />
           </span>
           <span>
-            <strong>Experimente comprar</strong>
+            <strong>{nudge ? "Agora é sua vez: experimente comprar" : "Experimente comprar"}</strong>
             <br />
             Toque nos produtos para colocar na cesta
           </span>
@@ -82,6 +85,9 @@ export function CartBar() {
           <span key={last?.t} className="shop-bar__last">
             {cart.length >= 12 ? "Cesta cheia (12 itens)" : `+ ${last?.label}`}
           </span>
+          <button type="button" className="shop-bar__clear" aria-label="Esvaziar a cesta" title="Esvaziar a cesta" onClick={() => sceneStore.set({ cart: [], lastAdded: null })}>
+            ×
+          </button>
           <button type="button" className="btn btn--primary btn--sm" onClick={goTotem}>
             Ir ao totem →
           </button>
@@ -196,7 +202,13 @@ export function Checkout() {
           <p className="totem-screen__title">Compra concluída!</p>
           <p className="totem-screen__sub">Simples assim: pegou, passou, pagou. A qualquer hora, sem sair do condomínio.</p>
           <div className="totem-screen__pay">
-            <a href="#contato" className="btn btn--primary" onClick={restart}>
+            <a
+              href={whatsappLink("Olá! Fiz uma compra na experiência Mio em 3D e quero uma Mio no meu condomínio.")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn--primary"
+              onClick={() => track("Lead", { content_name: "experiencia_3d" })}
+            >
               Quero uma Mio no meu condomínio
             </a>
             <button type="button" className="btn totem-screen__again" onClick={restart}>

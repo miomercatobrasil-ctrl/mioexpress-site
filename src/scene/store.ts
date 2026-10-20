@@ -19,6 +19,7 @@ export type SceneState = {
   cart: { key: string; label: string }[];
   checkout: "off" | "scan" | "pay" | "paying" | "done";
   lastAdded: { label: string; t: number } | null;
+  nudge: number; // fim do tour: destaca o convite para comprar
 };
 
 let state: SceneState = {
@@ -38,6 +39,7 @@ let state: SceneState = {
   cart: [],
   checkout: "off",
   lastAdded: null,
+  nudge: 0,
 };
 
 const listeners = new Set<() => void>();

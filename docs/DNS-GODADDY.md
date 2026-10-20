@@ -56,3 +56,8 @@ a GoDaddy avisa que o registro `@` é gerenciado pelo Builder). Isso libera o re
 - Atualizar o link do site no Instagram/Facebook/Google Meu Negócio se necessário.
 - Caminhos antigos comuns (`/fale-conosco`, `/contato`) já redirecionam para `/#contato` (`next.config.ts`).
   Se o Google Search Console listar outras URLs antigas com tráfego, adicione redirects lá.
+
+## Depois que o domínio estiver apontando
+
+Em `src/lib/site.ts`, troque `url: "https://mioexpress.pages.dev"` por `url: "https://mioexpress.com.br"`.
+Esse endereço é usado na prévia de links (WhatsApp/Instagram), no sitemap e no canonical.

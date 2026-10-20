@@ -2763,3 +2763,26 @@ body:has(.ambiente.is-explore) .wa-float {
 .scene-gl {
   z-index: 1;
 }
+.shop-bar__clear {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid rgba(110, 28, 36, 0.25);
+  background: none;
+  color: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.shop-bar__clear:hover {
+  background: rgba(110, 28, 36, 0.08);
+}
+.shop-bar__tip.is-nudge {
+  animation: shop-nudge 0.9s var(--ease) 2;
+}
+@keyframes shop-nudge {
+  30% {
+    transform: translateY(-8px) scale(1.04);
+  }
+}
