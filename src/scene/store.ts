@@ -16,7 +16,7 @@ export type SceneState = {
   led: boolean; // fita de LED do armário
   baked: boolean; // cena com luz assada (lightmaps)
   // simulação de compra: produtos pegos das prateleiras e etapa no totem
-  cart: { key: string; label: string }[];
+  cart: { key: string; label: string; ref: string }[]; // ref: "<mesh>:<instância>" do produto tirado da prateleira
   checkout: "off" | "scan" | "pay" | "paying" | "done";
   lastAdded: { label: string; t: number } | null;
   nudge: number; // fim do tour: destaca o convite para comprar

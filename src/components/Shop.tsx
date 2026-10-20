@@ -39,6 +39,15 @@ function group(list: { key: string; label: string }[]) {
   return out;
 }
 
+/** Tira uma unidade do produto da cesta (ela volta para a prateleira). */
+function removeOne(key: string) {
+  const cart = sceneStore.get().cart;
+  const i = cart.map((c) => c.key).lastIndexOf(key);
+  if (i < 0) return;
+  const next = [...cart.slice(0, i), ...cart.slice(i + 1)];
+  sceneStore.set({ cart: next, lastAdded: null, ...(next.length === 0 ? { checkout: "off" as const, active: null } : {}) });
+}
+
 function CartIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -56,6 +65,10 @@ export function CartBar() {
   const last = useScene((s) => s.lastAdded);
   const nudge = useScene((s) => s.nudge);
   const [bump, setBump] = useState(false);
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (cart.length === 0) setOpen(false);
+  }, [cart.length]);
   useEffect(() => {
     if (!last) return;
     setBump(true);
@@ -82,11 +95,25 @@ export function CartBar() {
         </p>
       ) : (
         <>
-          <span className={`shop-bar__count${bump ? " is-bump" : ""}`}>
-            <CartIcon /> {itens(cart.length)}
-          </span>
+          {open && (
+            <ul className="shop-bar__list">
+              {group(cart).map((c) => (
+                <li key={c.key}>
+                  <img src={`${THUMBS}${c.key}.webp`} alt="" width={28} height={28} />
+                  <span>{c.label}</span>
+                  <strong>{c.qty}×</strong>
+                  <button type="button" aria-label={`Tirar ${c.label}`} onClick={() => removeOne(c.key)}>
+                    −
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <button type="button" className={`shop-bar__count${bump ? " is-bump" : ""}`} aria-expanded={open} onClick={() => setOpen(!open)}>
+            <CartIcon /> {itens(cart.length)} <span className="shop-bar__caret">{open ? "▾" : "▴"}</span>
+          </button>
           <span key={last?.t} className="shop-bar__last">
-            {cart.length >= 12 ? "Cesta cheia (12 itens)" : `+ ${last?.label}`}
+            {cart.length >= 12 ? "Cesta cheia (12 itens)" : last ? `+ ${last.label}` : "Toque para ver a cesta"}
           </span>
           <button type="button" className="shop-bar__clear" aria-label="Esvaziar a cesta" title="Esvaziar a cesta" onClick={() => sceneStore.set({ cart: [], lastAdded: null })}>
             ×
@@ -169,6 +196,11 @@ export function Checkout() {
                 <span key={c.qty} className="totem-screen__qty">
                   {c.qty}×
                 </span>
+                {checkout === "pay" && (
+                  <button type="button" className="totem-screen__del" aria-label={`Tirar ${c.label}`} onClick={() => removeOne(c.key)}>
+                    −
+                  </button>
+                )}
               </li>
             ))}
           </ol>

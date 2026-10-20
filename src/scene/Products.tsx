@@ -384,7 +384,7 @@ export function hideGenericFridgeProducts(scene: THREE.Object3D) {
   });
 }
 
-const SHELF_TOPS = [0.12, 0.54, 0.56, 0.65, 0.85, 1.09, 1.35, 1.37, 1.62, 1.98];
+const SHELF_TOPS = [0.12, 0.54, 0.56, 0.85, 1.09, 1.35, 1.37, 1.62, 1.98];
 
 function stripLooseBoxes(mesh: THREE.Mesh) {
   const g = mesh.geometry;
@@ -396,12 +396,14 @@ function stripLooseBoxes(mesh: THREE.Mesh) {
   const keep: number[] = [];
   for (let t = 0; t < idx.count; t += 3) {
     const v = [w[idx.getX(t)], w[idx.getX(t + 1)], w[idx.getX(t + 2)]];
-    const inside = v.every((p) => p.x > 0.03 && p.x < 0.252 && p.y > 0.58 && p.y < 1.95);
+    // vão das prateleiras (até a frente do armário); peças grandes (laterais, fundo) ficam
+    const inside = v.every((p) => p.x > 0.03 && p.x < 0.34 && p.y > 0.5 && p.y < 1.95);
     // fica: tábua da prateleira (faces horizontais na altura de uma prateleira e as bordas finas dela)
     const ys = v.map((p) => p.y);
     const span = Math.max(...ys) - Math.min(...ys);
     const shelf = span < 0.035 && v.every((p) => SHELF_TOPS.some((y) => Math.abs(p.y - y) < 0.035));
-    if (!inside || shelf) keep.push(idx.getX(t), idx.getX(t + 1), idx.getX(t + 2));
+    const big = span > 0.3;
+    if (!inside || shelf || big) keep.push(idx.getX(t), idx.getX(t + 1), idx.getX(t + 2));
   }
   const ng = g.clone();
   ng.setIndex(keep);
@@ -431,6 +433,7 @@ export function Products() {
       mesh.computeBoundingSphere();
       mesh.userData.names = list.map((i) => i.name);
       mesh.userData.matrices = list.map((i) => i.m);
+      mesh.userData.hidden = new Set<number>();
       mesh.name = `produtos_${key}`;
       return mesh;
     });
@@ -442,17 +445,22 @@ export function Products() {
       }),
     [meshes],
   );
-  // simulação de compra: tocar num produto tira ele da prateleira e põe na cesta; esvaziar a cesta devolve tudo
+  // simulação de compra: tocar num produto tira ele da prateleira e põe na cesta; o que sai da cesta
+  // (item removido, cesta esvaziada, comprar de novo) volta para o mesmo lugar
   useEffect(() => {
-    let prev = sceneStore.get().cart.length;
     const off = sceneStore.subscribe(() => {
-      const n = sceneStore.get().cart.length;
-      if (n === 0 && prev > 0)
-        meshes.forEach((m) => {
-          (m.userData.matrices as THREE.Matrix4[]).forEach((mx, k) => m.setMatrixAt(k, mx));
-          m.instanceMatrix.needsUpdate = true;
+      const inCart = new Set(sceneStore.get().cart.map((c) => c.ref));
+      meshes.forEach((m) => {
+        const hidden = m.userData.hidden as Set<number>;
+        let changed = false;
+        hidden.forEach((k) => {
+          if (inCart.has(`${m.name}:${k}`)) return;
+          m.setMatrixAt(k, (m.userData.matrices as THREE.Matrix4[])[k]);
+          hidden.delete(k);
+          changed = true;
         });
-      prev = n;
+        if (changed) m.instanceMatrix.needsUpdate = true;
+      });
     });
     return () => {
       off();
@@ -468,8 +476,9 @@ export function Products() {
     const label = labelOf(key);
     m.setMatrixAt(e.instanceId, ZERO);
     m.instanceMatrix.needsUpdate = true;
+    (m.userData.hidden as Set<number>).add(e.instanceId);
     ga("experiencia_3d_produto", { produto: label });
-    sceneStore.set({ cart: [...st.cart, { key, label }], lastAdded: { label, t: performance.now() }, interacted: true, lastInteraction: performance.now() });
+    sceneStore.set({ cart: [...st.cart, { key, label, ref: `${m.name}:${e.instanceId}` }], lastAdded: { label, t: performance.now() }, interacted: true, lastInteraction: performance.now() });
   };
   const over = (e: ThreeEvent<PointerEvent>) => {
     if (sceneStore.get().mode !== "explore" || e.pointerType === "touch") return;
