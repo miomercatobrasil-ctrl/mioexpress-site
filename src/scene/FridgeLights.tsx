@@ -23,9 +23,11 @@ function glowTexture() {
   c.height = 256;
   const g = c.getContext("2d")!;
   const grad = g.createLinearGradient(0, 0, 0, 256);
-  grad.addColorStop(0, "rgba(255,250,240,1)");
-  grad.addColorStop(0.18, "rgba(255,248,235,0.45)");
-  grad.addColorStop(0.6, "rgba(255,246,230,0.12)");
+  // forte só colado na fita, depois cai rápido (antes estourava o topo da geladeira)
+  grad.addColorStop(0, "rgba(255,250,240,0.55)");
+  grad.addColorStop(0.08, "rgba(255,248,235,0.3)");
+  grad.addColorStop(0.35, "rgba(255,246,230,0.12)");
+  grad.addColorStop(0.7, "rgba(255,246,230,0.04)");
   grad.addColorStop(1, "rgba(255,246,230,0)");
   g.fillStyle = grad;
   g.fillRect(0, 0, 4, 256);
@@ -41,8 +43,8 @@ function backTexture() {
   c.height = 256;
   const g = c.getContext("2d")!;
   const grad = g.createLinearGradient(0, 0, 0, 256);
-  grad.addColorStop(0, "#fffdf8");
-  grad.addColorStop(0.35, "#efebe5");
+  grad.addColorStop(0, "#f3efe9");
+  grad.addColorStop(0.35, "#e9e4dd");
   grad.addColorStop(1, "#cdc7c0");
   g.fillStyle = grad;
   g.fillRect(0, 0, 4, 256);
@@ -85,6 +87,15 @@ export function FridgeLights() {
       }),
     [],
   );
+  // no freezer o fundo é branco: o reflexo aditivo some; aqui o vidro tem tom próprio e o reflexo é opaco
+  const freezerGlass = useMemo(
+    () => new THREE.MeshBasicMaterial({ color: "#b9cbd3", transparent: true, opacity: 0.16, depthWrite: false }),
+    [],
+  );
+  const reflectionSolid = useMemo(
+    () => new THREE.MeshBasicMaterial({ map: reflection.map, transparent: true, opacity: 0.55, depthWrite: false }),
+    [reflection],
+  );
   const back = useMemo(() => new THREE.MeshBasicMaterial({ map: backTexture() }), []);
   const { strip, glow } = useMemo(
     () => ({
@@ -101,7 +112,7 @@ export function FridgeLights() {
     [],
   );
   useFrame((_, dt) => {
-    const target = sceneStore.get().night ? 1.1 : 0.65;
+    const target = sceneStore.get().night ? 0.95 : 0.6;
     glow.opacity += (target - glow.opacity) * (1 - Math.exp(-4 * dt));
     // o reflexo corre devagar pelo vidro (dá a percepção de vidro e chama o olhar para os produtos)
     reflection.map!.offset.x = (reflection.map!.offset.x + dt * 0.03) % 1;
@@ -128,22 +139,30 @@ export function FridgeLights() {
           </mesh>
         </group>
       ))}
-      {/* freezer Los Los (deitado, tampa de vidro em y ≈ 0,87): fita no fundo e brilho sobre as cestas */}
-      <group position={[4.0, 0.835, 2.5]} rotation={[0, Math.PI / 2, 0]}>
-        {/* fita fina (5 mm) com halo suave em volta */}
-        <mesh material={strip} raycast={() => null}>
-          <boxGeometry args={[0.66, 0.005, 0.005]} />
-        </mesh>
-        <mesh material={glow} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.002, 0.02]} raycast={() => null}>
-          <planeGeometry args={[0.66, 0.05]} />
-        </mesh>
-        <mesh material={glow} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.005, 0.2]} raycast={() => null}>
-          <planeGeometry args={[0.68, 0.4]} />
-        </mesh>
-      </group>
-      {/* reflexo na tampa de vidro do freezer */}
-      <mesh material={reflection} position={[3.815, 0.915, 2.5]} rotation={[-Math.PI / 2, 0, Math.PI / 2]} raycast={() => null}>
-        <planeGeometry args={[0.7, 0.44]} />
+      {/* freezer Los Los (deitado; vidro da tampa em y ≈ 0,87–0,91; interior x 3,60–4,03, z 2,15–2,85):
+          fita fina nos 4 cantos logo abaixo do vidro, halo de luz para dentro e vidro levemente tingido com reflexo */}
+      {(
+        [
+          [3.815, 2.16, 0.42, 0],
+          [3.815, 2.84, 0.42, 0],
+          [3.615, 2.5, 0.68, Math.PI / 2],
+          [4.015, 2.5, 0.68, Math.PI / 2],
+        ] as const
+      ).map(([x, z, len, ry], i) => (
+        <group key={`fz${i}`} position={[x, 0.835, z]} rotation={[0, ry, 0]}>
+          <mesh material={strip} raycast={() => null}>
+            <boxGeometry args={[len, 0.004, 0.004]} />
+          </mesh>
+          <mesh material={glow} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.002, 0]} raycast={() => null}>
+            <planeGeometry args={[len, 0.07]} />
+          </mesh>
+        </group>
+      ))}
+      <mesh material={freezerGlass} position={[3.815, 0.905, 2.5]} rotation={[-Math.PI / 2, 0, 0]} raycast={() => null}>
+        <planeGeometry args={[0.44, 0.72]} />
+      </mesh>
+      <mesh material={reflectionSolid} position={[3.815, 0.908, 2.5]} rotation={[-Math.PI / 2, 0, Math.PI / 2]} raycast={() => null}>
+        <planeGeometry args={[0.72, 0.44]} />
       </mesh>
     </group>
   );

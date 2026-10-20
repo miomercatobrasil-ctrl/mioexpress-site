@@ -401,7 +401,9 @@ function stripLooseBoxes(mesh: THREE.Mesh) {
     // fica: tábua da prateleira (faces horizontais na altura de uma prateleira e as bordas finas dela)
     const ys = v.map((p) => p.y);
     const span = Math.max(...ys) - Math.min(...ys);
-    const shelf = span < 0.035 && v.every((p) => SHELF_TOPS.some((y) => Math.abs(p.y - y) < 0.035));
+    // tábua: triângulo grande; os discos pequenos (fundo/tampa das latas genéricas) na mesma altura saem
+    const ext = Math.max(Math.max(...v.map((p) => p.x)) - Math.min(...v.map((p) => p.x)), Math.max(...v.map((p) => p.z)) - Math.min(...v.map((p) => p.z)));
+    const shelf = span < 0.035 && ext > 0.15 && v.every((p) => SHELF_TOPS.some((y) => Math.abs(p.y - y) < 0.035));
     const big = span > 0.3;
     if (!inside || shelf || big) keep.push(idx.getX(t), idx.getX(t + 1), idx.getX(t + 2));
   }
