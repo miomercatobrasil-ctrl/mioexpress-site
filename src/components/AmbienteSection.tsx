@@ -184,7 +184,14 @@ export function AmbienteSection() {
     setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   }, []);
 
-  // carrega a cena só quando a seção estiver chegando na tela
+  // prepara a cena cedo, com a página parada no topo (o trabalho pesado do 3D não cai no meio da rolagem),
+  // ou antes disso se a seção chegar perto da tela
+  useEffect(() => {
+    const idle = (cb: () => void) =>
+      typeof window.requestIdleCallback === "function" ? window.requestIdleCallback(cb, { timeout: 4000 }) : setTimeout(cb, 2500);
+    const t = window.setTimeout(() => idle(() => setLoad(true)), 1500);
+    return () => window.clearTimeout(t);
+  }, []);
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;

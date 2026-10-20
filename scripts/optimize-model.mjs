@@ -45,6 +45,10 @@ for (const f of BAKED ? readdirSync(join(BUILD, "lightmaps")).filter((f) => f.in
   const out = join(OUT, "lightmaps", f.replace(/\.png$/, ".webp"));
   // mediana 3 tira o ruído do bake sem misturar ilhas com o fundo (o desfoque escurecia bordas)
   await sharp(join(BUILD, "lightmaps", f)).median(3).webp({ quality: 85 }).toFile(out);
+  // versão do celular: metade da resolução (4× menos memória e envio à GPU mais rápido ao rolar)
+  mkdirSync(join(OUT, "lightmaps", "m"), { recursive: true });
+  const meta = await sharp(join(BUILD, "lightmaps", f)).metadata();
+  await sharp(join(BUILD, "lightmaps", f)).median(3).resize(Math.max(256, meta.width >> 1)).webp({ quality: 82 }).toFile(join(OUT, "lightmaps", "m", f.replace(/\.png$/, ".webp")));
   total += statSync(out).size;
 }
 console.log(`total da cena: ${(total / 1e6).toFixed(1)} MB`);

@@ -234,7 +234,7 @@ async function applyLightmaps(scene: THREE.Object3D, base: string) {
       const loaded: Partial<Record<Variant, THREE.Texture>> = {};
       await Promise.all(
         variants.map(async (v) => {
-          loaded[v] = await loadBitmapTexture(`${base}lightmaps/${name}__${v}.webp`).then(
+          loaded[v] = await loadBitmapTexture(`${base}lightmaps/${MOBILE_LM ? "m/" : ""}${name}__${v}.webp`).then(
             (t) => (diag.lmOk++, t),
             (e) => {
               diag.lmFail++;
@@ -271,6 +271,31 @@ async function applyLightmaps(scene: THREE.Object3D, base: string) {
     }),
   );
   return true;
+}
+
+// celular: lightmaps com metade da resolução (lightmaps/m/)
+const MOBILE_LM = typeof window !== "undefined" && window.matchMedia("(max-width: 760px), (pointer: coarse)").matches;
+
+/** Envia as texturas à GPU aos poucos, devolvendo o controle ao navegador entre lotes: no celular o envio
+ *  de tudo no primeiro quadro travava a rolagem por mais de um segundo. */
+async function uploadGradually(gl: THREE.WebGLRenderer, scene: THREE.Object3D) {
+  const set = new Set<THREE.Texture>();
+  const keys = ["map", "lightMap", "normalMap", "roughnessMap", "metalnessMap", "emissiveMap", "alphaMap", "aoMap"] as const;
+  scene.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh) return;
+    for (const mat of Array.isArray(m.material) ? m.material : [m.material]) {
+      for (const k of keys) {
+        const t = (mat as unknown as Record<string, THREE.Texture | null>)[k];
+        if (t && (t as THREE.Texture).isTexture) set.add(t);
+      }
+    }
+  });
+  let i = 0;
+  for (const t of set) {
+    gl.initTexture(t);
+    if (++i % 4 === 0) await new Promise((r) => setTimeout(r, 0));
+  }
 }
 
 // pasta com lightmaps/ e plants.json (padrão: a mesma do .glb)
@@ -343,7 +368,7 @@ async function fixTotem(scene: THREE.Object3D) {
 /** Carrega o .glb (ou o .glb em base64 num ".b64.txt", usado na prévia publicada, que não serve .glb)
  *  com fetch + parse. As texturas embutidas são lidas por <img> (TextureLoader), que funciona também
  *  em páginas com política de segurança restrita. */
-function useModel(url: string, gl: THREE.WebGLRenderer) {
+function useModel(url: string, gl: THREE.WebGLRenderer, root: THREE.Scene, camera: THREE.Camera) {
   return suspend(async () => {
     diag.model = "baixando";
     const res = await fetch(url);
@@ -402,6 +427,11 @@ function useModel(url: string, gl: THREE.WebGLRenderer) {
     tameSpecular(gltf.scene);
     tintMioFridges(gltf.scene);
     await fixTotem(gltf.scene);
+    // tudo pronto antes de entrar na cena: luz assada aplicada, texturas na GPU aos poucos e shaders
+    // compilados em paralelo (sem isso o primeiro quadro compilava ~200 materiais de uma vez)
+    gltf.scene.userData.baked = FLAGS.lightmaps ? await applyLightmaps(gltf.scene, assetsBase(url)) : false;
+    await uploadGradually(gl, gltf.scene);
+    await gl.compileAsync(gltf.scene, camera, root).catch(() => undefined);
     return gltf.scene;
   }, [url, "mio-model"]);
 }
@@ -419,24 +449,20 @@ function GlbModel({ url }: { url: string }) {
       diag.gpu = String(ext ? ctx.getParameter(ext.UNMASKED_RENDERER_WEBGL) : ctx.getParameter(ctx.RENDERER)).slice(0, 80);
     } catch {}
   }, [gl]);
-  const scene = useModel(url, gl);
+  const root = useThree((s) => s.scene);
+  const camera = useThree((s) => s.camera);
+  const scene = useModel(url, gl, root, camera);
   const hovered = useScene((s) => s.hovered);
   useEffect(() => {
-    let alive = true;
-    if (location.hash.includes("debug3d")) (window as unknown as { __mioScene: unknown }).__mioScene = scene;
-    (FLAGS.lightmaps ? applyLightmaps(scene, assetsBase(url)) : Promise.resolve(false)).then((baked) => {
-      if (!alive) return;
-      sceneStore.set({ baked });
-      try {
-        probeLightmaps(gl);
-      } catch (e) {
-        diagError("sonda", e);
-      }
-    });
-    return () => {
-      alive = false;
-    };
-  }, [scene, url]);
+    sceneStore.set({ baked: !!scene.userData.baked });
+    if (!location.hash.includes("debug3d")) return;
+    (window as unknown as { __mioScene: unknown }).__mioScene = scene;
+    try {
+      probeLightmaps(gl);
+    } catch (e) {
+      diagError("sonda", e);
+    }
+  }, [scene, gl]);
 
   // hover: brilho vinho suave no objeto (troca temporária dos materiais)
   useEffect(() => {
