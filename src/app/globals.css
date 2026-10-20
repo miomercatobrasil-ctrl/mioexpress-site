@@ -2343,3 +2343,240 @@ body:has(.ambiente.is-explore) .wa-float {
   pointer-events: none;
   background: radial-gradient(ellipse at center, transparent 55%, rgba(20, 12, 8, 0.32) 100%);
 }
+
+/* ───────── simulação de compra (ambiente 3D) ───────── */
+.shop-bar {
+  position: absolute;
+  right: var(--gutter);
+  bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 10px 30px rgba(43, 29, 26, 0.18);
+  color: var(--vinho, #6e1c24);
+  font-size: 0.88rem;
+  pointer-events: auto;
+  animation: shop-in 0.5s var(--ease) both;
+  max-width: calc(100% - 2 * var(--gutter));
+}
+.shop-bar__tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding-right: 8px;
+  font-weight: 500;
+}
+.shop-bar__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: transform 0.3s var(--ease);
+}
+.shop-bar__count.is-bump {
+  animation: shop-bump 0.45s var(--ease);
+}
+.shop-bar__last {
+  color: rgba(43, 29, 26, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 190px;
+  animation: shop-last 0.4s var(--ease) both;
+}
+@keyframes shop-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+@keyframes shop-bump {
+  40% {
+    transform: scale(1.18);
+  }
+}
+@keyframes shop-last {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.totem-screen {
+  position: absolute;
+  right: var(--gutter);
+  top: 50%;
+  width: min(360px, calc(100% - 2 * var(--gutter)));
+  max-height: min(560px, calc(100% - 180px));
+  display: flex;
+  flex-direction: column;
+  padding: 18px 20px 20px;
+  border-radius: 22px;
+  background: #fff;
+  border: 6px solid #1d1d1f;
+  box-shadow: 0 24px 60px rgba(20, 12, 8, 0.35);
+  color: #6e1c24;
+  transform: translateY(-50%);
+  pointer-events: auto;
+  animation: totem-in 0.55s var(--ease) both;
+}
+@keyframes totem-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-50% + 24px)) scale(0.97);
+  }
+}
+.totem-screen__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.totem-screen__close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(110, 28, 36, 0.25);
+  background: none;
+  color: inherit;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.totem-screen__title {
+  margin: 0 0 10px;
+  font-weight: 700;
+  font-size: 1.08rem;
+}
+.totem-screen__sub {
+  margin: 0 0 16px;
+  color: rgba(110, 28, 36, 0.8);
+  font-size: 0.92rem;
+  text-align: center;
+}
+.totem-screen__list {
+  flex: 1;
+  min-height: 60px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: auto;
+  border-top: 1px dashed rgba(110, 28, 36, 0.25);
+  border-bottom: 1px dashed rgba(110, 28, 36, 0.25);
+}
+.totem-screen__list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 2px;
+  font-size: 0.92rem;
+  color: #2b1d1a;
+  animation: shop-last 0.35s var(--ease) both;
+}
+.totem-screen__beep {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2f9e5b;
+  flex: none;
+}
+.totem-screen__total {
+  margin: 12px 0 0;
+  font-size: 0.95rem;
+}
+.totem-screen__pay {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+.totem-screen__pay .btn {
+  flex: 1 1 120px;
+  justify-content: center;
+}
+.totem-screen__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px 0 4px;
+}
+.totem-screen__spinner {
+  width: 46px;
+  height: 46px;
+  margin: 10px 0 16px;
+  border-radius: 50%;
+  border: 4px solid rgba(110, 28, 36, 0.15);
+  border-top-color: #6e1c24;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.totem-screen__ok svg {
+  display: block;
+  margin: 4px 0 12px;
+  fill: none;
+  stroke: #2f9e5b;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.totem-screen__ok circle {
+  stroke-dasharray: 151;
+  stroke-dashoffset: 151;
+  animation: draw 0.6s var(--ease) forwards;
+}
+.totem-screen__ok path {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: draw 0.4s 0.45s var(--ease) forwards;
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .shop-bar {
+    left: 50%;
+    right: auto;
+    bottom: 18px;
+    transform: translateX(-50%);
+    animation: none;
+    font-size: 0.82rem;
+  }
+  .shop-bar__last {
+    display: none;
+  }
+  .totem-screen {
+    top: auto;
+    bottom: 12px;
+    left: 50%;
+    right: auto;
+    max-height: 62%;
+    transform: translateX(-50%);
+    animation: none;
+  }
+}
+@media (max-width: 760px) {
+  .scene-card.is-open ~ .shop-bar {
+    display: none;
+  }
+}
+.totem-screen__center .totem-screen__pay {
+  flex-direction: column;
+  width: 100%;
+}
+.totem-screen__center .totem-screen__pay .btn {
+  flex: none;
+  width: 100%;
+}

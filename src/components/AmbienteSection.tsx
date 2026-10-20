@@ -6,6 +6,7 @@ import { Component, useEffect, useRef, useState, type ReactNode } from "react";
 import { HOTSPOTS, TOUR_ORDER } from "@/scene/layout";
 import { sceneStore, useScene } from "@/scene/store";
 import { Reveal } from "./Reveal";
+import { CartBar, Checkout } from "./Shop";
 
 /** Se o 3D falhar (WebGL, rede, modelo), a página segue normal e mostra a foto no lugar. */
 class SceneBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
@@ -130,7 +131,8 @@ function Loader() {
 }
 
 function Card() {
-  const active = useScene((s) => s.active);
+  const checkout = useScene((s) => s.checkout);
+  const active = useScene((s) => (checkout === "off" ? s.active : null));
   const touring = useScene((s) => s.touring);
   const night = useScene((s) => s.night);
   const led = useScene((s) => s.led);
@@ -261,7 +263,7 @@ export function AmbienteSection() {
     }
   };
   function exit() {
-    sceneStore.set({ mode: "intro", active: null, touring: false, hovered: null });
+    sceneStore.set({ mode: "intro", active: null, touring: false, hovered: null, checkout: "off" });
     const next = document.getElementById("como-funciona");
     next?.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
   }
@@ -363,6 +365,8 @@ export function AmbienteSection() {
                 {mobile ? "Arraste para explorar · pinça para zoom" : "Arraste para explorar · Ctrl + rolagem para zoom"}
               </div>
               <Card />
+              {interacted && <CartBar />}
+              <Checkout />
             </>
           )}
         </div>

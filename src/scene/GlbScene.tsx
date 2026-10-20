@@ -538,6 +538,7 @@ function GlbModel({ url }: { url: string }) {
   }, [hovered, scene]);
 
   const over = (e: ThreeEvent<PointerEvent>) => {
+    if (e.intersections.some((i) => i.object.name.startsWith("produtos_"))) return;
     const id = findObjectId(e.object);
     if (!id || sceneStore.get().mode !== "explore" || e.pointerType === "touch") return;
     e.stopPropagation();
@@ -549,6 +550,8 @@ function GlbModel({ url }: { url: string }) {
     document.body.style.cursor = "";
   };
   const click = (e: ThreeEvent<MouseEvent>) => {
+    // produto atrás do vidro da geladeira: o toque é para pegar o produto (Products.tsx), não abrir o card
+    if (e.intersections.some((i) => i.object.name.startsWith("produtos_"))) return;
     const id = findObjectId(e.object);
     const hs = id && OBJECT_TO_HOTSPOT[id];
     if (!hs || sceneStore.get().mode !== "explore" || e.delta > 6) return;

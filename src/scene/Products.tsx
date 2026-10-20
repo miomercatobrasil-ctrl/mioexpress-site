@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { sceneStore } from "./store";
 
 // Produtos de verdade nas geladeiras, no freezer e no armário: rótulos recortados das fotos da loja (scripts/products-atlas.mjs)
@@ -87,6 +87,26 @@ const PRODUCT: Record<string, ShapeId> = {
   arm_kitkat: "chocolate", arm_kitkat_white: "chocolate", arm_bis: "bis", arm_ype_neutro: "detergente", arm_ype_limao: "detergente",
   picole_pudim: "picole", picole_ovomaltine: "picole", picole_choco_dubai: "picole", picole_pistache: "picole", picole_nuts: "picole",
 };
+
+const LABELS: Record<string, string> = {
+  coca_lata: "Coca-Cola lata", cocazero_lata: "Coca-Cola Zero lata", guarana_lata: "Guaraná Antarctica", heineken_lata: "Heineken lata",
+  spaten: "Spaten", budweiser: "Budweiser", brahma: "Brahma Duplo Malte", eisenbahn: "Eisenbahn", redbull: "Red Bull", fanta: "Fanta",
+  cocazero_220: "Coca-Cola Zero 220 ml", schweppes: "Schweppes", delvalle_lata: "Del Valle", heineken_ln: "Heineken long neck",
+  corona: "Coronita", coca_2l: "Coca-Cola 2 L", cocazero_2l: "Coca-Cola Zero 2 L", guarana_2l: "Guaraná 1,5 L", gatorade: "Gatorade",
+  powerade: "Powerade", natural_one: "Suco Natural One", crystal: "Água Crystal", puro_coco: "Água de coco Puro Coco",
+  delvalle_uva: "Suco Del Valle uva", delvalle_laranja: "Suco Del Valle laranja", kero_coco: "Kero Coco", yopro: "YoPro",
+  toddynho: "Toddynho", requeijao: "Requeijão", pizza_frango: "Pizza Sadia frango", pizza_calabresa: "Pizza Sadia calabresa",
+  escondidinho: "Escondidinho Sadia", marmita_frango: "Marmita Liv Up frango", marmita_lentilha: "Marmita Liv Up lentilha",
+  marmita_almondega: "Marmita Liv Up almôndega", arm_ruffles: "Ruffles", arm_ruffles_churrasco: "Ruffles churrasco", arm_doritos: "Doritos",
+  arm_cheetos: "Cheetos", arm_yoki_palha: "Batata palha Yoki", arm_yoki_japones: "Amendoim japonês Yoki", arm_mms_amendoim: "M&M's amendoim",
+  arm_mms_chocolate: "M&M's chocolate", arm_mms_crispy: "M&M's crispy", arm_fini_dentadura: "Fini dentaduras", arm_fini_tubes: "Fini tubes",
+  arm_heinz: "Molho de tomate Heinz", arm_nissin_galinha: "Nissin Lámen galinha", arm_nissin_carne: "Nissin Lámen carne",
+  arm_cupnoodles: "Cup Noodles", arm_pringles: "Pringles original", arm_pringles_creme: "Pringles creme e cebola", arm_omo: "OMO",
+  arm_neve: "Papel higiênico Neve", arm_italac_leite: "Leite Italac", arm_italac_condensado: "Leite condensado Italac", arm_kitkat: "KitKat",
+  arm_kitkat_white: "KitKat branco", arm_bis: "Bis", arm_ype_neutro: "Detergente Ypê", arm_ype_limao: "Detergente Ypê limão",
+};
+const labelOf = (n: string) =>
+  LABELS[n] ?? (n.startsWith("picole_") ? "Picolé Los Los " + n.slice(7).replace(/_/g, " ") : n.replace(/^arm_/, "").replace(/_/g, " "));
 
 function footprint(s: Shape) {
   return s.kind === "lathe" ? { w: s.R * 2, d: s.R * 2, h: s.H } : { w: s.w, d: s.d, h: s.h };
@@ -231,7 +251,7 @@ const FRIDGES: Fridge[] = [
 ];
 
 type Tile = { atlas: number; uv: number[] };
-type Inst = { shape: ShapeId; tile: Tile; m: THREE.Matrix4 };
+type Inst = { shape: ShapeId; tile: Tile; m: THREE.Matrix4; name: string };
 
 function layoutInstances(tiles: Record<string, Tile>) {
   const out: Inst[] = [];
@@ -265,7 +285,7 @@ function layoutInstances(tiles: Record<string, Tile>) {
               );
               o.rotation.set(0, yaw + (rnd() - 0.5) * 0.18, 0);
               o.updateMatrix();
-              out.push({ shape, tile: tiles[n], m: o.matrix.clone() });
+              out.push({ shape, tile: tiles[n], m: o.matrix.clone(), name: n });
             }
           }
         }
@@ -285,7 +305,7 @@ function layoutInstances(tiles: Record<string, Tile>) {
           // deitado com a frente para cima e o comprimento ao longo de x; leve inclinação dentro da cesta
           o.rotation.set(-Math.PI / 2 + 0.18 + (rnd() - 0.5) * 0.1, Math.PI / 2 + (rnd() - 0.5) * 0.12, 0, "YXZ");
           o.updateMatrix();
-          out.push({ shape: "picole", tile: tiles[n], m: o.matrix.clone() });
+          out.push({ shape: "picole", tile: tiles[n], m: o.matrix.clone(), name: n });
         }
       }
   return out;
@@ -402,7 +422,8 @@ export function Products() {
       list.forEach((i, k) => mesh.setMatrixAt(k, i.m));
       mesh.instanceMatrix.needsUpdate = true;
       mesh.computeBoundingSphere();
-      mesh.raycast = () => {};
+      mesh.userData.names = list.map((i) => i.name);
+      mesh.userData.matrices = list.map((i) => i.m);
       mesh.name = `produtos_${key}`;
       return mesh;
     });
@@ -414,6 +435,42 @@ export function Products() {
       }),
     [meshes],
   );
+  // simulação de compra: tocar num produto tira ele da prateleira e põe na cesta; esvaziar a cesta devolve tudo
+  useEffect(() => {
+    let prev = sceneStore.get().cart.length;
+    const off = sceneStore.subscribe(() => {
+      const n = sceneStore.get().cart.length;
+      if (n === 0 && prev > 0)
+        meshes.forEach((m) => {
+          (m.userData.matrices as THREE.Matrix4[]).forEach((mx, k) => m.setMatrixAt(k, mx));
+          m.instanceMatrix.needsUpdate = true;
+        });
+      prev = n;
+    });
+    return () => {
+      off();
+    };
+  }, [meshes]);
+  const pick = (e: ThreeEvent<MouseEvent>) => {
+    const st = sceneStore.get();
+    const m = e.object as THREE.InstancedMesh;
+    if (st.mode !== "explore" || e.instanceId == null || e.delta > 6 || st.checkout !== "off") return;
+    e.stopPropagation();
+    if (st.cart.length >= 12) return;
+    const key = (m.userData.names as string[])[e.instanceId];
+    const label = labelOf(key);
+    m.setMatrixAt(e.instanceId, ZERO);
+    m.instanceMatrix.needsUpdate = true;
+    sceneStore.set({ cart: [...st.cart, { key, label }], lastAdded: { label, t: performance.now() }, interacted: true, lastInteraction: performance.now() });
+  };
+  const over = (e: ThreeEvent<PointerEvent>) => {
+    if (sceneStore.get().mode !== "explore" || e.pointerType === "touch") return;
+    e.stopPropagation();
+    document.body.style.cursor = "pointer";
+  };
+  const out = () => {
+    document.body.style.cursor = "";
+  };
   useFrame((_, dt) => {
     const target = sceneStore.get().night ? 0.32 : 0.12;
     glow.value += (target - glow.value) * (1 - Math.exp(-4 * dt));
@@ -421,8 +478,10 @@ export function Products() {
   return (
     <group name="produtos">
       {meshes.map((m) => (
-        <primitive key={m.name} object={m} />
+        <primitive key={m.name} object={m} onClick={pick} onPointerOver={over} onPointerOut={out} />
       ))}
     </group>
   );
 }
+
+const ZERO = new THREE.Matrix4().makeScale(0, 0, 0);

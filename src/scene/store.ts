@@ -15,6 +15,10 @@ export type SceneState = {
   night: boolean; // false = dia (luz natural), true = noite (todas as luzes acesas)
   led: boolean; // fita de LED do armário
   baked: boolean; // cena com luz assada (lightmaps)
+  // simulação de compra: produtos pegos das prateleiras e etapa no totem
+  cart: { key: string; label: string }[];
+  checkout: "off" | "scan" | "pay" | "paying" | "done";
+  lastAdded: { label: string; t: number } | null;
 };
 
 let state: SceneState = {
@@ -31,6 +35,9 @@ let state: SceneState = {
   night: false,
   led: true,
   baked: false,
+  cart: [],
+  checkout: "off",
+  lastAdded: null,
 };
 
 const listeners = new Set<() => void>();
