@@ -646,7 +646,7 @@ p {
   position: absolute;
   left: var(--gutter);
   right: var(--gutter);
-  bottom: clamp(96px, 16vh, 150px);
+  bottom: clamp(128px, 19vh, 182px);
   max-width: 640px;
   pointer-events: none;
   transition: opacity 0.4s linear;
@@ -683,6 +683,8 @@ p {
   right: auto;
   left: var(--gutter);
   bottom: clamp(32px, 7vh, 64px);
+  flex-direction: column;
+  align-items: flex-start;
 }
 .scene-zoom {
   display: flex;
@@ -2347,8 +2349,9 @@ body:has(.ambiente.is-explore) .wa-float {
 /* ───────── simulação de compra (ambiente 3D) ───────── */
 .shop-bar {
   position: absolute;
-  right: var(--gutter);
+  left: 50%;
   bottom: 28px;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -2392,7 +2395,7 @@ body:has(.ambiente.is-explore) .wa-float {
 @keyframes shop-in {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translate(-50%, 14px);
   }
 }
 @keyframes shop-bump {
@@ -2546,11 +2549,7 @@ body:has(.ambiente.is-explore) .wa-float {
 
 @media (max-width: 760px) {
   .shop-bar {
-    left: 50%;
-    right: auto;
     bottom: 18px;
-    transform: translateX(-50%);
-    animation: none;
     font-size: 0.82rem;
   }
   .shop-bar__last {
@@ -2639,5 +2638,66 @@ body:has(.ambiente.is-explore) .wa-float {
   }
 }
 .scene-hint--raised {
-  bottom: 96px;
+  bottom: 100px;
+}
+
+/* chamada para explorar o 3D: pulsa sempre e cresce quando a pessoa termina de entrar na loja */
+.btn--explore {
+  gap: 10px;
+  animation: explore-pulse 2.2s ease-out infinite;
+  transition: transform 0.4s var(--ease);
+}
+.btn--explore.is-arrived {
+  transform: scale(1.08);
+}
+.btn--explore__icon {
+  display: inline-grid;
+  animation: explore-tap 2.2s var(--ease-io) infinite;
+}
+@keyframes explore-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(122, 31, 43, 0.6);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 18px rgba(122, 31, 43, 0);
+  }
+}
+@keyframes explore-tap {
+  0%,
+  60%,
+  100% {
+    transform: none;
+  }
+  70% {
+    transform: translateY(2px) scale(0.88);
+  }
+}
+.scene-actions__note {
+  margin: 12px 0 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(43, 29, 26, 0.62);
+  color: #fff;
+  font-size: 0.82rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn--explore,
+  .btn--explore__icon {
+    animation: none;
+  }
+}
+@media (max-width: 760px) {
+  /* acima da barra fixa do celular (WhatsApp + "Quero no meu condomínio") */
+  .scene-actions--intro {
+    bottom: 104px;
+    left: 50%;
+    align-items: center;
+    transform: translateX(-50%);
+    width: calc(100% - 2 * var(--gutter));
+    text-align: center;
+  }
+  .scene-intro {
+    bottom: 200px;
+  }
 }

@@ -317,9 +317,15 @@ export function AmbienteSection() {
 
           {show3D && mode === "intro" && (
             <div className="scene-actions scene-actions--intro">
-              <button type="button" className="btn btn--primary" onClick={explore}>
+              <button type="button" className={`btn btn--primary btn--explore${progress > 0.85 ? " is-arrived" : ""}`} onClick={explore}>
+                <span className="btn--explore__icon" aria-hidden>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11m0-1.5a1.5 1.5 0 0 1 3 0V11m0-.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-.6a6 6 0 0 1-4.9-2.5L4.3 15a1.5 1.5 0 0 1 2.4-1.8L9 15.5" />
+                  </svg>
+                </span>
                 Explorar o ambiente
               </button>
+              <p className="scene-actions__note">Toque, gire e faça uma compra de teste no totem</p>
             </div>
           )}
 
