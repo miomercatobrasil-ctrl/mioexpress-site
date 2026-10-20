@@ -34,6 +34,7 @@ const SHAPES = {
   lata220: can(0.115, 0.029),
   lata290: can(0.125, 0.029),
   longneck: bottle(0.23, 0.031, 0.55, 0.8, 0.012),
+  coronita: bottle(0.19, 0.027, 0.5, 0.78, 0.011),
   pet2l: bottle(0.28, 0.05, 0.62, 0.85, 0.014),
   petPequena: bottle(0.21, 0.034, 0.78, 0.9, 0.017),
   agua: bottle(0.28, 0.044, 0.7, 0.88, 0.014),
@@ -48,7 +49,7 @@ const PRODUCT: Record<string, ShapeId> = {
   coca_lata: "lata", cocazero_lata: "lata", guarana_lata: "lata", heineken_lata: "lata", spaten: "lata",
   budweiser: "lata", brahma: "lata", eisenbahn: "lata",
   redbull: "lataSlim", fanta: "lata", cocazero_220: "lata220", schweppes: "lata220", delvalle_lata: "lata290",
-  heineken_ln: "longneck", corona: "longneck",
+  heineken_ln: "longneck", corona: "coronita",
   coca_2l: "pet2l", cocazero_2l: "pet2l", guarana_2l: "pet2l",
   gatorade: "petPequena", powerade: "petPequena", natural_one: "petPequena", crystal: "agua",
   puro_coco: "caixa1l", delvalle_uva: "caixa1l", delvalle_laranja: "caixa1l", kero_coco: "caixa1l",
@@ -119,7 +120,7 @@ const FRIDGES: Fridge[] = [
     inward: [1, 0],
     layout: [
       [["guarana_2l", 2], ["crystal", 2]],
-      [["gatorade", 2], ["powerade", 2], ["natural_one", 2]],
+      [["powerade", 4], ["natural_one", 2]],
       [["coca_2l", 2], ["cocazero_2l", 2]],
       [["spaten", 2, 2], ["eisenbahn", 2, 2], ["brahma", 2, 2]],
       [["coca_lata", 6]],
@@ -174,7 +175,7 @@ function layoutInstances(tiles: Record<string, number[]>) {
 const glow = { value: 0.12 };
 
 function makeMaterial(map: THREE.Texture) {
-  const m = new THREE.MeshStandardMaterial({ map, roughness: 0.42, metalness: 0 });
+  const m = new THREE.MeshStandardMaterial({ map, roughness: 0.42, metalness: 0, alphaTest: 0.5, side: THREE.DoubleSide });
   m.onBeforeCompile = (sh) => {
     sh.uniforms.uGlow = glow;
     sh.vertexShader = sh.vertexShader

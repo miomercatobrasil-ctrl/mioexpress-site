@@ -1,5 +1,5 @@
 // Diagnóstico do carregamento 3D. Abra a página com "#debug3d" no fim do endereço para ver o painel.
-export const BUILD_TAG = "v34";
+export const BUILD_TAG = "v35";
 
 export const diag = {
   model: "aguardando",

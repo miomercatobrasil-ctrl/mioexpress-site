@@ -12,10 +12,10 @@ const tiles = {};
 const comp = [];
 for (const [i, n] of names.entries()) {
   const x = (i % COLS) * CW, y = Math.floor(i / COLS) * CH;
-  comp.push({ input: await sharp(`${SRC}/crop_${n}.png`).resize(CW, CH, { fit: "fill" }).toBuffer(), left: x, top: y });
+  comp.push({ input: await sharp(`${SRC}/crop_${n}.png`).ensureAlpha().resize(CW, CH, { fit: "fill" }).toBuffer(), left: x, top: y });
   // UV com origem embaixo (textura com flipY): [u0, v0, largura, altura]
   tiles[n] = [x / W, 1 - (y + CH) / H, CW / W, CH / H].map((v) => +v.toFixed(5));
 }
-await sharp({ create: { width: W, height: H, channels: 3, background: "#808080" } }).composite(comp).webp({ quality: 84 }).toFile("public/textures/produtos.webp");
+await sharp({ create: { width: W, height: H, channels: 4, background: { r: 128, g: 128, b: 128, alpha: 0 } } }).composite(comp).webp({ quality: 84, alphaQuality: 90 }).toFile("public/textures/produtos.webp");
 writeFileSync("public/textures/produtos.json", JSON.stringify(tiles));
 console.log(names.length, "produtos", W + "x" + H);
