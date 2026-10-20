@@ -20,6 +20,11 @@ const CORNERS = [
   C.clone().add(RIGHT).sub(UP),
   C.clone().sub(RIGHT).sub(UP),
 ];
+// substituídos pelos vértices reais da tela quando o modelo carrega (GlbScene)
+let corners = [CORNERS[1], CORNERS[0], CORNERS[3], CORNERS[2]];
+export function setTotemCorners(c: THREE.Vector3[]) {
+  corners = c;
+}
 const v = new THREE.Vector3();
 const W = 320, H = 450;
 
@@ -54,12 +59,11 @@ export function TotemScreen() {
     if (sceneStore.get().checkout === "off") return;
     const el = document.querySelector<HTMLElement>(".totem-overlay");
     if (!el) return;
-    const p = CORNERS.map((c) => {
+    const p = corners.map((c) => {
       v.copy(c).project(camera);
       return [(v.x * 0.5 + 0.5) * size.width, (-v.y * 0.5 + 0.5) * size.height] as [number, number];
     });
-    // ordem da interface: topo-esq, topo-dir, base-esq, base-dir
-    el.style.transform = homography([p[1], p[0], p[3], p[2]]);
+    el.style.transform = homography(p);
   });
   return null;
 }

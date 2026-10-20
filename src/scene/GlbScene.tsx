@@ -9,7 +9,7 @@ import { COLORS, OBJECT_TO_HOTSPOT, type ObjectId } from "./layout";
 import { sceneStore, useScene } from "./store";
 import { Vegetation, type PlantSpot } from "./Vegetation";
 import { Products, hideGenericFridgeProducts } from "./Products";
-import { TotemScreen } from "./TotemScreen";
+import { TotemScreen, setTotemCorners } from "./TotemScreen";
 import { FLAGS, diag, diagError } from "./diag";
 
 // Cena final exportada do Blender (ver docs/PIPELINE-3D.md).
@@ -372,6 +372,12 @@ async function lightTotemScreen(mesh: THREE.Mesh) {
   const pts = Array.from({ length: pos.count }, (_, i) => v.fromBufferAttribute(pos, i).applyMatrix4(mesh.matrixWorld).clone());
   const zs = pts.map((p) => p.z), ys = pts.map((p) => p.y);
   const [z0, z1, y0, y1] = [Math.min(...zs), Math.max(...zs), Math.min(...ys), Math.max(...ys)];
+  // cantos reais da tela (para a interface da compra encaixar exatamente no vidro): topo-esq, topo-dir, base-esq, base-dir
+  // (quem olha a tela está em +x: esquerda = z maior)
+  const byY = [...pts].sort((a, b) => b.y - a.y);
+  const top = byY.slice(0, 2).sort((a, b) => b.z - a.z);
+  const bot = byY.slice(2, 4).sort((a, b) => b.z - a.z);
+  if (pts.length === 4) setTotemCorners([top[0], top[1], bot[0], bot[1]]);
   const uv = new Float32Array(pos.count * 2);
   pts.forEach((p, i) => uv.set([(z1 - p.z) / (z1 - z0), (p.y - y0) / (y1 - y0)], i * 2));
   mesh.geometry = mesh.geometry.clone();
