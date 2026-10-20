@@ -2701,3 +2701,40 @@ body:has(.ambiente.is-explore) .wa-float {
     bottom: 200px;
   }
 }
+@media (max-width: 760px) {
+  /* intro: título e subtítulo acima do botão Explorar + nota, sem sobrepor */
+  .scene-intro {
+    bottom: 262px;
+  }
+  .scene-sub {
+    font-size: 0.95rem;
+  }
+  .scene-actions__note {
+    font-size: 0.78rem;
+  }
+  /* exploração: dica de arrastar some no celular (a cesta já orienta) e a cesta cabe numa linha */
+  .scene-hint--raised {
+    display: none;
+  }
+  .shop-bar {
+    width: max-content;
+    max-width: calc(100% - 2 * var(--gutter));
+    padding: 6px 14px 6px 6px;
+  }
+  .shop-bar__tip {
+    font-size: 0.8rem;
+    gap: 10px;
+    padding-right: 0;
+  }
+  .shop-bar__tip br {
+    display: none;
+  }
+  .shop-bar__tip span:last-child strong::after {
+    content: " · ";
+    font-weight: 400;
+  }
+  .shop-bar__pulse {
+    width: 32px;
+    height: 32px;
+  }
+}
