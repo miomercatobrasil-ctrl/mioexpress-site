@@ -5,6 +5,10 @@ export const SITE = {
   // Enquanto o domínio não aponta para o site novo, fica no pages.dev; depois do DNS (docs/DNS-GODADDY.md),
   // trocar para "https://mioexpress.com.br".
   url: "https://mioexpress.pages.dev",
+  // enquanto estiver no endereço provisório, o Google não indexa o site (lançamento = domínio próprio)
+  get launched() {
+    return !this.url.includes("pages.dev");
+  },
   city: "São José dos Campos",
   state: "SP",
   legalName: "G2J Comércio de Bebidas e Alimentos Ltda",

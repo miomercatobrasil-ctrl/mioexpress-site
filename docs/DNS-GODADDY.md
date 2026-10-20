@@ -18,6 +18,9 @@ GoDaddy → **Meus produtos** → `mioexpress.com.br` → **DNS** → tire print
    precisam estar lá. Se faltar algum, clique em **Add record** e copie do print.
 3. A Cloudflare mostra **2 nameservers** (ex.: `xxx.ns.cloudflare.com`). Deixe essa tela aberta.
 
+> Pode fazer o passo 1 com antecedência: enquanto os nameservers não mudam na GoDaddy, nada muda no ar.
+> O passo 2 é o "botão de lançar".
+
 ## 2. Trocar os nameservers na GoDaddy
 
 GoDaddy → `mioexpress.com.br` → **DNS** → **Nameservers** → **Alterar** → **Usar meus próprios nameservers**
@@ -38,7 +41,8 @@ Cloudflare → **Workers & Pages** → projeto `mioexpress` → **Custom domains
 ## 5. Depois que o domínio estiver apontando
 
 - Em `src/lib/site.ts`, trocar `url: "https://mioexpress.pages.dev"` por `url: "https://mioexpress.com.br"`
-  (prévia de links no WhatsApp/Instagram, sitemap e canonical).
+  (prévia de links no WhatsApp/Instagram, sitemap e canonical). Isso também libera o Google para indexar o site:
+  enquanto o endereço for o pages.dev, o site fica fora das buscas (noindex).
 - Google Search Console: adicionar o domínio e enviar `https://mioexpress.com.br/sitemap.xml`.
 - Atualizar o link do site no Instagram, Facebook e Google Meu Negócio.
 - O endereço mioexpress.pages.dev (e o QR code já impresso) continua funcionando.

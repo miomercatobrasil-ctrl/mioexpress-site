@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image", title, description, images: ["/og.jpg"] },
   icons: { icon: "/icon.svg" },
-  robots: { index: true, follow: true },
+  robots: SITE.launched ? { index: true, follow: true } : { index: false, follow: false },
 };
 
 export const viewport: Viewport = {
