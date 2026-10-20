@@ -2751,3 +2751,8 @@ body:has(.ambiente.is-explore) .wa-float {
   pointer-events: none;
   background: linear-gradient(125deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.06) 28%, transparent 42%, transparent 78%, rgba(255, 255, 255, 0.08) 100%);
 }
+
+/* página /experiencia: 3D ocupa só a tela, sem trajeto de rolagem */
+.ambiente--standalone {
+  height: 100svh;
+}

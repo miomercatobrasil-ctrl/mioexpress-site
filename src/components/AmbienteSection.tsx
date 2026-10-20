@@ -165,7 +165,8 @@ function Card() {
   );
 }
 
-export function AmbienteSection() {
+/** standalone: página /experiencia (link e QR code), 3D em tela cheia que entra sozinho na loja. */
+export function AmbienteSection({ standalone = false }: { standalone?: boolean } = {}) {
   const wrapRef = useRef<HTMLElement>(null);
   const [support, setSupport] = useState<Support>("checking");
   const [load, setLoad] = useState(false);
@@ -192,6 +193,10 @@ export function AmbienteSection() {
   useEffect(() => {
     const idle = (cb: () => void) =>
       typeof window.requestIdleCallback === "function" ? window.requestIdleCallback(cb, { timeout: 4000 }) : setTimeout(cb, 2500);
+    if (standalone) {
+      setLoad(true);
+      return;
+    }
     const t = window.setTimeout(() => idle(() => setLoad(true)), 1500);
     return () => window.clearTimeout(t);
   }, []);
@@ -223,7 +228,7 @@ export function AmbienteSection() {
   // progresso da rolagem na seção alta -> câmera da abertura
   useEffect(() => {
     const el = wrapRef.current;
-    if (!el) return;
+    if (!el || standalone) return;
     let raf = 0;
     const onScroll = () => {
       cancelAnimationFrame(raf);
@@ -241,6 +246,23 @@ export function AmbienteSection() {
       cancelAnimationFrame(raf);
     };
   }, []);
+
+  // página da experiência: quando a cena fica pronta, a câmera entra sozinha pelo jardim e libera a exploração
+  const ready = useScene((s) => s.ready);
+  useEffect(() => {
+    if (!standalone || !ready) return;
+    let raf = 0;
+    const t0 = performance.now() + 600;
+    const dur = reduced ? 1 : 4200;
+    const step = (t: number) => {
+      const p = Math.min(1, Math.max(0, (t - t0) / dur));
+      sceneStore.set({ introProgress: p });
+      if (p < 1) raf = requestAnimationFrame(step);
+      else sceneStore.set({ mode: "explore", lastInteraction: performance.now() });
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [standalone, ready, reduced]);
 
   // Esc volta para a visão geral / sai do modo exploração
   useEffect(() => {
@@ -264,6 +286,10 @@ export function AmbienteSection() {
     }
   };
   function exit() {
+    if (standalone) {
+      window.location.href = "/";
+      return;
+    }
     sceneStore.set({ mode: "intro", active: null, touring: false, hovered: null, checkout: "off" });
     const next = document.getElementById("como-funciona");
     next?.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
@@ -273,7 +299,7 @@ export function AmbienteSection() {
   const showFallback = support === "none" || (support === "weak" && !force);
 
   return (
-    <section id="ambiente" ref={wrapRef} className={`ambiente${mode === "explore" ? " is-explore" : ""}${showFallback ? " is-fallback" : ""}`} aria-label="Ambiente 3D interativo">
+    <section id="ambiente" ref={wrapRef} className={`ambiente${standalone ? " ambiente--standalone" : ""}${mode === "explore" ? " is-explore" : ""}${showFallback ? " is-fallback" : ""}`} aria-label="Ambiente 3D interativo">
       <div className="scene-stage">
         {show3D ? (
           <>
@@ -300,8 +326,8 @@ export function AmbienteSection() {
         <div className="scene-ui">
           <div className={`scene-intro${mode === "intro" ? " is-visible" : ""}`} style={{ opacity: mode === "intro" ? Math.max(0, 1 - progress * 1.6) : 0 }}>
             <Reveal as="p" className="eyebrow eyebrow--pill" text="Ambiente 3D" />
-            <Reveal as="h2" className="scene-title" text="Entre e conheça uma unidade Mio." />
-            <p className="scene-sub">Role para entrar pelo jardim ou explore livremente.</p>
+            <Reveal as="h2" className="scene-title" text={standalone ? "Bem-vindo à Mio Express." : "Entre e conheça uma unidade Mio."} />
+            <p className="scene-sub">{standalone ? "Entrando no mercado…" : "Role para entrar pelo jardim ou explore livremente."}</p>
           </div>
 
           {showFallback && (
@@ -315,7 +341,7 @@ export function AmbienteSection() {
             </div>
           )}
 
-          {show3D && mode === "intro" && (
+          {show3D && mode === "intro" && !standalone && (
             <div className="scene-actions scene-actions--intro">
               <button type="button" className={`btn btn--primary btn--explore${progress > 0.85 ? " is-arrived" : ""}`} onClick={explore}>
                 <span className="btn--explore__icon" aria-hidden>
@@ -364,7 +390,7 @@ export function AmbienteSection() {
                   </button>
                 </div>
                 <button type="button" className="btn btn--light btn--sm" onClick={exit}>
-                  Continuar ↓
+                  {standalone ? "Conhecer a Mio →" : "Continuar ↓"}
                 </button>
               </div>
               <div className={`scene-hint scene-hint--raised${interacted ? " is-hidden" : ""}`} aria-hidden>
