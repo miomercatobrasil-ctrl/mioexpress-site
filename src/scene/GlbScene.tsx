@@ -54,6 +54,12 @@ function tameSpecular(scene: THREE.Object3D) {
     for (const mat of Array.isArray(m.material) ? m.material : [m.material]) {
       const std = mat as THREE.MeshStandardMaterial;
       if (std.isMeshStandardMaterial) std.roughness = Math.max(std.roughness, 0.3);
+      // sacola: recorte em vez de mistura (a ordenação da transparência deixava o tecido picotado e escuro)
+      if (/sacolinha/i.test(std.name)) {
+        std.transparent = false;
+        std.alphaTest = 0.5;
+        std.depthWrite = true;
+      }
     }
   });
 }
@@ -92,7 +98,16 @@ const NIGHT_BOOST: Record<string, number> = {
 
 // Materiais com luz assada e as 4 variantes de cada um. Dia/noite/LED trocam a textura do lightMap
 // (caminho padrão do three): texturas extras em uniforms próprios chegavam zeradas na GPU do Mac.
-const lmMaterials: { mat: THREE.MeshStandardMaterial; tex: Record<Variant, THREE.Texture> }[] = [];
+const lmMaterials: { mat: THREE.MeshStandardMaterial; tex: Record<Variant, THREE.Texture>; dayAtNight: boolean }[] = [];
+
+// o bake da noite deixou os produtos pequenos do armário quase pretos; à noite o armário e o totem usam a luz
+// do dia (com o tom quente da noite no shader), mantendo a diferença de LED aceso/apagado
+const DAY_AT_NIGHT = new Set(["armario_mio", "totem_pagamento"]);
+
+function variantFor(night: boolean, led: boolean, dayAtNight: boolean): Variant {
+  const n = night && !dayAtNight;
+  return n ? (led ? "noite" : "noite_semled") : led ? "dia" : "dia_semled";
+}
 
 /** Diagnóstico: brilho médio (0–255) de cada variante lida pela própria GPU, desenhando a textura num alvo 8×8. */
 function probeLightmaps(gl: THREE.WebGLRenderer) {
@@ -128,17 +143,19 @@ function probeLightmaps(gl: THREE.WebGLRenderer) {
 }
 
 export function setLightmapVariant(night: boolean, led: boolean) {
-  const v: Variant = night ? (led ? "noite" : "noite_semled") : led ? "dia" : "dia_semled";
-  for (const { mat, tex } of lmMaterials) mat.lightMap = tex[v];
+  for (const { mat, tex, dayAtNight } of lmMaterials) mat.lightMap = tex[variantFor(night, led, dayAtNight)];
 }
 
-function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Variant, THREE.Texture>, nightBoost = 1) {
+function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Variant, THREE.Texture>, nightBoost = 1, dayAtNight = false) {
   const { night, led } = sceneStore.get();
-  lmMaterials.push({ mat, tex });
-  mat.lightMap = tex[night ? (led ? "noite" : "noite_semled") : led ? "dia" : "dia_semled"];
+  lmMaterials.push({ mat, tex, dayAtNight });
+  if (typeof window !== "undefined" && location.hash.includes("debug3d")) (window as unknown as { __mioLm: unknown }).__mioLm = lmMaterials;
+  mat.lightMap = tex[variantFor(night, led, dayAtNight)];
   mat.lightMapIntensity = LIGHTMAP_EXPOSURE;
   mat.envMapIntensity = 0;
   mat.side = THREE.DoubleSide;
+  // embalagens metalizadas (100% metal) só mostram reflexo e ignoram a luz assada: à noite ficavam pretas
+  mat.metalness = Math.min(mat.metalness, 0.35);
   mat.defines = {
     ...mat.defines,
     MIO_NIGHT_GAIN: FLAGS.nightGain.toFixed(3),
@@ -146,6 +163,7 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
     MIO_NIGHT_BOOST: nightBoost.toFixed(3),
   };
   if (nightBoost === 1) mat.defines.MIO_CEILING_BOUNCE = "";
+  if (dayAtNight) mat.defines.MIO_KEEP_AMBIENT = "";
   if (FLAGS.lightOnly) mat.defines.MIO_LIGHT_ONLY = "";
   diag.lmPatched++;
   mat.onBeforeCompile = (shader) => {
@@ -187,15 +205,20 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
         #ifdef USE_LIGHTMAP
           // a luz de ambiente da cena (RoomEnvironment) soma por cima do bake: de dia mantém um pouco de
           // preenchimento e reflexo; à noite some, senão a loja continua iluminada como de dia
-          iblIrradiance *= 1.0 - uNight;
-          radiance *= mix( 0.35, 0.0, uNight );
+          #ifdef MIO_KEEP_AMBIENT
+            // armário/totem: peças que saíram pretas no bake (pacotes) dependem dessa luz também à noite
+            radiance *= 0.35;
+          #else
+            iblIrradiance *= 1.0 - uNight;
+            radiance *= mix( 0.35, 0.2, uNight );
+          #endif
         #endif`,
       )
       .replace("#include <common>", "#include <common>\nvarying float vMioY;\nuniform float uNight;")
       // o bloco original do lightmap fica desligado (já somado acima)
       .replace("vec4 lightMapTexel = texture2D( lightMap, vLightMapUv );", "vec4 lightMapTexel = vec4( 0.0 );");
   };
-  mat.customProgramCacheKey = () => "mio-lm16";
+  mat.customProgramCacheKey = () => "mio-lm19";
   mat.needsUpdate = true;
 }
 
@@ -238,7 +261,7 @@ async function applyLightmaps(scene: THREE.Object3D, base: string) {
           if (!std.isMeshStandardMaterial || mat.transparent || mat.alphaTest > 0) return mat;
           if (!cache.has(mat)) {
             const c = (mat as THREE.MeshStandardMaterial).clone();
-            patchLightmapMaterial(c, tex, NIGHT_BOOST[name] ?? 1);
+            patchLightmapMaterial(c, tex, DAY_AT_NIGHT.has(name) ? 0.8 : (NIGHT_BOOST[name] ?? 1), DAY_AT_NIGHT.has(name));
             cache.set(mat, c);
           }
           return cache.get(mat)!;
@@ -308,7 +331,7 @@ async function fixTotem(scene: THREE.Object3D) {
     const h = w * (1450 / 512);
     const plane = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8, transparent: true, alphaTest: 0.04, depthWrite: false }));
     plane.name = "adesivo_como_funciona";
-    plane.position.set(0.425, 1.99 - h / 2, 1.345);
+    plane.position.set(0.413, 1.99 - h / 2, 1.345);
     plane.renderOrder = 2;
     plane.rotation.y = Math.PI / 2;
     scene.add(plane);
@@ -400,6 +423,7 @@ function GlbModel({ url }: { url: string }) {
   const hovered = useScene((s) => s.hovered);
   useEffect(() => {
     let alive = true;
+    if (location.hash.includes("debug3d")) (window as unknown as { __mioScene: unknown }).__mioScene = scene;
     (FLAGS.lightmaps ? applyLightmaps(scene, assetsBase(url)) : Promise.resolve(false)).then((baked) => {
       if (!alive) return;
       sceneStore.set({ baked });
