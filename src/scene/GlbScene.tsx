@@ -10,6 +10,7 @@ import { sceneStore, useScene } from "./store";
 import { Vegetation, type PlantSpot } from "./Vegetation";
 import { Products, hideGenericFridgeProducts } from "./Products";
 import { TotemScreen, setTotemCorners } from "./TotemScreen";
+import { FridgeLights } from "./FridgeLights";
 import { isLite } from "./perf";
 import { NIGHT, diagError } from "./diag";
 
@@ -540,6 +541,7 @@ function GlbModel({ url }: { url: string }) {
       <Vegetation spots={plants} />
       <Products />
       <TotemScreen />
+      <FridgeLights />
     </>
   );
 }
