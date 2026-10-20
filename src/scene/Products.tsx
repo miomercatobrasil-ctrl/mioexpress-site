@@ -147,7 +147,7 @@ const ARM_LEVELS = [0.12, 0.56, 0.85, 1.09, 1.36, 1.62, 1.98];
 const armModule = (z: number, layout: Item[][]): Fridge => ({ front: [0.25, z], inward: [-1, 0], levels: ARM_LEVELS, depth: 0.2, inset: 0.012, layout });
 const ARMARIO: Fridge[] = [
   armModule(2.03, [
-    [["arm_omo", 2, 2], ["arm_ype_neutro", 4], ["arm_ype_limao", 4]],
+    [["arm_neve", 2, 2], ["arm_ype_neutro", 4], ["arm_ype_limao", 4]],
     [["arm_ruffles", 2], ["arm_ruffles_churrasco", 2]],
     [["arm_italac_leite", 6], ["arm_italac_condensado", 4]],
     [["arm_mms_amendoim", 2], ["arm_mms_chocolate", 2], ["arm_mms_crispy", 2]],
@@ -354,7 +354,31 @@ export function hideGenericFridgeProducts(scene: THREE.Object3D) {
   scene.getObjectByName("armario_mio")?.traverse((o) => {
     const m = o as THREE.Mesh;
     if (m.isMesh && !Array.isArray(m.material) && !structure.test(m.material.name)) m.visible = false;
+    // caixas de produto do projeto feitas com o mesmo material da madeira: tira os triângulos soltos dentro
+    // do vão das prateleiras (prateleiras, fundo e laterais encostam na frente/fundo e ficam)
+    if (m.isMesh && !Array.isArray(m.material) && m.material.name === "Color_B03") stripLooseBoxes(m);
   });
+}
+
+const SHELF_TOPS = [0.12, 0.54, 0.56, 0.65, 0.85, 1.09, 1.35, 1.37, 1.62, 1.98];
+
+function stripLooseBoxes(mesh: THREE.Mesh) {
+  const g = mesh.geometry;
+  const idx = g.index;
+  if (!idx) return;
+  mesh.updateWorldMatrix(true, false);
+  const pos = g.attributes.position as THREE.BufferAttribute;
+  const w = Array.from({ length: pos.count }, (_, i) => new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(mesh.matrixWorld));
+  const keep: number[] = [];
+  for (let t = 0; t < idx.count; t += 3) {
+    const v = [w[idx.getX(t)], w[idx.getX(t + 1)], w[idx.getX(t + 2)]];
+    const inside = v.every((p) => p.x > 0.03 && p.x < 0.252 && p.y > 0.58 && p.y < 1.95);
+    const nearShelf = v.some((p) => SHELF_TOPS.some((y) => Math.abs(p.y - y) < 0.025));
+    if (!inside || nearShelf) keep.push(idx.getX(t), idx.getX(t + 1), idx.getX(t + 2));
+  }
+  const ng = g.clone();
+  ng.setIndex(keep);
+  mesh.geometry = ng;
 }
 
 export function Products() {
