@@ -28,9 +28,13 @@ const CEILING_LIGHTS: [number, number, number][] = [
   [3.4, 2.4, 1.4],
 ];
 // difusores das luminárias do modelo (plafons sobre a circulação): x, y (face de baixo), z, raio
+// (logo abaixo do teto em y 2,505): 2 plafons redondos e 3 spots, os mesmos usados no cálculo da luz da noite
 const FIXTURES: [number, number, number, number][] = [
-  [1.23, 2.475, 2.21, 0.13],
-  [3.22, 2.475, 2.21, 0.13],
+  [1.23, 2.495, 2.21, 0.15],
+  [3.22, 2.495, 2.21, 0.15],
+  [1.6, 2.495, 0.9, 0.06],
+  [3.7, 2.495, 1.0, 0.06],
+  [1.0, 2.495, 3.9, 0.06],
 ];
 const FRIDGE_LIGHTS: [number, number, number][] = [
   [1.95, 1.2, 0.45],
@@ -51,6 +55,21 @@ export function LightRig({ reducedMotion }: { reducedMotion: boolean }) {
   const gl = useThree((s) => s.gl);
 
   const fixtureMat = useMemo(() => new THREE.MeshBasicMaterial({ color: "#fff1d8", toneMapped: false, transparent: true, opacity: 0 }), []);
+  // halo no teto em volta de cada luminária acesa (degradê radial, aditivo)
+  const haloMat = useMemo(() => {
+    const c = document.createElement("canvas");
+    c.width = c.height = 128;
+    const g = c.getContext("2d")!;
+    const r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    r.addColorStop(0, "rgba(255,226,180,0.9)");
+    r.addColorStop(0.35, "rgba(255,214,160,0.35)");
+    r.addColorStop(1, "rgba(255,210,150,0)");
+    g.fillStyle = r;
+    g.fillRect(0, 0, 128, 128);
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+  }, []);
   useEffect(() => () => fixtureMat.dispose(), [fixtureMat]);
   const stripMat = useMemo(() => new THREE.MeshBasicMaterial({ color: LED.clone(), toneMapped: false }), []);
   useEffect(() => () => stripMat.dispose(), [stripMat]);
@@ -96,8 +115,10 @@ export function LightRig({ reducedMotion }: { reducedMotion: boolean }) {
     const glow = night ? 3.2 : 2.2;
     stripMat.color.setRGB(0.35 + (LED.r * glow - 0.35) * v, 0.35 + (LED.g * glow * 0.88 - 0.35) * v, 0.35 + (LED.b * glow * 0.6 - 0.35) * v);
     // luminárias do teto: acesas (brilho, pega no bloom) à noite
-    fixtureMat.opacity = damp(fixtureMat.opacity, night ? 1 : 0, k, dt);
-    fixtureMat.color.setRGB(night ? 3 : 1, night ? 2.6 : 1, night ? 2 : 1);
+    // de dia (fim de tarde) já ficam acesas, mais fracas; à noite brilham
+    fixtureMat.opacity = damp(fixtureMat.opacity, 1, k, dt);
+    haloMat.opacity = damp(haloMat.opacity, night ? 0.9 : 0.25, k, dt);
+    fixtureMat.color.setRGB(night ? 3 : 1.6, night ? 2.6 : 1.45, night ? 2 : 1.2);
     // fundo / névoa
     const bg = (scene.userData.bg as THREE.Color) ?? (scene.userData.bg = DAY_BG.clone());
     bg.lerp(night ? NIGHT_BG : DAY_BG, 1 - Math.exp(-k * dt));
@@ -139,6 +160,11 @@ export function LightRig({ reducedMotion }: { reducedMotion: boolean }) {
       {FIXTURES.map(([x, y, z, r], i) => (
         <mesh key={`fx${i}`} position={[x, y, z]} rotation={[Math.PI / 2, 0, 0]} material={fixtureMat} raycast={() => null}>
           <circleGeometry args={[r, 32]} />
+        </mesh>
+      ))}
+      {FIXTURES.map(([x, y, z, r], i) => (
+        <mesh key={`hl${i}`} position={[x, y + 0.004, z]} rotation={[Math.PI / 2, 0, 0]} material={haloMat} raycast={() => null}>
+          <planeGeometry args={[r * 7, r * 7]} />
         </mesh>
       ))}
       {/* teto (acendem à noite) */}
