@@ -331,7 +331,7 @@ async function fixTotem(scene: THREE.Object3D) {
     const h = w * (1450 / 512);
     const plane = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8, transparent: true, alphaTest: 0.04, depthWrite: false }));
     plane.name = "adesivo_como_funciona";
-    plane.position.set(0.3315, 1.99 - h / 2, 1.36);
+    plane.position.set(0.3315, 1.99 - h / 2, 1.346);
     plane.renderOrder = 2;
     plane.rotation.y = Math.PI / 2;
     scene.add(plane);
