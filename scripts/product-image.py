@@ -16,7 +16,7 @@ edge = set(np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))) 
 bg = np.isin(lab, list(edge))
 bg = ndimage.binary_dilation(bg, iterations=2)  # come a franja clara do antisserrilhado
 alpha = np.where(bg, 0, np.minimum(a, 255)).astype(np.uint8)
-ys, xs = np.nonzero(alpha)
+ys, xs = np.nonzero(alpha > 128)
 y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
 out = np.dstack([rgb.clip(0, 255).astype(np.uint8), alpha])[y0:y1, x0:x1]
 Image.fromarray(out, "RGBA").save(f"assets/source/produtos/crop_{name}.png")

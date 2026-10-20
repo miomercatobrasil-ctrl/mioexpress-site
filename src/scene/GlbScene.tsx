@@ -109,7 +109,10 @@ function tameSpecular(scene: THREE.Object3D) {
         std.roughness = 0.04;
         std.metalness = 0;
         std.envMapIntensity = 1.4;
-        std.opacity = Math.max(std.opacity, 0.18);
+        // janelas: vidro com cor e corpo (muito transparente parecia janela sem vidro, "quebrada")
+        if (/vidro_normal/i.test(std.name)) std.opacity = 0.55;
+        if (/vidro_normal/i.test(std.name)) std.color.set("#c4d6dc");
+        std.depthWrite = false;
         continue;
       }
       if (std.isMeshStandardMaterial) std.roughness = Math.max(std.roughness, 0.3);
