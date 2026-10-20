@@ -77,16 +77,19 @@ function removeEntranceBlock(scene: THREE.Object3D) {
     const v = new THREE.Vector3();
     const keep: number[] = [];
     for (let t = 0; t < idx.count; t += 3) {
-      let cx = 0, cz = 0;
+      let cx = 0, cy = 0, cz = 0;
       for (let k = 0; k < 3; k++) {
         v.fromBufferAttribute(pos, idx.getX(t + k)).applyMatrix4(m.matrixWorld);
         cx += v.x / 3;
+        cy += v.y / 3;
         cz += v.z / 3;
       }
       // blocos de referência: na entrada (direita do jardim) e à esquerda do armário, em frente à porta
       const entrada = cx > 4.6 && cz < -0.8;
       const ladoArmario = cx > -0.95 && cx < 0.1 && cz > 4.62 && cz < 6.6;
-      if (!(entrada || ladoArmario)) keep.push(idx.getX(t), idx.getX(t + 1), idx.getX(t + 2));
+      // bloco facetado no fim do corredor, depois das geladeiras (até 1,3 m de altura)
+      const fimCorredor = cx > 1.8 && cx < 3.95 && cz > 4.6 && cz < 6.2 && cy < 1.35;
+      if (!(entrada || ladoArmario || fimCorredor)) keep.push(idx.getX(t), idx.getX(t + 1), idx.getX(t + 2));
     }
     const ng = g.clone();
     ng.setIndex(keep);
