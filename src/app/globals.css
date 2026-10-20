@@ -647,7 +647,8 @@ body:has(.ambiente--standalone) .header {
   position: absolute;
   left: var(--gutter);
   right: var(--gutter);
-  bottom: clamp(128px, 19vh, 182px);
+  /* acima do botão Explorar + nota (≈ 64 + 60 + 12 + 34 px) */
+  bottom: calc(clamp(32px, 7vh, 64px) + 140px);
   max-width: 640px;
   pointer-events: none;
   transition: opacity 0.4s linear;
