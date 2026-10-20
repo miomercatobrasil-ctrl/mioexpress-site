@@ -69,12 +69,13 @@ export function LightRig({ reducedMotion }: { reducedMotion: boolean }) {
       lightmapUniforms.uNight.value = night ? 1 : 0;
     }
     const dyn = baked ? 0 : 1;
-    if (hemi.current) hemi.current.intensity = damp(hemi.current.intensity, baked ? (night ? 0.6 : 1.1) : night ? 0.38 : 1.5, k, dt);
+    if (hemi.current) hemi.current.intensity = damp(hemi.current.intensity, baked ? (night ? 1.0 : 1.1) : night ? 0.38 : 1.5, k, dt);
     if (amb.current) amb.current.intensity = damp(amb.current.intensity, dyn * (night ? 0.1 : 0.35), k, dt);
     if (sun.current) sun.current.intensity = damp(sun.current.intensity, dyn * (night ? 0 : 1.3), k, dt);
     leds.current.forEach((l) => {
       if (!l) return;
-      l.intensity = damp(l.intensity, dyn * ledOn * (night ? 2.2 : 1.2), k, dt);
+      // com luz assada só afeta o que não tem lightmap (rótulos recortados, sacola): o LED ilumina esses também
+      l.intensity = damp(l.intensity, (baked ? 0.8 : 1) * ledOn * (night ? 2.2 : 1.2), k, dt);
       l.visible = l.intensity > 0.02;
     });
     ceiling.current.forEach((l) => {
@@ -103,7 +104,8 @@ export function LightRig({ reducedMotion }: { reducedMotion: boolean }) {
     gl.setClearColor(bg);
     if (scene.fog) (scene.fog as THREE.Fog).color.copy(bg);
     gl.toneMappingExposure = damp(gl.toneMappingExposure, night ? 0.95 : 0.85, k, dt);
-    scene.environmentIntensity = damp(scene.environmentIntensity ?? 0.6, night ? 0.1 : 0.6, k, dt);
+    // superfícies com lightmap descartam essa luz à noite no shader; ela fica só para os itens transparentes
+    scene.environmentIntensity = damp(scene.environmentIntensity ?? 0.6, night ? (baked ? 0.45 : 0.1) : 0.6, k, dt);
   });
 
   return (
