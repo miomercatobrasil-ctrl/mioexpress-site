@@ -8,6 +8,7 @@ import { suspend } from "suspend-react";
 import { COLORS, OBJECT_TO_HOTSPOT, type ObjectId } from "./layout";
 import { sceneStore, useScene } from "./store";
 import { Vegetation, type PlantSpot } from "./Vegetation";
+import { Products, hideGenericFridgeProducts } from "./Products";
 import { FLAGS, diag, diagError } from "./diag";
 
 // Cena final exportada do Blender (ver docs/PIPELINE-3D.md).
@@ -426,6 +427,7 @@ function useModel(url: string, gl: THREE.WebGLRenderer, root: THREE.Scene, camer
     floatLightmapUvs(gltf.scene);
     tameSpecular(gltf.scene);
     tintMioFridges(gltf.scene);
+    hideGenericFridgeProducts(gltf.scene);
     await fixTotem(gltf.scene);
     // tudo pronto antes de entrar na cena: luz assada aplicada, texturas na GPU aos poucos e shaders
     // compilados em paralelo (sem isso o primeiro quadro compilava ~200 materiais de uma vez)
@@ -520,6 +522,7 @@ function GlbModel({ url }: { url: string }) {
     <>
       <primitive object={scene} onPointerOver={over} onPointerOut={out} onClick={click} />
       <Vegetation spots={plants} />
+      <Products />
     </>
   );
 }
