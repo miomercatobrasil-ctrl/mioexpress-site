@@ -101,7 +101,7 @@ export const HOTSPOTS: Hotspot[] = [
     id: "armario",
     title: "Armário Mio",
     text: "Mercearia, bebidas, limpeza e conveniência, tudo dentro do condomínio.",
-    anchor: [0.45, 1.75, 3.0],
+    anchor: [0.4, 1.2, 3.0],
     view: { position: [2.75, 1.45, 3.05], target: [0.2, 1.15, 3.0] },
   },
   {
@@ -115,14 +115,14 @@ export const HOTSPOTS: Hotspot[] = [
     id: "geladeiras",
     title: "Geladeiras Mio",
     text: "Bebidas sempre geladas, 24h.",
-    anchor: [3.45, 1.75, 3.65],
+    anchor: [3.45, 1.3, 3.65],
     view: { position: [1.15, 1.55, 3.0], target: [3.85, 1.0, 3.65] },
   },
   {
     id: "coca",
     title: "Geladeira de refrigerantes",
     text: "Refrigerantes e bebidas geladas.",
-    anchor: [2.3, 1.75, 0.8],
+    anchor: [2.3, 1.3, 0.8],
     view: { position: [2.2, 1.45, 2.7], target: [2.0, 1.0, 0.4] },
   },
   {
@@ -138,7 +138,7 @@ export const HOTSPOTS: Hotspot[] = [
     // CONFIRMAR se o projeto de ambientação faz parte da implantação.
     title: "Ambientação",
     text: "Projeto que valoriza o espaço do condomínio.",
-    anchor: [3.1, 2.0, 0.35],
+    anchor: [3.1, 1.4, 0.35],
     view: { position: [6.3, 1.55, 0.7], target: [3.0, 1.35, 1.3] },
   },
 ];
