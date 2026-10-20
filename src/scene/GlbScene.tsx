@@ -110,8 +110,10 @@ function tameSpecular(scene: THREE.Object3D) {
         std.metalness = 0;
         std.envMapIntensity = 1.4;
         // janelas: vidro com cor e corpo (muito transparente parecia janela sem vidro, "quebrada")
-        if (/vidro_normal/i.test(std.name)) std.opacity = 0.55;
-        if (/vidro_normal/i.test(std.name)) std.color.set("#c4d6dc");
+        if (/vidro_normal|translucent_glass_blue\.001/i.test(std.name)) {
+          std.opacity = 0.5;
+          std.color.set("#c4d6dc");
+        }
         std.depthWrite = false;
         continue;
       }
@@ -208,7 +210,8 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
           // pow com base 0 é indefinido em GPUs com matemática rápida (Metal/Mac)
           vec3 lm = pow( max( texture2D( lightMap, vLightMapUv ).rgb, vec3( 1e-4 ) ), vec3( 2.2 ) );
           // dia: leve curva de contraste
-          vec3 dayL = pow( lm, vec3( 1.12 ) );
+          // dia como fim de tarde: luz quente e dourada, um pouco mais baixa e com mais contraste
+          vec3 dayL = pow( lm, vec3( 1.22 ) ) * vec3( 1.16, 0.95, 0.72 ) * 0.94;
           // noite: luminárias do teto e LED (variante já trocada no lightMap), em tom quente
           vec3 nightL = pow( lm, vec3( MIO_NIGHT_EXP ) ) * vec3( 1.25, 1.0, 0.72 ) * MIO_NIGHT_GAIN;
           #ifdef MIO_CEILING_BOUNCE
@@ -238,7 +241,7 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
       // o bloco original do lightmap fica desligado (já somado acima)
       .replace("vec4 lightMapTexel = texture2D( lightMap, vLightMapUv );", "vec4 lightMapTexel = vec4( 0.0 );");
   };
-  mat.customProgramCacheKey = () => "mio-lm19";
+  mat.customProgramCacheKey = () => "mio-lm21";
   mat.needsUpdate = true;
 }
 

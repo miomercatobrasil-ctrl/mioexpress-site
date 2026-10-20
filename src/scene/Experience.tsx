@@ -48,7 +48,7 @@ export default function Experience({ mobile, reducedMotion, running }: { mobile:
       gl={{ antialias: !lite, powerPreference: "high-performance", alpha: false }}
       camera={{ fov, near: 0.05, far: 60, position: INTRO_PATH.position[0] }}
       onPointerMissed={() => sceneStore.set({ hovered: null })}
-      onCreated={({ gl }) => gl.setClearColor("#efe6d8")}
+      onCreated={({ gl }) => gl.setClearColor("#ecd9c2")}
     >
       {/* se ainda assim ficar lento, cai para o pacote leve na hora */}
       <PerformanceMonitor
@@ -58,7 +58,7 @@ export default function Experience({ mobile, reducedMotion, running }: { mobile:
         }}
       />
       <AdaptiveDpr pixelated={false} />
-      <fog attach="fog" args={["#efe6d8", 9, 20]} />
+      <fog attach="fog" args={["#ecd9c2", 9, 20]} />
       <LightRig reducedMotion={reducedMotion} />
       <SceneEnvironment />
       <Suspense fallback={null}>

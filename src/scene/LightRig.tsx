@@ -11,7 +11,7 @@ import { lightmapUniforms, setLightmapVariant } from "./GlbScene";
 // Dia: luz natural pelo jardim. Noite: céu escuro, spots/anéis do teto e luz das geladeiras acesos.
 
 const LED = new THREE.Color(COLORS.led);
-const DAY_BG = new THREE.Color("#efe6d8");
+const DAY_BG = new THREE.Color("#ecd9c2");
 // acima das paredes aparece o fundo (o modelo não tem laje): à noite, tom de teto claro com as luminárias acesas
 const NIGHT_BG = new THREE.Color("#a39683");
 
@@ -110,7 +110,7 @@ export function LightRig({ reducedMotion }: { reducedMotion: boolean }) {
 
   return (
     <>
-      <hemisphereLight ref={hemi} args={["#fff4e2", "#b79a77", 1.5]} />
+      <hemisphereLight ref={hemi} args={["#ffe2bd", "#b38a62", 1.5]} />
       <ambientLight ref={amb} intensity={0.35} color="#ffe9cc" />
       {/* luz do dia entrando pelo jardim */}
       <directionalLight ref={sun} position={[10, 6, 1.5]} intensity={1.3} color="#fff1d6" />
