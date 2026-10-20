@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
 import { useThree, type ThreeEvent } from "@react-three/fiber";
-import { DRACOLoader, GLTFLoader, KTX2Loader, MeshoptDecoder } from "three-stdlib";
+import { GLTFLoader, MeshoptDecoder } from "three-stdlib";
 import { suspend } from "suspend-react";
 import { COLORS, OBJECT_TO_HOTSPOT, type ObjectId } from "./layout";
 import { sceneStore, useScene } from "./store";
@@ -11,15 +11,13 @@ import { Vegetation, type PlantSpot } from "./Vegetation";
 import { Products, hideGenericFridgeProducts } from "./Products";
 import { TotemScreen, setTotemCorners } from "./TotemScreen";
 import { isLite } from "./perf";
-import { FLAGS, diag, diagError } from "./diag";
+import { NIGHT, diagError } from "./diag";
 
 // Cena final exportada do Blender (ver docs/PIPELINE-3D.md).
 // Os objetos de primeiro nível precisam ter os nomes de `ObjectId` (armario_mio, totem_pagamento…).
 
 // decodificadores servidos localmente (copiados de three/examples/jsm/libs)
 const STICKER_URL = (process.env.NEXT_PUBLIC_SCENE_ASSETS || "/") .replace(/models\/$/, "") + "textures/adesivo-como-funciona.png";
-const KTX2_PATH = "/libs/basis/";
-const DRACO_PATH = "/libs/draco/";
 
 // Iluminação assada no Blender (scripts/blender/mio_bake2.py): por objeto, até 4 variantes no UV2 ("lightmap"):
 // dia, noite, dia_semled, noite_semled. O shader mistura as variantes conforme os botões Dia/Noite e LED.
@@ -112,39 +110,6 @@ function variantFor(night: boolean, led: boolean, dayAtNight: boolean): Variant 
   return n ? (led ? "noite" : "noite_semled") : led ? "dia" : "dia_semled";
 }
 
-/** Diagnóstico: brilho médio (0–255) de cada variante lida pela própria GPU, desenhando a textura num alvo 8×8. */
-function probeLightmaps(gl: THREE.WebGLRenderer) {
-  const first = lmMaterials[0];
-  if (!first) return;
-  const rt = new THREE.WebGLRenderTarget(8, 8);
-  const mat = new THREE.MeshBasicMaterial();
-  const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat);
-  quad.position.z = -0.5;
-  const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-  const buf = new Uint8Array(8 * 8 * 4);
-  const out: string[] = [];
-  const prev = gl.getRenderTarget();
-  for (const v of VARIANTS) {
-    const t = first.tex[v];
-    // o lightmap usa o UV 2 (channel 1); o quadrado de teste só tem o UV 1
-    t.channel = 0;
-    mat.map = t;
-    mat.needsUpdate = true;
-    gl.setRenderTarget(rt);
-    gl.render(quad, cam);
-    t.channel = 1;
-    gl.readRenderTargetPixels(rt, 0, 0, 8, 8, buf);
-    let sum = 0;
-    for (let i = 0; i < buf.length; i += 4) sum += buf[i] + buf[i + 1] + buf[i + 2];
-    out.push(`${v} ${Math.round(sum / 192)}`);
-  }
-  gl.setRenderTarget(prev);
-  rt.dispose();
-  mat.dispose();
-  quad.geometry.dispose();
-  diag.lmProbe = out.join(" · ");
-}
-
 export function setLightmapVariant(night: boolean, led: boolean) {
   for (const { mat, tex, dayAtNight } of lmMaterials) mat.lightMap = tex[variantFor(night, led, dayAtNight)];
 }
@@ -152,7 +117,6 @@ export function setLightmapVariant(night: boolean, led: boolean) {
 function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Variant, THREE.Texture>, nightBoost = 1, dayAtNight = false) {
   const { night, led } = sceneStore.get();
   lmMaterials.push({ mat, tex, dayAtNight });
-  if (typeof window !== "undefined" && location.hash.includes("debug3d")) (window as unknown as { __mioLm: unknown }).__mioLm = lmMaterials;
   mat.lightMap = tex[variantFor(night, led, dayAtNight)];
   mat.lightMapIntensity = LIGHTMAP_EXPOSURE;
   mat.envMapIntensity = 0;
@@ -161,16 +125,13 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
   mat.metalness = Math.min(mat.metalness, 0.35);
   mat.defines = {
     ...mat.defines,
-    MIO_NIGHT_GAIN: FLAGS.nightGain.toFixed(3),
-    MIO_NIGHT_EXP: FLAGS.nightExp.toFixed(3),
+    MIO_NIGHT_GAIN: NIGHT.gain.toFixed(3),
+    MIO_NIGHT_EXP: NIGHT.exp.toFixed(3),
     MIO_NIGHT_BOOST: nightBoost.toFixed(3),
   };
   if (nightBoost === 1) mat.defines.MIO_CEILING_BOUNCE = "";
   if (dayAtNight) mat.defines.MIO_KEEP_AMBIENT = "";
-  if (FLAGS.lightOnly) mat.defines.MIO_LIGHT_ONLY = "";
-  diag.lmPatched++;
   mat.onBeforeCompile = (shader) => {
-    diag.lmCompiled++;
     shader.uniforms.uNight = lightmapUniforms.uNight;
     shader.vertexShader = shader.vertexShader
       .replace("#include <common>", "#include <common>\nvarying float vMioY;")
@@ -198,11 +159,6 @@ function patchLightmapMaterial(mat: THREE.MeshStandardMaterial, tex: Record<Vari
           // piso de luz: peças pequenas (produtos) que saíram escuras no bake não viram manchas pretas
           nightL += vec3( 0.07, 0.056, 0.042 ) * MIO_NIGHT_BOOST * MIO_NIGHT_BOOST;
           irradiance += mix( dayL, nightL, uNight ) * lightMapIntensity;
-          #ifdef MIO_LIGHT_ONLY
-            diffuseColor.rgb = vec3( 0.6 );
-            material.diffuseColor = vec3( 0.6 );
-            material.diffuseContribution = vec3( 0.6 );
-          #endif
         #endif
         #include <lights_fragment_maps>
         #ifdef USE_LIGHTMAP
@@ -238,9 +194,8 @@ async function applyLightmaps(scene: THREE.Object3D, base: string) {
       await Promise.all(
         variants.map(async (v) => {
           loaded[v] = await loadBitmapTexture(`${base}lightmaps/${MOBILE_LM ? "m/" : ""}${name}__${v}.webp`).then(
-            (t) => (diag.lmOk++, t),
+            (t) => t,
             (e) => {
-              diag.lmFail++;
               diagError(`lightmap ${name} ${v}`, e);
               return undefined;
             },
@@ -425,7 +380,6 @@ async function fixTotem(scene: THREE.Object3D) {
  *  em páginas com política de segurança restrita. */
 function useModel(url: string, gl: THREE.WebGLRenderer, root: THREE.Scene, camera: THREE.Camera) {
   return suspend(async () => {
-    diag.model = "baixando";
     const res = await fetch(url);
     if (!res.ok) throw new Error(`modelo 3D: ${res.status}`);
     let buf: ArrayBuffer;
@@ -437,8 +391,6 @@ function useModel(url: string, gl: THREE.WebGLRenderer, root: THREE.Scene, camer
     // no three-stdlib o decoder é uma fábrica
     const meshopt = MeshoptDecoder as unknown;
     loader.setMeshoptDecoder((typeof meshopt === "function" ? meshopt() : meshopt) as never);
-    loader.setDRACOLoader(new DRACOLoader().setDecoderPath(DRACO_PATH));
-    loader.setKTX2Loader(new KTX2Loader().setTranscoderPath(KTX2_PATH).detectSupport(gl) as never);
     loader.register((parser) => {
       // decodifica as imagens embutidas direto dos bytes (createImageBitmap), sem criar URLs de imagem:
       // funciona também em páginas com política de segurança restrita (prévia publicada)
@@ -456,13 +408,10 @@ function useModel(url: string, gl: THREE.WebGLRenderer, root: THREE.Scene, camer
         p.sourceCache[key] ??= p.getDependency("bufferView", src.bufferView).then(async (bytes) => {
           try {
             const bmp = await createImageBitmap(new Blob([bytes], { type: src.mimeType }), { colorSpaceConversion: "none", premultiplyAlpha: "none" });
-            diag.texOk++;
-            if (src.mimeType === "image/png" && diag.samples.length < 4) diag.samples.push(bmp);
             const tex = new THREE.Texture(bmp as unknown as HTMLImageElement);
             tex.needsUpdate = true;
             return tex;
           } catch (e) {
-            diag.texFail++;
             diagError(`textura ${index} (${src.mimeType})`, e);
             throw e;
           }
@@ -471,13 +420,10 @@ function useModel(url: string, gl: THREE.WebGLRenderer, root: THREE.Scene, camer
       };
       return { name: "mio_bitmap_textures" } as never;
     });
-    diag.model = "lendo";
     const gltf = await loader.parseAsync(buf, "").catch((e) => {
       diagError("modelo", e);
-      diag.model = "erro";
       throw e;
     });
-    diag.model = "ok";
     floatLightmapUvs(gltf.scene);
     tameSpecular(gltf.scene);
     tintMioFridges(gltf.scene);
@@ -485,7 +431,7 @@ function useModel(url: string, gl: THREE.WebGLRenderer, root: THREE.Scene, camer
     await fixTotem(gltf.scene);
     // tudo pronto antes de entrar na cena: luz assada aplicada, texturas na GPU aos poucos e shaders
     // compilados em paralelo (sem isso o primeiro quadro compilava ~200 materiais de uma vez)
-    gltf.scene.userData.baked = FLAGS.lightmaps ? await applyLightmaps(gltf.scene, assetsBase(url)) : false;
+    gltf.scene.userData.baked = await applyLightmaps(gltf.scene, assetsBase(url));
     await uploadGradually(gl, gltf.scene);
     await gl.compileAsync(gltf.scene, camera, root).catch(() => undefined);
     return gltf.scene;
@@ -498,27 +444,13 @@ export function GlbScene({ url }: { url: string }) {
 
 function GlbModel({ url }: { url: string }) {
   const gl = useThree((s) => s.gl);
-  useEffect(() => {
-    try {
-      const ctx = gl.getContext();
-      const ext = ctx.getExtension("WEBGL_debug_renderer_info");
-      diag.gpu = String(ext ? ctx.getParameter(ext.UNMASKED_RENDERER_WEBGL) : ctx.getParameter(ctx.RENDERER)).slice(0, 80);
-    } catch {}
-  }, [gl]);
   const root = useThree((s) => s.scene);
   const camera = useThree((s) => s.camera);
   const scene = useModel(url, gl, root, camera);
   const hovered = useScene((s) => s.hovered);
   useEffect(() => {
     sceneStore.set({ baked: !!scene.userData.baked });
-    if (!location.hash.includes("debug3d")) return;
-    (window as unknown as { __mioScene: unknown }).__mioScene = scene;
-    try {
-      probeLightmaps(gl);
-    } catch (e) {
-      diagError("sonda", e);
-    }
-  }, [scene, gl]);
+  }, [scene]);
 
   // hover: brilho vinho suave no objeto (troca temporária dos materiais)
   useEffect(() => {

@@ -47,57 +47,6 @@ function BulbIcon() {
   );
 }
 
-function DiagPanel() {
-  const [on, setOn] = useState(false);
-  const [, tick] = useState(0);
-  const thumbs = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const check = () => setOn(location.hash.includes("debug3d"));
-    check();
-    window.addEventListener("hashchange", check);
-    const id = window.setInterval(() => tick((n) => n + 1), 1000);
-    return () => {
-      window.removeEventListener("hashchange", check);
-      window.clearInterval(id);
-    };
-  }, []);
-  const [d, setD] = useState<typeof import("@/scene/diag") | null>(null);
-  useEffect(() => {
-    if (on) import("@/scene/diag").then(setD);
-  }, [on]);
-  useEffect(() => {
-    const el = thumbs.current;
-    if (!el || !d) return;
-    el.innerHTML = "";
-    d.diag.samples.forEach((b) => {
-      const c = document.createElement("canvas");
-      c.width = 64;
-      c.height = 64;
-      c.style.cssText = "background:repeating-conic-gradient(#ccc 0 25%,#fff 0 50%) 0 0/12px 12px;margin-right:4px";
-      c.getContext("2d")?.drawImage(b, 0, 0, 64, 64);
-      el.appendChild(c);
-    });
-  });
-  if (!on || !d) return null;
-  const x = d.diag;
-  return (
-    <div style={{ position: "absolute", left: 12, top: 90, zIndex: 9, background: "rgba(0,0,0,.8)", color: "#fff", font: "12px/1.5 monospace", padding: 12, borderRadius: 8, maxWidth: 420 }}>
-      <div>build {d.BUILD_TAG} · modelo: {x.model}</div>
-      <div>texturas ok {x.texOk} · falhas {x.texFail}</div>
-      <div>lightmaps ok {x.lmOk} · falhas {x.lmFail} · materiais {x.lmPatched} · shaders {x.lmCompiled} · assada {String(sceneStore.get().baked)}</div>
-      <div>sonda luz assada: {x.lmProbe || "…"}</div>
-      <div>gpu: {x.gpu}</div>
-      <div style={{ wordBreak: "break-all" }}>{navigator.userAgent.slice(0, 120)}</div>
-      {x.errors.map((e, i) => (
-        <div key={i} style={{ color: "#ffb4b4" }}>
-          {e}
-        </div>
-      ))}
-      <div ref={thumbs} style={{ marginTop: 6 }} />
-    </div>
-  );
-}
-
 const Experience = dynamic(() => import("@/scene/Experience"), { ssr: false });
 
 type Support = "checking" | "ok" | "weak" | "none";
@@ -327,7 +276,6 @@ export function AmbienteSection({ standalone = false }: { standalone?: boolean }
           </div>
         )}
 
-        <DiagPanel />
         <div className="scene-ui">
           <div className={`scene-intro${mode === "intro" ? " is-visible" : ""}`} style={{ opacity: mode === "intro" ? Math.max(0, 1 - progress * 1.6) : 0 }}>
             <Reveal as="p" className="eyebrow eyebrow--pill" text="Ambiente 3D" />

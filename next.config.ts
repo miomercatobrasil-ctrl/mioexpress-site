@@ -6,11 +6,9 @@ const isStatic = process.env.CF_PAGES === "1" || process.env.STATIC_EXPORT === "
 
 const nextConfig: NextConfig = {
   ...(isStatic ? { output: "export" as const, trailingSlash: true } : {}),
-  images: {
-    unoptimized: isStatic,
-    formats: ["image/avif", "image/webp"],
-    qualities: [70, 80],
-  },
+  images: isStatic
+    ? { loader: "custom", loaderFile: "./src/lib/image-loader.ts" }
+    : { formats: ["image/avif", "image/webp"], qualities: [70, 80] },
   ...(isStatic
     ? {}
     : {

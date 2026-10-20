@@ -2,36 +2,17 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { AdaptiveDpr, ContactShadows, PerformanceMonitor, useProgress } from "@react-three/drei";
+import { AdaptiveDpr, PerformanceMonitor, useProgress } from "@react-three/drei";
 import { CameraRig } from "./CameraRig";
 import { GlbScene } from "./GlbScene";
 import { Hotspots } from "./Hotspots";
-import { COLORS, INTRO_PATH } from "./layout";
-import { PlaceholderScene } from "./Placeholders";
+import { INTRO_PATH } from "./layout";
 import { sceneStore } from "./store";
 import { LightRig } from "./LightRig";
-import { FLAGS } from "./diag";
 import { isWeakGpu } from "./perf";
 import { CameraLook, FloorReflection, SceneEnvironment } from "./Effects";
 
-// modelo final por padrão; NEXT_PUBLIC_SCENE_GLB="" volta para a cena de placeholders
-const GLB_URL = process.env.NEXT_PUBLIC_SCENE_GLB ?? "/models/mio-terracos.glb";
-
-function Lights() {
-  return (
-    <>
-      <hemisphereLight args={["#fff4e2", "#b79a77", 1.5]} />
-      <ambientLight intensity={0.35} color="#ffe9cc" />
-      {/* luz do dia entrando pelo jardim */}
-      <directionalLight position={[10, 6, 1.5]} intensity={1.3} color="#fff1d6" />
-      {/* LED das prateleiras (uma luz por módulo) */}
-      {[2.0, 3.0, 4.0].map((z) => (
-        <pointLight key={z} position={[0.55, 1.35, z]} intensity={1.4} distance={2.4} decay={1.6} color={COLORS.led} />
-      ))}
-      <pointLight position={[2.2, 2.4, 2.0]} intensity={1.6} distance={5} decay={1.4} color="#ffe7c4" />
-    </>
-  );
-}
+const GLB_URL = process.env.NEXT_PUBLIC_SCENE_GLB || "/models/mio-terracos.glb";
 
 function Ready() {
   useEffect(() => {
@@ -78,17 +59,16 @@ export default function Experience({ mobile, reducedMotion, running }: { mobile:
       />
       <AdaptiveDpr pixelated={false} />
       <fog attach="fog" args={["#efe6d8", 9, 20]} />
-      {GLB_URL ? <LightRig reducedMotion={reducedMotion} /> : <Lights />}
-      {GLB_URL && <SceneEnvironment />}
+      <LightRig reducedMotion={reducedMotion} />
+      <SceneEnvironment />
       <Suspense fallback={null}>
-        {GLB_URL ? <GlbScene url={GLB_URL} /> : <PlaceholderScene />}
-        {!GLB_URL && <ContactShadows position={[2.5, 0.006, 1.7]} scale={[10, 8]} resolution={mobile ? 512 : 1024} blur={2.4} opacity={0.45} far={2.2} frames={1} />}
-        {GLB_URL && !lite && FLAGS.effects && <FloorReflection />}
+        <GlbScene url={GLB_URL} />
+        {!lite && <FloorReflection />}
         <Hotspots />
         <Ready />
       </Suspense>
       <CameraRig reducedMotion={reducedMotion} />
-      {GLB_URL && !mobile && FLAGS.effects && <CameraLook />}
+      {!mobile && <CameraLook />}
     </Canvas>
     </>
   );
