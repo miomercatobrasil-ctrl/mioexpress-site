@@ -10,6 +10,7 @@ import { sceneStore, useScene } from "./store";
 import { Vegetation, type PlantSpot } from "./Vegetation";
 import { Products, hideGenericFridgeProducts } from "./Products";
 import { TotemScreen, setTotemCorners } from "./TotemScreen";
+import { isLite } from "./perf";
 import { FLAGS, diag, diagError } from "./diag";
 
 // Cena final exportada do Blender (ver docs/PIPELINE-3D.md).
@@ -275,8 +276,8 @@ async function applyLightmaps(scene: THREE.Object3D, base: string) {
   return true;
 }
 
-// celular: lightmaps com metade da resolução (lightmaps/m/)
-const MOBILE_LM = typeof window !== "undefined" && window.matchMedia("(max-width: 760px), (pointer: coarse)").matches;
+// celular e computador sem placa de vídeo: lightmaps com metade da resolução (lightmaps/m/)
+const MOBILE_LM = isLite();
 
 /** Envia as texturas à GPU aos poucos, devolvendo o controle ao navegador entre lotes: no celular o envio
  *  de tudo no primeiro quadro travava a rolagem por mais de um segundo. */

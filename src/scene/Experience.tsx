@@ -11,6 +11,7 @@ import { PlaceholderScene } from "./Placeholders";
 import { sceneStore } from "./store";
 import { LightRig } from "./LightRig";
 import { FLAGS } from "./diag";
+import { isWeakGpu } from "./perf";
 import { CameraLook, FloorReflection, SceneEnvironment } from "./Effects";
 
 // modelo final por padrão; NEXT_PUBLIC_SCENE_GLB="" volta para a cena de placeholders
@@ -48,7 +49,9 @@ function ProgressBridge() {
 }
 
 export default function Experience({ mobile, reducedMotion, running }: { mobile: boolean; reducedMotion: boolean; running: boolean }) {
-  const [dprMax, setDprMax] = useState(mobile ? 1.5 : 2);
+  // computador sem placa de vídeo: mesmo pacote leve do celular (sem reflexo do piso, resolução menor)
+  const [lite, setLite] = useState(() => mobile || isWeakGpu());
+  const [dprMax, setDprMax] = useState(mobile ? 1.5 : lite ? 1.25 : 2);
   const aspect = typeof window !== "undefined" ? window.innerWidth / window.innerHeight : 1.6;
   // celular em pé: FOV vertical maior para não "cortar" o ambiente nas laterais
   const fov = aspect < 0.8 ? 80 : aspect < 1.2 ? 62 : 52;
@@ -61,12 +64,18 @@ export default function Experience({ mobile, reducedMotion, running }: { mobile:
       dpr={[1, dprMax]}
       // fora da tela não renderiza (bateria/CPU no celular)
       frameloop={running ? "always" : "never"}
-      gl={{ antialias: !mobile, powerPreference: "high-performance", alpha: false }}
+      gl={{ antialias: !lite, powerPreference: "high-performance", alpha: false }}
       camera={{ fov, near: 0.05, far: 60, position: INTRO_PATH.position[0] }}
       onPointerMissed={() => sceneStore.set({ hovered: null })}
       onCreated={({ gl }) => gl.setClearColor("#efe6d8")}
     >
-      <PerformanceMonitor onDecline={() => setDprMax(1)} />
+      {/* se ainda assim ficar lento, cai para o pacote leve na hora */}
+      <PerformanceMonitor
+        onDecline={() => {
+          setDprMax(1);
+          setLite(true);
+        }}
+      />
       <AdaptiveDpr pixelated={false} />
       <fog attach="fog" args={["#efe6d8", 9, 20]} />
       {GLB_URL ? <LightRig reducedMotion={reducedMotion} /> : <Lights />}
@@ -74,7 +83,7 @@ export default function Experience({ mobile, reducedMotion, running }: { mobile:
       <Suspense fallback={null}>
         {GLB_URL ? <GlbScene url={GLB_URL} /> : <PlaceholderScene />}
         {!GLB_URL && <ContactShadows position={[2.5, 0.006, 1.7]} scale={[10, 8]} resolution={mobile ? 512 : 1024} blur={2.4} opacity={0.45} far={2.2} frames={1} />}
-        {GLB_URL && !mobile && FLAGS.effects && <FloorReflection />}
+        {GLB_URL && !lite && FLAGS.effects && <FloorReflection />}
         <Hotspots />
         <Ready />
       </Suspense>
