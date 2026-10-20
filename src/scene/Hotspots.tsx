@@ -7,7 +7,8 @@ import { sceneStore, useScene } from "./store";
 export function Hotspots() {
   const mode = useScene((s) => s.mode);
   const active = useScene((s) => s.active);
-  if (mode !== "explore") return null;
+  const checkout = useScene((s) => s.checkout);
+  if (mode !== "explore" || checkout !== "off") return null;
   return (
     <>
       {HOTSPOTS.map((h) => (

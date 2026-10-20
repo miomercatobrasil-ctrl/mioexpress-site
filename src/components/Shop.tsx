@@ -24,6 +24,18 @@ function beep(freq = 1850, ms = 90) {
 }
 
 const itens = (n: number) => `${n} ${n === 1 ? "item" : "itens"}`;
+const THUMBS = (process.env.NEXT_PUBLIC_SCENE_ASSETS || "/").replace(/models\/$/, "") + "textures/miniaturas/";
+
+/** Agrupa os itens já passados por produto (foto + quantidade), na ordem em que apareceram. */
+function group(list: { key: string; label: string }[]) {
+  const out: { key: string; label: string; qty: number }[] = [];
+  for (const c of list) {
+    const g = out.find((o) => o.key === c.key);
+    if (g) g.qty++;
+    else out.push({ ...c, qty: 1 });
+  }
+  return out;
+}
 
 function CartIcon() {
   return (
@@ -72,7 +84,7 @@ export function CartBar() {
   );
 }
 
-/** Tela do totem (sobre a cena): passar os produtos, escolher Pix ou cartão e compra concluída. */
+/** Tela do totem (desenhada na própria tela do totem 3D, ver scene/TotemScreen.tsx): passar os produtos, escolher Pix ou cartão e compra concluída. */
 export function Checkout() {
   const cart = useScene((s) => s.cart);
   const checkout = useScene((s) => s.checkout);
@@ -133,10 +145,13 @@ export function Checkout() {
         <>
           <p className="totem-screen__title">{checkout === "scan" ? "Passando os produtos…" : "Tudo certo! Como quer pagar?"}</p>
           <ol ref={listRef} className="totem-screen__list">
-            {cart.slice(0, scanned || (checkout === "pay" ? cart.length : 0)).map((c, i) => (
-              <li key={i}>
-                <span className="totem-screen__beep" aria-hidden />
-                {c.label}
+            {group(cart.slice(0, checkout === "pay" ? cart.length : scanned)).map((c) => (
+              <li key={c.key}>
+                <img src={`${THUMBS}${c.key}.webp`} alt="" width={36} height={36} />
+                <span className="totem-screen__name">{c.label}</span>
+                <span key={c.qty} className="totem-screen__qty">
+                  {c.qty}×
+                </span>
               </li>
             ))}
           </ol>
@@ -177,12 +192,23 @@ export function Checkout() {
             <a href="#contato" className="btn btn--primary" onClick={restart}>
               Quero uma Mio no meu condomínio
             </a>
-            <button type="button" className="btn btn--ghost" onClick={restart}>
+            <button type="button" className="btn totem-screen__again" onClick={restart}>
               Comprar de novo
             </button>
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/** Camada da tela do totem: posicionada e escalada pela cena (scene/TotemScreen.tsx). */
+export function TotemOverlay() {
+  const checkout = useScene((s) => s.checkout);
+  if (checkout === "off") return null;
+  return (
+    <div className="totem-overlay">
+      <Checkout />
     </div>
   );
 }

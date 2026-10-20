@@ -9,6 +9,7 @@ import { COLORS, OBJECT_TO_HOTSPOT, type ObjectId } from "./layout";
 import { sceneStore, useScene } from "./store";
 import { Vegetation, type PlantSpot } from "./Vegetation";
 import { Products, hideGenericFridgeProducts } from "./Products";
+import { TotemScreen } from "./TotemScreen";
 import { FLAGS, diag, diagError } from "./diag";
 
 // Cena final exportada do Blender (ver docs/PIPELINE-3D.md).
@@ -572,6 +573,7 @@ function GlbModel({ url }: { url: string }) {
       <primitive object={scene} onPointerOver={over} onPointerOut={out} onClick={click} />
       <Vegetation spots={plants} />
       <Products />
+      <TotemScreen />
     </>
   );
 }

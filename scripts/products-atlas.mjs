@@ -1,7 +1,7 @@
 // Monta os atlas de produtos (rótulos recortados) para o 3D.
 // Entrada: assets/source/produtos/crop_<nome>.png. Os nomes "arm_*" vão para o atlas do armário
 // (produtos-armario.*), o resto para o das geladeiras (produtos.*). Saída em public/textures/.
-import { readdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import sharp from "sharp";
 
 const SRC = "assets/source/produtos";
@@ -26,6 +26,10 @@ async function build(out, names) {
   writeFileSync(`public/textures/${out}.json`, JSON.stringify(tiles));
   console.log(out, names.length, "produtos", W + "x" + H);
 }
+
+// miniaturas para a tela do totem na simulação de compra
+mkdirSync("public/textures/miniaturas", { recursive: true });
+for (const n of all) await sharp(`${SRC}/crop_${n}.png`).resize({ height: 120, width: 120, fit: "inside" }).webp({ quality: 80 }).toFile(`public/textures/miniaturas/${n}.webp`);
 
 await build("produtos", all.filter((n) => !n.startsWith("arm_")));
 await build("produtos-armario", all.filter((n) => n.startsWith("arm_")));

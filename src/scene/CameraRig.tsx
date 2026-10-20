@@ -7,6 +7,7 @@ import { OrbitControls } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { HOTSPOTS, INTRO_PATH, ORBIT, OVERVIEW, OVERVIEW_PORTRAIT, TOUR_ORDER, clampCamera, type View } from "./layout";
 import { sceneStore, useScene } from "./store";
+import { TOTEM_SCREEN } from "./TotemScreen";
 
 const IDLE_MS = 7000;
 const TOUR_STEP_MS = 5200;
@@ -40,6 +41,7 @@ export function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
   const mode = useScene((s) => s.mode);
   const active = useScene((s) => s.active);
   const touring = useScene((s) => s.touring);
+  const checkout = useScene((s) => s.checkout);
   const isTouch = useMemo(() => typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches, []);
 
   const portrait = useThree((s) => s.size.width / s.size.height < 0.8);
@@ -76,13 +78,21 @@ export function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
     c.enabled = false;
   };
 
-  // entrar no modo exploração / trocar de hotspot
+  // entrar no modo exploração / trocar de hotspot / compra: câmera de frente para a tela do totem
+  const shopping = checkout !== "off";
   useEffect(() => {
     if (mode !== "explore") return;
+    if (shopping) {
+      const [cx, cy, cz] = TOTEM_SCREEN.center;
+      const [nx, ny, nz] = TOTEM_SCREEN.normal;
+      const d = portrait ? 0.5 : 0.4;
+      goTo({ position: [cx + nx * d, cy + ny * d, cz + nz * d], target: [cx, cy + 0.045, cz] });
+      return;
+    }
     const h = active ? HOTSPOTS.find((x) => x.id === active) : null;
     goTo(h ? h.view : overview);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, active]);
+  }, [mode, active, shopping]);
 
   // tour guiado
   useEffect(() => {
@@ -159,11 +169,13 @@ export function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
       camera.lookAt(c.target);
       if (tw.t >= 1) {
         tween.current = null;
-        c.enabled = true;
-        c.update();
+        c.enabled = s.checkout === "off";
+        if (c.enabled) c.update();
       }
       return;
     }
+    // na compra a câmera fica parada de frente para o totem
+    if (s.checkout !== "off") return;
 
     // rotação lenta quando ocioso (vai e volta dentro dos limites)
     const idle = !s.touring && !s.active && performance.now() - s.lastInteraction > IDLE_MS && !reducedMotion;

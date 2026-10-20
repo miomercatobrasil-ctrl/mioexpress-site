@@ -6,7 +6,7 @@ import { Component, useEffect, useRef, useState, type ReactNode } from "react";
 import { HOTSPOTS, TOUR_ORDER } from "@/scene/layout";
 import { sceneStore, useScene } from "@/scene/store";
 import { Reveal } from "./Reveal";
-import { CartBar, Checkout } from "./Shop";
+import { CartBar, TotemOverlay } from "./Shop";
 
 /** Se o 3D falhar (WebGL, rede, modelo), a página segue normal e mostra a foto no lugar. */
 class SceneBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
@@ -179,6 +179,7 @@ export function AmbienteSection() {
   const night = useScene((s) => s.night);
   const led = useScene((s) => s.led);
   const progress = useScene((s) => s.introProgress);
+  const checkout = useScene((s) => s.checkout);
 
   useEffect(() => {
     setSupport(detectSupport());
@@ -324,7 +325,7 @@ export function AmbienteSection() {
 
           {show3D && mode === "explore" && (
             <>
-              <div className="scene-actions">
+              <div className={`scene-actions${checkout !== "off" ? " is-hidden" : ""}`}>
                 <button
                   type="button"
                   className={`btn btn--light btn--sm${touring ? " is-on" : ""}`}
@@ -366,7 +367,7 @@ export function AmbienteSection() {
               </div>
               <Card />
               {interacted && <CartBar />}
-              <Checkout />
+              <TotemOverlay />
             </>
           )}
         </div>
