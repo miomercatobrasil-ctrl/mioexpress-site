@@ -47,7 +47,7 @@ type ShapeId = keyof typeof SHAPES;
 const PRODUCT: Record<string, ShapeId> = {
   coca_lata: "lata", cocazero_lata: "lata", guarana_lata: "lata", heineken_lata: "lata", spaten: "lata",
   budweiser: "lata", brahma: "lata", eisenbahn: "lata",
-  redbull: "lataSlim", fanta: "lata220", cocazero_220: "lata220", schweppes: "lata220", delvalle_lata: "lata290",
+  redbull: "lataSlim", fanta: "lata", cocazero_220: "lata220", schweppes: "lata220", delvalle_lata: "lata290",
   heineken_ln: "longneck", corona: "longneck",
   coca_2l: "pet2l", cocazero_2l: "pet2l", guarana_2l: "pet2l",
   gatorade: "petPequena", powerade: "petPequena", natural_one: "petPequena", crystal: "agua",
