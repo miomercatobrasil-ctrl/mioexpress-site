@@ -8,9 +8,9 @@ import "./globals.css";
 
 const font = Montserrat({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap", variable: "--font" });
 
-const title = "Mio Express | Mini mercado 24h no seu condomínio em São José dos Campos";
+const title = "Mio Express | Mini mercado 24h no seu condomínio em São José dos Campos e Jacareí";
 const description =
-  "Mini mercado autônomo 24h dentro do condomínio. Implantação gratuita: a Mio instala, abastece e faz a manutenção. Atendemos condomínios em São José dos Campos – SP.";
+  "Mini mercado autônomo 24h dentro do condomínio. Implantação gratuita: a Mio instala, abastece e faz a manutenção. Atendemos condomínios em São José dos Campos e Jacareí – SP.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -22,6 +22,8 @@ export const metadata: Metadata = {
     "mercado autônomo condomínio",
     "market autônomo 24h",
     "conveniência condomínio São José dos Campos",
+    "mini mercado em condomínio Jacareí",
+    "mercado autônomo condomínio Jacareí",
   ],
   alternates: { canonical: "/" },
   openGraph: {
@@ -64,7 +66,10 @@ const jsonLd = {
     postalCode: SITE.address.zip,
     addressCountry: "BR",
   },
-  areaServed: { "@type": "City", name: "São José dos Campos" },
+  areaServed: [
+    { "@type": "City", name: "São José dos Campos" },
+    { "@type": "City", name: "Jacareí" },
+  ],
   openingHoursSpecification: {
     "@type": "OpeningHoursSpecification",
     dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],

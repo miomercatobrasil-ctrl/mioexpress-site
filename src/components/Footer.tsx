@@ -20,7 +20,7 @@ export function Footer() {
         <div className="footer__grid">
           <div>
             <img src="/brand/logo-white.svg" alt="Mio Express mini mercado" width={170} height={48} className="footer__logo" />
-            <p className="footer__muted">Mini mercado autônomo 24h dentro de condomínios em São José dos Campos – SP.</p>
+            <p className="footer__muted">Mini mercado autônomo 24h dentro de condomínios em São José dos Campos e Jacareí – SP.</p>
           </div>
           <div>
             <p className="footer__h">Contato</p>
