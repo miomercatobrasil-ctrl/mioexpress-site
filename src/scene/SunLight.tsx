@@ -57,11 +57,8 @@ function sunTexture() {
   return t;
 }
 
-// manchas de sol no piso: entrada (entre o jardim e o armário) e corredor do armário, até a porta de vidro
-const PATCHES = [
-  { x: 3.1, z: 1.95, w: 2.6, d: 2.1, rot: 0 },
-  { x: 1.75, z: 3.75, w: 1.9, d: 1.5, rot: 0.35 },
-];
+// mancha de sol no piso só na entrada (luz baixa entrando pelo lado do jardim, passando pelas ripas)
+const PATCHES = [{ x: 3.1, z: 1.95, w: 2.6, d: 2.1, rot: 0 }];
 
 export function SunLight() {
   const mat = useMemo(
