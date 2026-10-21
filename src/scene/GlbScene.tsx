@@ -49,6 +49,67 @@ function floatLightmapUvs(scene: THREE.Object3D) {
   });
 }
 
+/** Janelas basculantes do projeto estão "abertas" (vidro inclinado), o que parecia vidro quebrado.
+ *  Troca cada vidro inclinado por um vidro fechado, reto, no meio do caixilho. */
+function closeWindows(scene: THREE.Object3D) {
+  const box = new THREE.Box3();
+  const size = new THREE.Vector3();
+  const center = new THREE.Vector3();
+  const windows: { top: THREE.Object3D; box: THREE.Box3 }[] = [];
+  const add: [THREE.Object3D, THREE.Mesh][] = [];
+  scene.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh || Array.isArray(m.material) || !/translucent_glass_blue\.001/i.test(m.material.name)) return;
+    box.setFromObject(m);
+    box.getSize(size);
+    box.getCenter(center);
+    const thinX = size.x < size.z;
+    if ((thinX ? size.x : size.z) < 0.06 || size.y < 0.2) return;
+    let top: THREE.Object3D = m;
+    while (top.parent && top.parent !== scene) top = top.parent;
+    windows.push({ top, box: box.clone().expandByScalar(0.04) });
+    const mat = (m.material as THREE.MeshStandardMaterial).clone();
+    mat.side = THREE.DoubleSide;
+    const pane = new THREE.Mesh(new THREE.PlaneGeometry(thinX ? size.z : size.x, size.y), mat);
+    pane.position.copy(center);
+    if (thinX) pane.rotation.y = Math.PI / 2;
+    m.visible = false;
+    add.push([m.parent!, pane]);
+  });
+  add.forEach(([parent, pane]) => {
+    parent.updateWorldMatrix(true, false);
+    parent.worldToLocal(pane.position);
+    parent.add(pane);
+  });
+  // caixilho inclinado e puxador da folha aberta: triângulos dentro da janela com normal inclinada
+  const v = new THREE.Vector3();
+  const tri = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
+  const nrm = new THREE.Vector3();
+  for (const w of windows)
+    w.top.traverse((o) => {
+      const m = o as THREE.Mesh;
+      if (!m.isMesh || Array.isArray(m.material) || !/silver|color_00[78]|^material(_\d+)?$/i.test(m.material.name) || !m.geometry.index) return;
+      m.updateWorldMatrix(true, false);
+      const g = m.geometry;
+      const idx = g.index!;
+      const pos = g.attributes.position as THREE.BufferAttribute;
+      const keep: number[] = [];
+      let removed = 0;
+      for (let t = 0; t < idx.count; t += 3) {
+        for (let k = 0; k < 3; k++) tri[k].fromBufferAttribute(pos, idx.getX(t + k)).applyMatrix4(m.matrixWorld);
+        const inside = tri.every((p) => w.box.containsPoint(p));
+        nrm.subVectors(tri[1], tri[0]).cross(v.subVectors(tri[2], tri[0])).normalize();
+        const tilted = Math.max(Math.abs(nrm.x), Math.abs(nrm.y), Math.abs(nrm.z)) < 0.97;
+        if (inside && (tilted || /color_00[78]/i.test((m.material as THREE.Material).name))) removed++;
+        else keep.push(idx.getX(t), idx.getX(t + 1), idx.getX(t + 2));
+      }
+      if (!removed) return;
+      const ng = g.clone();
+      ng.setIndex(keep);
+      m.geometry = ng;
+    });
+}
+
 /** Paredes e teto em cor gelo (o branco puro do projeto ficava "estourado" na tela). */
 function iceWalls(scene: THREE.Object3D) {
   const gelo = new THREE.Color("#ebe5dc");
@@ -494,6 +555,7 @@ function useModel(url: string, gl: THREE.WebGLRenderer, root: THREE.Scene, camer
     tintMioFridges(gltf.scene);
     hideGenericFridgeProducts(gltf.scene);
     removeEntranceBlock(gltf.scene);
+    closeWindows(gltf.scene);
     iceWalls(gltf.scene);
     await fixTotem(gltf.scene);
     // tudo pronto antes de entrar na cena: luz assada aplicada, texturas na GPU aos poucos e shaders
