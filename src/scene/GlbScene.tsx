@@ -12,6 +12,7 @@ import { Products, hideGenericFridgeProducts } from "./Products";
 import { TotemScreen, setTotemCorners } from "./TotemScreen";
 import { FridgeLights } from "./FridgeLights";
 import { SunLight } from "./SunLight";
+import { CeilingEdge } from "./CeilingEdge";
 import { isLite } from "./perf";
 import { NIGHT, diagError } from "./diag";
 
@@ -67,7 +68,7 @@ function closeWindows(scene: THREE.Object3D) {
     if ((thinX ? size.x : size.z) < 0.06 || size.y < 0.2) return;
     let top: THREE.Object3D = m;
     while (top.parent && top.parent !== scene) top = top.parent;
-    windows.push({ top, box: box.clone().expandByScalar(0.04) });
+    windows.push({ top, box: box.clone().expandByScalar(0.07) });
     const mat = (m.material as THREE.MeshStandardMaterial).clone();
     mat.side = THREE.DoubleSide;
     const pane = new THREE.Mesh(new THREE.PlaneGeometry(thinX ? size.z : size.x, size.y), mat);
@@ -88,7 +89,8 @@ function closeWindows(scene: THREE.Object3D) {
   for (const w of windows)
     w.top.traverse((o) => {
       const m = o as THREE.Mesh;
-      if (!m.isMesh || Array.isArray(m.material) || !/silver|color_00[78]|^material(_\d+)?$/i.test(m.material.name) || !m.geometry.index) return;
+      // qualquer peça inclinada dentro do vão da janela (paredes e batentes são retos e ficam)
+      if (!m.isMesh || Array.isArray(m.material) || m.material.transparent || !m.geometry.index) return;
       m.updateWorldMatrix(true, false);
       const g = m.geometry;
       const idx = g.index!;
@@ -644,6 +646,7 @@ function GlbModel({ url }: { url: string }) {
       <TotemScreen />
       <FridgeLights />
       <SunLight />
+      <CeilingEdge />
     </>
   );
 }
