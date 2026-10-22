@@ -329,7 +329,7 @@ export function AmbienteSection({ standalone = false }: { standalone?: boolean }
                 </button>
                 <button
                   type="button"
-                  className={`btn btn--light btn--sm btn--icon${led ? " is-on" : ""}`}
+                  className={`btn btn--light btn--sm btn--icon btn--led${led ? " is-lit" : ""}`}
                   aria-pressed={led}
                   onClick={() => sceneStore.set({ led: !led, interacted: true, lastInteraction: performance.now() })}
                 >
