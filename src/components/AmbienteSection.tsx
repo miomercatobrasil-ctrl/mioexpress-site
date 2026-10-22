@@ -343,11 +343,9 @@ export function AmbienteSection({ standalone = false }: { standalone?: boolean }
                     −
                   </button>
                 </div>
-                <button type="button" className="btn btn--light btn--sm" onClick={exit}>
-                  {standalone ? "Conhecer a Mio →" : "Continuar ↓"}
-                </button>
               </div>
               <div className={`scene-angles${checkout !== "off" ? " is-hidden" : ""}`} role="group" aria-label="Ângulos da câmera">
+                <p className="scene-angles__title">Câmeras</p>
                 {ANGLES.map((a, i) => (
                   <button
                     key={a.label}
@@ -368,6 +366,9 @@ export function AmbienteSection({ standalone = false }: { standalone?: boolean }
                 <span className="scene-hint__icon" />
                 {mobile ? "Arraste para explorar · pinça para zoom" : "Arraste para explorar · Ctrl + rolagem para zoom"}
               </div>
+              <button type="button" className={`btn btn--light btn--sm scene-exit${checkout !== "off" ? " is-hidden" : ""}`} onClick={exit}>
+                {standalone ? "Conhecer a Mio →" : "Continuar ↓"}
+              </button>
               <Card />
               <CartBar />
               <TotemOverlay />

@@ -2979,6 +2979,15 @@ body:has(.ambiente.is-explore) .wa-float {
   gap: 8px;
   transition: opacity 0.3s;
 }
+.scene-angles__title {
+  margin: 0 0 2px 4px;
+  color: var(--white);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 6px rgba(43, 29, 26, 0.6);
+}
 .scene-angles.is-hidden {
   opacity: 0;
   pointer-events: none;
@@ -3037,9 +3046,45 @@ body:has(.ambiente.is-explore) .wa-float {
     height: 22px;
     font-size: 0.72rem;
   }
+  .scene-angles__title {
+    font-size: 0.66rem;
+  }
   .scene-card.is-open ~ .scene-angles,
   .scene-angles:has(~ .scene-card.is-open) {
     opacity: 0;
     pointer-events: none;
+  }
+}
+
+/* sair da experiência ("Continuar ↓" / "Conhecer a Mio →"): embaixo, à direita, ao lado da cesta */
+.scene-exit {
+  position: absolute;
+  right: var(--gutter);
+  bottom: 28px;
+  box-shadow: 0 4px 14px rgba(43, 29, 26, 0.16);
+  transition: opacity 0.3s;
+}
+.scene-exit.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+@media (max-width: 760px) {
+  .scene-exit {
+    bottom: 84px;
+  }
+  .scene-exit:has(~ .scene-card.is-open) {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/* iPhone: a barra do Safari flutua sobre a página; a cena vai até o fim da tela (sem faixa bege embaixo
+   na entrada) e os botões ficam acima da barra */
+@supports (height: 100lvh) {
+  .scene-stage {
+    height: 100lvh;
+  }
+  .scene-ui {
+    bottom: calc(100lvh - 100svh);
   }
 }

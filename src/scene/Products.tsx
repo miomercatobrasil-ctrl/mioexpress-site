@@ -386,10 +386,21 @@ export function hideGenericFridgeProducts(scene: THREE.Object3D) {
   const generic =
     /^(Color_A05\.001|Color_A3|__Color_006_3|Color_A10|coca-cola-fanta-sprite-cans.*|Metal_Aluminum_Anodized|__Color_007_1|_20124204932-Coca_Zero_Lata|images|Acrylic_Trasparent_Green|__auto_\d?)$/;
   for (const name of ["geladeira_mio_1", "geladeira_mio_2", "geladeira_mio_3", "geladeira_coca"]) {
-    scene.getObjectByName(name)?.traverse((o) => {
+    const fridge = scene.getObjectByName(name);
+    let shelves: THREE.Box3 | null = null;
+    fridge?.traverse((o) => {
       const m = o as THREE.Mesh;
       if (m.isMesh && !Array.isArray(m.material) && generic.test(m.material.name)) m.visible = false;
+      if (m.isMesh && !Array.isArray(m.material) && m.material.name === "Metal_Grate") shelves = new THREE.Box3().setFromObject(m);
     });
+    // pedaços de garrafas do projeto que ficaram no mesmo material da carcaça (Color_M08): apareciam como
+    // "rasgos" vermelhos ao tirar uma água da frente. Saem os triângulos inteiros dentro do vão das prateleiras.
+    const box = shelves as THREE.Box3 | null;
+    if (box)
+      fridge?.traverse((o) => {
+        const m = o as THREE.Mesh;
+        if (m.isMesh && !Array.isArray(m.material) && m.material.name === "Color_M08") stripInside(m, box.clone().expandByVector(new THREE.Vector3(-0.02, 0.02, -0.02)));
+      });
   }
   // armário: fica só a marcenaria (o resto são os produtos genéricos do projeto)
   const structure = /^(Color_A07|Color_B03|__Wood_Bamboo_2|Color_E01|__Color_E01_1|logo_novo-removebg-preview|ModelUp_Tote-bag.*|Color_008|Color_007|Translucent_Glass_Blue\.001|_0131_Silver)$/;
@@ -400,6 +411,24 @@ export function hideGenericFridgeProducts(scene: THREE.Object3D) {
     // do vão das prateleiras (prateleiras, fundo e laterais encostam na frente/fundo e ficam)
     if (m.isMesh && !Array.isArray(m.material) && m.material.name === "Color_B03") stripLooseBoxes(m);
   });
+}
+
+function stripInside(mesh: THREE.Mesh, box: THREE.Box3) {
+  const g = mesh.geometry;
+  const idx = g.index;
+  if (!idx) return;
+  mesh.updateWorldMatrix(true, false);
+  const pos = g.attributes.position as THREE.BufferAttribute;
+  const w = Array.from({ length: pos.count }, (_, i) => new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(mesh.matrixWorld));
+  const keep: number[] = [];
+  for (let t = 0; t < idx.count; t += 3) {
+    const a = idx.getX(t), b = idx.getX(t + 1), c = idx.getX(t + 2);
+    if (!(box.containsPoint(w[a]) && box.containsPoint(w[b]) && box.containsPoint(w[c]))) keep.push(a, b, c);
+  }
+  if (keep.length === idx.count) return;
+  const ng = g.clone();
+  ng.setIndex(keep);
+  mesh.geometry = ng;
 }
 
 const SHELF_TOPS = [0.12, 0.54, 0.56, 0.85, 1.09, 1.35, 1.37, 1.62, 1.98];
