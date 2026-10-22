@@ -2758,6 +2758,16 @@ body:has(.ambiente.is-explore) .wa-float {
 .ambiente--standalone {
   height: 100svh;
 }
+/* iPhone: a barra do Safari flutua sobre a página; a cena vai até o fim da tela e só os botões ficam acima da barra */
+@supports (height: 100lvh) {
+  .ambiente--standalone,
+  .ambiente--standalone .scene-stage {
+    height: 100lvh;
+  }
+  .ambiente--standalone .scene-ui {
+    bottom: calc(100lvh - 100svh);
+  }
+}
 
 /* marcadores dos pontos de interesse (HTML dentro da cena) ficam abaixo dos botões e da cesta */
 .scene-gl {
