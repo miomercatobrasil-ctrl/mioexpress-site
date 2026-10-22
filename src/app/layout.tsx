@@ -85,6 +85,9 @@ const faqLd = {
   mainEntity: faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
 };
 
+// Tela de carregamento: fica até a página carregar (mín. 0,7 s para a animação aparecer, máx. 1,6 s).
+const SPLASH = `(function(){var d=document.documentElement,t0=Date.now(),done=0;function end(){if(done)return;done=1;setTimeout(function(){d.classList.add('splash-out');setTimeout(function(){var e=document.getElementById('splash');e&&e.remove()},450)},Math.max(0,700-(Date.now()-t0)))}if(document.readyState==='complete')end();else addEventListener('load',end);setTimeout(end,1600)})()`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={font.variable} suppressHydrationWarning>
@@ -94,6 +97,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
       </head>
       <body>
+        <div id="splash" aria-hidden="true">
+          <svg className="splash__cart" viewBox="0 0 64 56" width="96" height="84">
+            <rect className="splash__item splash__item--1" x="24" y="2" width="9" height="13" rx="2" />
+            <rect className="splash__item splash__item--2" x="35" y="4" width="11" height="9" rx="2" />
+            <rect className="splash__item splash__item--3" x="29" y="0" width="7" height="15" rx="3" />
+            <path className="splash__body" d="M4 8h7l6 27a3 3 0 0 0 3 2.4h26a3 3 0 0 0 2.9-2.2L55 16H14" />
+            <circle className="splash__wheel" cx="22" cy="47" r="4" />
+            <circle className="splash__wheel" cx="45" cy="47" r="4" />
+          </svg>
+          <span className="splash__name">
+            <strong>mio express</strong>
+            mini mercado
+          </span>
+          <span className="splash__bar">
+            <span />
+          </span>
+        </div>
+        <script dangerouslySetInnerHTML={{ __html: SPLASH }} />
         {children}
         <MetaPixel />
         <GoogleAnalytics />
