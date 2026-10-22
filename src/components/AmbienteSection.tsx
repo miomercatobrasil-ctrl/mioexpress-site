@@ -314,7 +314,7 @@ export function AmbienteSection({ standalone = false }: { standalone?: boolean }
               <div className={`scene-actions${checkout !== "off" ? " is-hidden" : ""}`}>
                 <button
                   type="button"
-                  className={`btn btn--light btn--sm${touring ? " is-on" : ""}`}
+                  className={`btn btn--sm ${touring ? "btn--light is-on" : "btn--primary"}`}
                   onClick={() => sceneStore.set({ touring: !touring, interacted: true, active: touring ? null : sceneStore.get().active })}
                 >
                   {touring ? "Parar tour" : "▶ Fazer tour"}
