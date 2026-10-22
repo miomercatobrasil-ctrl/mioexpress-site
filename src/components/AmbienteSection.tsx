@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { Component, useEffect, useRef, useState, type ReactNode } from "react";
-import { HOTSPOTS, TOUR_ORDER } from "@/scene/layout";
+import { ANGLES, HOTSPOTS, TOUR_ORDER } from "@/scene/layout";
 import { sceneStore, useScene } from "@/scene/store";
 import { Reveal } from "./Reveal";
 import { CartBar, TotemOverlay } from "./Shop";
@@ -131,6 +131,7 @@ export function AmbienteSection({ standalone = false }: { standalone?: boolean }
   const led = useScene((s) => s.led);
   const progress = useScene((s) => s.introProgress);
   const checkout = useScene((s) => s.checkout);
+  const angle = useScene((s) => s.angle);
 
   useEffect(() => {
     setSupport(detectSupport());
@@ -345,6 +346,23 @@ export function AmbienteSection({ standalone = false }: { standalone?: boolean }
                 <button type="button" className="btn btn--light btn--sm" onClick={exit}>
                   {standalone ? "Conhecer a Mio →" : "Continuar ↓"}
                 </button>
+              </div>
+              <div className={`scene-angles${checkout !== "off" ? " is-hidden" : ""}`} role="group" aria-label="Ângulos da câmera">
+                {ANGLES.map((a, i) => (
+                  <button
+                    key={a.label}
+                    type="button"
+                    className={angle === i ? "is-on" : ""}
+                    aria-pressed={angle === i}
+                    onClick={() => {
+                      const s = sceneStore.get();
+                      sceneStore.set({ angle: i, angleSeq: s.angleSeq + 1, active: null, touring: false, interacted: true, lastInteraction: performance.now() });
+                    }}
+                  >
+                    <span className="scene-angles__n">{i + 1}</span>
+                    {a.label}
+                  </button>
+                ))}
               </div>
               <div className={`scene-hint scene-hint--raised${interacted ? " is-hidden" : ""}`} aria-hidden>
                 <span className="scene-hint__icon" />

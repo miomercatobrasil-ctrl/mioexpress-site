@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
-import { HOTSPOTS, INTRO_PATH, ORBIT, OVERVIEW, OVERVIEW_PORTRAIT, TOUR_ORDER, clampCamera, type View } from "./layout";
+import { ANGLES, HOTSPOTS, INTRO_PATH, ORBIT, OVERVIEW, OVERVIEW_PORTRAIT, TOUR_ORDER, clampCamera, type View } from "./layout";
 import { sceneStore, useScene } from "./store";
 import { TOTEM_SCREEN } from "./TotemScreen";
 
@@ -92,15 +92,26 @@ export function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
       return;
     }
     const h = active ? HOTSPOTS.find((x) => x.id === active) : null;
-    goTo(h ? h.view : overview);
+    if (h) sceneStore.set({ angle: null });
+    const a = sceneStore.get().angle;
+    goTo(h ? h.view : a !== null ? (portrait ? ANGLES[a].portrait : ANGLES[a].view) : overview);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, active, shopping]);
+
+  // botões de ângulo
+  const angleSeq = useScene((s) => s.angleSeq);
+  useEffect(() => {
+    const a = sceneStore.get().angle;
+    if (mode !== "explore" || shopping || a === null) return;
+    goTo(portrait ? ANGLES[a].portrait : ANGLES[a].view);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [angleSeq]);
 
   // tour guiado
   useEffect(() => {
     if (!touring) return;
     let i = 0;
-    sceneStore.set({ active: TOUR_ORDER[0] });
+    sceneStore.set({ active: TOUR_ORDER[0], angle: null });
     const id = window.setInterval(() => {
       i += 1;
       if (i >= TOUR_ORDER.length) {
@@ -203,7 +214,7 @@ export function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
       minAzimuthAngle={ORBIT.minAzimuthAngle}
       maxAzimuthAngle={ORBIT.maxAzimuthAngle}
       onStart={() => {
-        sceneStore.set({ interacted: true, touring: false, lastInteraction: performance.now() });
+        sceneStore.set({ interacted: true, touring: false, angle: null, lastInteraction: performance.now() });
       }}
       onEnd={() => {
         sceneStore.set({ lastInteraction: performance.now() });

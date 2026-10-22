@@ -145,6 +145,25 @@ export const HOTSPOTS: Hotspot[] = [
 
 export const TOUR_ORDER: HotspotId[] = ["ambientacao", "armario", "totem", "coca", "geladeiras", "freezer"];
 
+// Ângulos prontos (botões 1-2-3), para quem não consegue arrastar/dar zoom. portrait: celular em pé.
+export const ANGLES: { label: string; view: View; portrait: View }[] = [
+  {
+    label: "Armário",
+    view: { position: [3.25, 1.5, 2.8], target: [0, 1.05, 2.8] },
+    portrait: { position: [3.25, 1.5, 2.3], target: [0, 1.05, 3.0] },
+  },
+  {
+    label: "Coca e congelados",
+    view: { position: [2.5, 1.4, 3.3], target: [1.6, 1.0, 0] },
+    portrait: { position: [2.4, 1.4, 3.6], target: [1.9, 1.0, 0] },
+  },
+  {
+    label: "Bebidas e sorvetes",
+    view: { position: [0.9, 1.75, 2.3], target: [3.9, 0.85, 3.2] },
+    portrait: { position: [0.85, 1.6, 2.0], target: [3.9, 0.9, 3.3] },
+  },
+];
+
 // Visão geral (após a entrada) e trajeto de abertura (render externo -> dentro do ambiente)
 export const OVERVIEW: View = { position: [4.1, 2.3, 0.55], target: [1.6, 0.65, 3.0] };
 

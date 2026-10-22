@@ -20,6 +20,8 @@ export type SceneState = {
   checkout: "off" | "scan" | "pay" | "paying" | "done";
   lastAdded: { label: string; t: number } | null;
   nudge: number; // fim do tour: destaca o convite para comprar
+  angle: number | null; // ângulo pronto selecionado (layout.ts ANGLES); null quando o visitante gira a câmera
+  angleSeq: number; // incrementa a cada clique num ângulo (clicar de novo no mesmo volta ao enquadramento)
 };
 
 let state: SceneState = {
@@ -40,6 +42,8 @@ let state: SceneState = {
   checkout: "off",
   lastAdded: null,
   nudge: 0,
+  angle: null,
+  angleSeq: 0,
 };
 
 const listeners = new Set<() => void>();
