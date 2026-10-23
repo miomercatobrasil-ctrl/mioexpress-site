@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, type CSSProperties } from "react";
 import { SITE, whatsappLink } from "@/lib/site";
+import { sceneStore } from "@/scene/store";
 import { InstagramIcon, WhatsAppIcon } from "./Icons";
 
 const NAV = [
@@ -35,10 +36,20 @@ export function Header() {
 
   const close = () => setOpen(false);
 
+  // logo: sempre volta ao início (também já estando na página inicial, ou explorando o 3D)
+  const goHome = (e: React.MouseEvent) => {
+    close();
+    sceneStore.set({ mode: "intro", introProgress: 0, active: null, touring: false, hovered: null, checkout: "off" });
+    if (window.location.pathname !== "/") return;
+    e.preventDefault();
+    history.replaceState(null, "", "/");
+    window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  };
+
   return (
     <header className={`header${scrolled ? " is-scrolled" : ""}${open ? " is-open" : ""}`}>
       <div className="container header__row">
-        <Link href="/" className="header__logo" aria-label="Mio Express — início" onClick={close}>
+        <Link href="/" className="header__logo" aria-label="Mio Express — início" onClick={goHome}>
           <img src="/brand/logo.svg" alt="Mio Express mini mercado" width={150} height={42} className="header__logo-red" />
           <img src="/brand/logo-white.svg" alt="" width={150} height={42} className="header__logo-white" aria-hidden />
         </Link>

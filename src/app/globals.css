@@ -2595,8 +2595,15 @@ body:has(.ambiente.is-explore) .wa-float {
 }
 
 /* intro do 3D: o toque passa direto para a página (rolagem livre no celular); só o modo explorar captura o toque */
-.scene-gl:not(.is-interactive) canvas {
+.scene-gl:not(.is-interactive) canvas,
+.scene-gl:not(.is-interactive) .scene-canvas {
   pointer-events: none;
+}
+/* a moldura do canvas (react-three-fiber) vem com touch-action: none, que bloqueava a rolagem por toque
+   em cima do 3D mesmo na intro; fora do modo explorar ela deixa rolar a página */
+.scene-gl:not(.is-interactive) .scene-canvas,
+.scene-gl:not(.is-interactive) .scene-canvas * {
+  touch-action: pan-y !important;
 }
 .totem-screen__again {
   background: transparent;
