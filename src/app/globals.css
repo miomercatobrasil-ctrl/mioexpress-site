@@ -656,9 +656,11 @@ body:has(.ambiente--standalone) .header {
 .scene-intro::before {
   content: "";
   position: absolute;
-  inset: -40vh -40vw -30vh -20vw;
+  /* a caixa passa bem do fim da tela e o degradê some antes da borda (senão aparecia um corte reto
+     embaixo, principalmente no iPhone, onde a cena vai por baixo da barra do Safari) */
+  inset: -40vh -40vw -150vh -20vw;
   z-index: -1;
-  background: radial-gradient(ellipse at 20% 80%, rgba(43, 29, 26, 0.55), transparent 60%);
+  background: radial-gradient(180vw 90vh at 20% calc(56vh + 120px), rgba(43, 29, 26, 0.55), transparent 60%);
 }
 .scene-title {
   font-size: clamp(2rem, 5vw, 4rem);
