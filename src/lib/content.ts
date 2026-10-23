@@ -1,47 +1,32 @@
 // Conteúdo editável do site. Itens marcados com "CONFIRMAR" dependem de validação da Mio.
 
-export const unidades: { nome: string; unidades?: number }[] = [
-  { nome: "Terraços", unidades: 296 },
-  { nome: "Portal da Vila", unidades: 150 },
-  { nome: "Adiana", unidades: 72 },
-  { nome: "Reiwa", unidades: 90 },
-  { nome: "Bourbon", unidades: 192 },
-  { nome: "Home", unidades: 176 },
-  { nome: "Kazza", unidades: 120 },
-  { nome: "Itapoã", unidades: 90 },
-  { nome: "Rio Branco", unidades: 72 },
-  { nome: "Maragogi", unidades: 91 },
-  { nome: "San Francisco", unidades: 64 },
-  { nome: "Porto Régio", unidades: 64 },
-  { nome: "Tahiti" },
-  { nome: "Redentor", unidades: 60 },
-  { nome: "Mediterrâneo", unidades: 120 },
-  { nome: "Estoril" },
-  { nome: "Itamarati", unidades: 80 },
-  { nome: "Girassol", unidades: 64 },
-  { nome: "Millenium" },
-  { nome: "Solar", unidades: 90 },
-];
+// Condomínios atendidos: só a quantidade de apartamentos de cada um (os nomes não aparecem no site).
+// Sem número: ainda não informado (conta como condomínio, mas não soma apartamentos).
+export const unidades: { apartamentos?: number }[] = [
+  296, 150, 72, 90, 192, 176, 120, 90, 72, 91, 64, 64, undefined, 60, 120, undefined, 80, 64, undefined, 90,
+].map((apartamentos) => ({ apartamentos }));
+
+/** Média de moradores por apartamento usada na estimativa de moradores atendidos. */
+export const MORADORES_POR_APTO = 3;
 
 export const depoimentos: { texto: string; destaque: string; condominio: string; autor?: string; rascunho?: boolean }[] = [
   {
     destaque: "Recomendo com total confiança.",
     texto:
-      "Sou síndico do Residencial Mediterrâneo e, desde o momento em que escolhi a Mio Express para atender nossos moradores, nunca tivemos qualquer tipo de problema. Pelo contrário, sempre fomos muito bem atendidos. A equipe é extremamente atenciosa, prestativa e está sempre pronta para nos ajudar em qualquer situação. A implantação foi tranquila, o suporte é eficiente e a comunicação é clara e rápida, algo fundamental na rotina de um condomínio. É muito gratificante poder contar com uma empresa parceira, comprometida e que realmente se preocupa em oferecer um serviço de qualidade aos moradores.",
-    autor: "Síndico",
-    condominio: "Condomínio Residencial Mediterrâneo",
+      "Sou síndico e, desde o momento em que escolhi a Mio Express para atender nossos moradores, nunca tivemos qualquer tipo de problema. Pelo contrário, sempre fomos muito bem atendidos. A equipe é extremamente atenciosa, prestativa e está sempre pronta para nos ajudar em qualquer situação. A implantação foi tranquila, o suporte é eficiente e a comunicação é clara e rápida, algo fundamental na rotina de um condomínio. É muito gratificante poder contar com uma empresa parceira, comprometida e que realmente se preocupa em oferecer um serviço de qualidade aos moradores.",
+    condominio: "Síndico de condomínio atendido pela Mio",
   },
   {
     destaque: "Os moradores usam bastante.",
     texto:
       "A Mio está no nosso condomínio desde 2023 e tem sido muito útil no dia a dia. Os moradores usam bastante, principalmente pela praticidade de ter um mini mercado dentro do prédio. O abastecimento é ótimo e facilita muito a rotina.",
-    condominio: "Condomínio Campo Di Bourbon",
+    condominio: "Condomínio atendido pela Mio",
   },
   {
     destaque: "Sempre tem o que precisamos.",
     texto:
       "O mercadinho Mio Express foi instalado aqui no condomínio há aproximadamente um ano e tem sido muito útil no dia a dia. É uma ótima opção para emergências, pois sempre tem o que precisamos com praticidade e rapidez, sem precisar sair do prédio. O pagamento é fácil de ser feito, os produtos são repostos com rapidez e o serviço atende muito bem quem precisa de agilidade e comodidade dentro do condomínio. É um ótimo estabelecimento.",
-    condominio: "Condomínio Solar Paraíso",
+    condominio: "Condomínio atendido pela Mio",
   },
 ];
 

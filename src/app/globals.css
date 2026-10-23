@@ -1374,7 +1374,8 @@ body:has(.ambiente--standalone) .header {
   display: block;
   font-weight: 600;
 }
-.unit span {
+.unit > div > span,
+.unit--next span {
   font-size: 0.86rem;
   color: var(--muted);
 }
@@ -3102,4 +3103,32 @@ body:has(.ambiente.is-explore) .wa-float {
 .btn--led.is-lit svg {
   background: var(--vinho);
   color: var(--white);
+}
+
+/* Nossas unidades: só números (sem nomes dos condomínios) */
+.units--stats {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.unit--stat {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 28px 26px;
+}
+.unit--stat strong,
+.unit--stat .countup {
+  font-size: clamp(2.2rem, 4vw, 3rem);
+  line-height: 1;
+  color: var(--vinho);
+  letter-spacing: -0.03em;
+}
+.unit--stat > span {
+  font-size: 0.95rem;
+}
+.units--stats .unit--next a {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 28px 26px;
 }

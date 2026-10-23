@@ -1,8 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { unidades, depoimentos } from "@/lib/content";
+import { unidades, depoimentos, MORADORES_POR_APTO } from "@/lib/content";
+import { CountUp } from "./CountUp";
 import { Fx, Reveal } from "./Reveal";
+
+const apartamentos = unidades.reduce((t, u) => t + (u.apartamentos ?? 0), 0);
+// números arredondados para baixo ("mais de"): apartamentos de 100 em 100, moradores de mil em mil
+const NUMEROS = [
+  { valor: unidades.length, prefixo: "", rotulo: "condomínios atendidos" },
+  { valor: Math.floor(apartamentos / 100) * 100, prefixo: "+", rotulo: "apartamentos com uma Mio" },
+  { valor: Math.floor((apartamentos * MORADORES_POR_APTO) / 1000) * 1000, prefixo: "+", rotulo: "moradores atendidos (estimativa)" },
+];
 
 export function Unidades() {
   return (
@@ -12,21 +21,19 @@ export function Unidades() {
           <Reveal as="p" className="eyebrow" text="Nossas unidades" />
           <Reveal as="h2" className="h2" text={"Condomínios que já têm\numa Mio."} accent={["Mio"]} />
           <Fx as="p" className="section__lead units__count" delay={150}>
-            {unidades.length} condomínios em São José dos Campos e mais de{" "}
-            {(Math.floor(unidades.reduce((t, u) => t + (u.unidades ?? 0), 0) / 100) * 100).toLocaleString("pt-BR")} apartamentos com uma Mio a poucos passos de casa.
+            Em São José dos Campos, com uma Mio a poucos passos de casa, 24 horas por dia.
           </Fx>
         </div>
-        <ul className="units">
-          {unidades.map((u, i) => (
-            <Fx as="li" key={u.nome} className="unit" delay={(i % 8) * 50}>
-              <span className="unit__pin" aria-hidden />
-              <div>
-                <strong>{u.nome}</strong>
-                {u.unidades ? <span>{u.unidades} apartamentos</span> : null}
-              </div>
+        <ul className="units units--stats">
+          {NUMEROS.map((n, i) => (
+            <Fx as="li" key={n.rotulo} className="unit unit--stat" delay={i * 90}>
+              <strong>
+                <CountUp to={n.valor} prefix={n.prefixo} delay={300 + i * 120} />
+              </strong>
+              <span>{n.rotulo}</span>
             </Fx>
           ))}
-          <Fx as="li" className="unit unit--next" delay={150}>
+          <Fx as="li" className="unit unit--next" delay={300}>
             <a href="#contato">
               <strong>Seu condomínio aqui</strong>
               <span>Fale com a gente →</span>
@@ -79,7 +86,7 @@ export function Depoimentos() {
             </button>
             <div className="depo__dots" role="tablist">
               {lista.map((x, k) => (
-                <button key={x.condominio} type="button" role="tab" aria-selected={k === i} aria-label={x.condominio} className={k === i ? "is-on" : ""} onClick={() => go(k)} />
+                <button key={k} type="button" role="tab" aria-selected={k === i} aria-label={`Depoimento ${k + 1}`} className={k === i ? "is-on" : ""} onClick={() => go(k)} />
               ))}
             </div>
             <button type="button" className="depo__arrow" aria-label="Próximo depoimento" onClick={() => go(i + 1)}>
