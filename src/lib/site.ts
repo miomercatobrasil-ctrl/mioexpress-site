@@ -2,10 +2,9 @@ export const SITE = {
   name: "Mio Express",
   tagline: "Mini mercado autônomo 24h no seu condomínio",
   // endereço público usado em links de compartilhamento (prévia do WhatsApp), sitemap e canonical.
-  // Enquanto o domínio não aponta para o site novo, fica no pages.dev; depois do DNS (docs/DNS-GODADDY.md),
-  // trocar para "https://mioexpress.com.br".
-  url: "https://mioexpress.pages.dev",
-  // enquanto estiver no endereço provisório, o Google não indexa o site (lançamento = domínio próprio)
+  // mioexpress.pages.dev continua funcionando (QR code impresso), mas o endereço oficial é o domínio.
+  url: "https://mioexpress.com.br",
+  // no endereço provisório (pages.dev) o Google não indexa o site
   get launched() {
     return !this.url.includes("pages.dev");
   },
