@@ -77,10 +77,12 @@ function closeWindows(scene: THREE.Object3D) {
     m.visible = false;
     add.push([m.parent!, pane]);
   });
+  // o vidro é montado em coordenadas do mundo; attach preserva isso mesmo com o pai escalado/girado
+  // (worldToLocal só convertia a posição e o vidro saía maior e torto, com a ponta acima do teto)
   add.forEach(([parent, pane]) => {
     parent.updateWorldMatrix(true, false);
-    parent.worldToLocal(pane.position);
-    parent.add(pane);
+    pane.updateMatrixWorld();
+    parent.attach(pane);
   });
   // caixilho inclinado e puxador da folha aberta: triângulos dentro da janela com normal inclinada
   const v = new THREE.Vector3();
