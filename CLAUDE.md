@@ -48,13 +48,14 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
 - **Artes:**
   - Gerador: `node marketing/gerador/posts.mjs [id]`, que gera 1080×1350 em `marketing/posts/<id>/` com `legenda.txt`.
   - Para um post novo, copie um item de `POSTS` no gerador.
-- **Primeiro lote, pronto e ainda não postado:**
-  - 01 síndico custo zero (carrossel)
-  - 02 morador 23h
-  - 03 como comprar (carrossel)
-  - 04 dúvidas de síndico (carrossel)
-  - 05 picolé Los Los
-  - 06 Do Vale para o Vale
+- **Primeiro lote, em rascunho no Metricool desde 26/10/2026** (esperando aprovação do João). As imagens públicas ficam em `public/ig/<id>/` (noindex):
+  - 28/10 10h: 01 síndico custo zero (carrossel)
+  - 30/10 18h: 02 morador 23h
+  - 03/11 10h: 04 dúvidas de síndico (carrossel)
+  - 04/11 18h: 03 como comprar (carrossel)
+  - 06/11 18h: 05 picolé Los Los
+  - 09/11 10h: 06 Do Vale para o Vale
+- **Melhor horário segundo o Metricool:** 10h e 18h nos dias de semana. Posts de síndico às 10h, de morador às 18h.
 - **Segundo lote, a fazer:** noite de jogo (Heineken + snacks + pizza Sadia), depoimento de síndico (sem nome do condomínio), marmitas Liv Up, post de dados (top produtos), Reels com o vídeo dos síndicos e com o institucional, Reels do tour 3D.
 - **Concorrentes:**
   - Market4u (tem página para SJC e paga até R$ 4 mil por indicação), InHouse, SmartStore, Minha Quitandinha (franqueado de SJC com Instagram fraco), Vale Market (local, parece parado).
