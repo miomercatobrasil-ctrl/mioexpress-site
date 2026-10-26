@@ -53,7 +53,7 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
   - Qua 28/10 10h: 01 síndico custo zero (carrossel)
   - Sex 30/10 18h: 07 Halloween (doces ou travessuras)
   - Ter 03/11 10h: 04 dúvidas de síndico (carrossel)
-  - Qui 05/11 18h: 03 como comprar (carrossel)
+  - Qui 05/11 18h: 08 noite de jogo (substituiu o 03 como comprar, que repetia um post antigo do feed)
   - Ter 10/11 10h: 06 não somos franquia (carrossel)
   - Qui 12/11 18h: 05 picolé Los Los
   - Qui 19/11 18h: 02 morador 23h

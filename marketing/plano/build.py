@@ -18,6 +18,7 @@ NOMES = {
     "05-picole-los-los": ("Post · Produto parceiro", "Picolé às 22h? Tem."),
     "06-nao-somos-franquia": ("Carrossel · Marca", "A Mio não é franquia"),
     "07-halloween": ("Post · Data comemorativa", "Halloween: os doces estão na Mio"),
+    "08-noite-de-jogo": ("Post · Moradores", "Hoje tem jogo. A Mio tem o resto."),
 }
 
 cards = []

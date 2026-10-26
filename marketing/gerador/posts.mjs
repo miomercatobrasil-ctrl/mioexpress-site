@@ -285,6 +285,33 @@ Os doces (e os dentes de vampiro) estão na sua Mio, 24h por dia, dentro do cond
 
 #halloween #docesoutravessuras #mioexpress #condominio #saojosedoscampos #jacarei`,
   },
+  {
+    id: "08-noite-de-jogo",
+    slides: () => [
+      `<div class="s escuro">
+        <p class="eyebrow">Noite de jogo</p>
+        <h1 class="mt1">Hoje tem jogo.<br><em>A Mio tem o resto.</em></h1>
+        <p class="lead mt2">Cerveja gelada, salgadinho e refri a poucos passos do sofá. Sem perder nenhum lance.</p>
+        <div class="produtos" style="left:30px;right:30px;bottom:200px;justify-content:center">
+          <img src="${PROD("arm_doritos")}" style="height:330px;margin-right:-40px;transform:rotate(-8deg)">
+          <img src="${PROD("heineken_ln")}" style="height:440px;margin-right:-20px">
+          <img src="${PROD("spaten")}" style="height:300px;margin-right:-20px">
+          <img src="${PROD("arm_pringles")}" style="height:340px;margin-right:-20px">
+          <img src="${PROD("cocazero_2l")}" style="height:440px;margin-right:-30px">
+          <img src="${PROD("arm_ruffles")}" style="height:320px;transform:rotate(8deg)">
+        </div>
+        <p style="position:absolute;left:84px;right:84px;bottom:140px;font-size:20px;opacity:.6;text-align:center">Beba com moderação. Venda proibida para menores de 18 anos.</p>${rodape()}</div>`,
+    ],
+    legenda: `Hoje tem jogo? ⚽🍺
+
+Cerveja gelada, Doritos, Pringles e refri estão na sua Mio, 24h por dia, dentro do condomínio. Desce no intervalo e volta antes do segundo tempo. 😉
+
+Marca aqui a turma do jogo 👇
+
+Beba com moderação. Venda de bebidas alcoólicas proibida para menores de 18 anos.
+
+#futebol #diadejogo #mioexpress #condominio #saojosedoscampos #jacarei`,
+  },
 ];
 
 const only = process.argv[2];
