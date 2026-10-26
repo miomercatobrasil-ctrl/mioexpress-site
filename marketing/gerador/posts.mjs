@@ -58,9 +58,9 @@ p.lead { font-size: 38px; line-height: 1.35; font-weight: 500; opacity: .88; }
 .tag { position: absolute; top: 84px; right: 84px; z-index: 2; font-size: 24px; font-weight: 700; letter-spacing: .12em; opacity: .8; }
 .ft { position: absolute; inset: 0; background-size: cover; }
 .ft::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(59,13,20,.97) 0%, rgba(59,13,20,.9) 30%, rgba(59,13,20,.25) 52%, rgba(59,13,20,0) 66%, rgba(59,13,20,.75) 100%); }
-.ft2 { position: absolute; left: 0; right: 0; bottom: 0; height: 820px; background-size: cover; }
+.ft2 { position: absolute; left: 0; right: 0; bottom: 0; height: 760px; background-size: cover; }
 .ft2::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, #3b0d14 0%, rgba(59,13,20,0) 28%, rgba(59,13,20,0) 70%, rgba(59,13,20,.85) 100%); }
-.ft.baixo::after { background: linear-gradient(180deg, rgba(59,13,20,.55) 0%, rgba(59,13,20,0) 22%, rgba(59,13,20,0) 45%, rgba(59,13,20,.92) 72%, rgba(59,13,20,.98) 100%); }
+.ft.baixo::after { background: linear-gradient(180deg, rgba(59,13,20,.5) 0%, rgba(59,13,20,0) 18%, rgba(59,13,20,0) 32%, rgba(59,13,20,.88) 52%, rgba(59,13,20,.97) 70%, #3b0d14 100%); }
 `;
 
 const rodape = (claro = true, extra = "@mioexpressbrasil") => `<div class="rodape"><img src="${claro ? LOGO_W : LOGO}"><span>${extra}</span></div>`;
@@ -359,22 +359,22 @@ Qual fantasia ficou melhor? Comenta aqui 👇
       `<div class="s" style="color:#fffdf9;background:#3b0d14"><div class="ft2" style="background-image:url(${FOTO("loja3-prateleiras")});background-position:50% 62%"></div>
         <div class="z"><p class="eyebrow">23h47</p>
         <h1 class="mt1">Acabou o leite?<br><em>Desce ali.</em></h1>
-        <p class="lead mt1">Sua Mio fica aberta 24h, dentro do condomínio. Sem fila, sem trânsito, sem sair de chinelo.</p></div>${rodape()}</div>`,
+        <p class="lead mt1">Sua Mio fica aberta 24h, dentro do condomínio. Sem fila, sem trânsito,<br>sem sair de chinelo.</p></div>${rodape()}</div>`,
       `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja3-frente-c")});background-position:50% 40%"></div>
         <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">Síndico pergunta, a Mio responde</p>
-        <h1 class="mt1" style="font-size:92px">5 dúvidas sobre ter um mercado <em>no condomínio</em></h1>
+        <h1 class="mt1" style="font-size:92px">5 dúvidas sobre<br>ter um mercado<br><em>no condomínio</em></h1>
         <p class="arraste mt2">Arraste →</p></div>${rodape()}</div>`,
       `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja3-totem")});background-position:50% 30%"></div>
         <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">Na Mio é assim</p>
         <h1 class="mt1">Pegou. Passou.<br><em>Pagou.</em></h1>
-        <p class="lead mt1">Sem app, sem cadastro. Pix ou cartão no totem.</p></div>${rodape()}</div>`,
+        <p class="lead mt1">Sem app, sem cadastro.<br>Pix ou cartão no totem.</p></div>${rodape()}</div>`,
       `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja3-geladeiras")});background-position:30% 55%;background-size:auto 1600px"></div>
         <div class="z mt-a" style="margin-bottom:120px"><p class="eyebrow" style="color:#e2c48f">Sexta à noite</p>
-        <h1 class="mt1">O jogo começa às 21h30.<br><em>A geladeira tá logo ali.</em></h1>
+        <h1 class="mt1">Dia de jogo?<br><em>A geladeira<br>tá logo ali.</em></h1>
         <p class="mt1" style="font-size:22px;opacity:.7">Beba com moderação. Venda proibida para menores de 18 anos.</p></div>${rodape()}</div>`,
       `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja4-ambiente")});background-position:20% 70%"></div>
         <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">Calor? A gente resolve</p>
-        <h1 class="mt1">Picolé <em>Los Los</em> a poucos passos de casa.</h1></div>${rodape()}</div>`,
+        <h1 class="mt1">Picolé <em>Los Los</em><br>a poucos passos<br>de casa.</h1></div>${rodape()}</div>`,
     ],
     legenda: `teste de layout`,
   },
