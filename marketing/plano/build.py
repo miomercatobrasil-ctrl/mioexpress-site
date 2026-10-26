@@ -16,7 +16,7 @@ NOMES = {
     "03-como-comprar": ("Carrossel · Moradores", "Pegou, passou, pagou"),
     "04-duvidas-sindico": ("Carrossel · Síndicos", "5 dúvidas de síndico"),
     "05-picole-los-los": ("Post · Produto parceiro", "Picolé às 22h? Tem."),
-    "06-do-vale-para-o-vale": ("Post · Marca", "Do Vale, para o Vale"),
+    "06-nao-somos-franquia": ("Carrossel · Marca", "A Mio não é franquia"),
 }
 
 cards = []

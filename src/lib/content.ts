@@ -3,7 +3,7 @@
 // Condomínios atendidos: só a quantidade de apartamentos de cada um (os nomes não aparecem no site).
 // Sem número: ainda não informado (conta como condomínio, mas não soma apartamentos).
 export const unidades: { apartamentos?: number }[] = [
-  296, 150, 72, 90, 192, 176, 120, 90, 72, 91, 64, 64, undefined, 60, 120, undefined, 80, 64, undefined, 90,
+  296, 150, 72, 90, 192, 176, 120, 90, 72, 91, 64, 64, undefined, 60, 120, undefined, 80, 64, undefined, 90, undefined,
 ].map((apartamentos) => ({ apartamentos }));
 
 /** Média de moradores por apartamento usada na estimativa de moradores atendidos. */

@@ -85,10 +85,10 @@ const POSTS = [
           <li><span class="check">✓</span><div>Possibilidade de cashback para o condomínio</div></li>
         </ul>${rodape()}</div>`,
       `<div class="s bege">${tag(4, n)}<p class="eyebrow">Quem já tem uma Mio</p>
-        <div class="mt3"><div class="num">20</div><p class="lead">condomínios atendidos</p></div>
+        <div class="mt3"><div class="num">21</div><p class="lead">condomínios atendidos</p></div>
         <div class="mt2"><div class="num">+1.800</div><p class="lead">apartamentos</p></div>
         <div class="mt2"><div class="num">+5.000</div><p class="lead">moradores (estimativa)</p></div>
-        <p class="lead mt2" style="font-weight:700;color:#7a1f2b">Empresa do Vale, com equipe própria.</p>${rodape(false)}</div>`,
+        <p class="lead mt2" style="font-weight:700;color:#7a1f2b">Empresa do Vale. Sem franquia, com equipe própria.</p>${rodape(false)}</div>`,
       `<div class="s"><div class="foto topo" style="background-image:url(${R3D("armario")})"></div>${tag(5, n)}
         <div class="z"><h2 style="color:#fffdf9">Quer uma Mio no seu condomínio?</h2>
         <p class="lead mt1" style="color:#fffdf9">Atendemos condomínios a partir de 80 apartamentos em São José dos Campos e Jacareí.</p></div>
@@ -98,7 +98,7 @@ const POSTS = [
 
 A Mio Express instala, abastece, faz a manutenção e cuida da segurança. O condomínio só ganha: mais conforto, um diferencial que valoriza o empreendimento e, em alguns casos, cashback.
 
-Já são 20 condomínios em São José dos Campos com uma Mio.
+Já são 21 condomínios com uma Mio em São José dos Campos e Jacareí. E não somos franquia: quem cuida de tudo é o nosso próprio time.
 
 👉 Quer levar para o seu? Fale com a gente pelo link na bio ou no WhatsApp (12) 99739-7730.
 
@@ -210,20 +210,40 @@ Os picolés Los Los estão no freezer da sua Mio, 24h por dia. Qual é o seu fav
 #loslos #picole #sorvete #mioexpress #condominio #saojosedoscampos #verao`,
   },
   {
-    id: "06-do-vale-para-o-vale",
-    slides: () => [
+    id: "06-nao-somos-franquia",
+    slides: (n = 4) => [
       `<div class="s"><div class="foto escura" style="background-image:url(${FOTO("geladeiras")})"></div>
         <div class="z mt-a" style="margin-bottom:110px"><span class="pill">Do Vale, para o Vale</span>
-        <h2 class="mt1" style="color:#fffdf9">Somos uma empresa de São José dos Campos. <em>Sem franquia, com equipe própria.</em></h2>
-        <p class="lead mt1" style="color:#fffdf9">Quem instala, abastece e atende o síndico é a própria Mio. Suporte rápido, de quem está aqui do lado.</p></div>${rodape()}</div>`,
+        <h1 class="mt1" style="color:#fffdf9">A Mio não é <em>franquia.</em></h1>
+        <p class="lead mt1" style="color:#fffdf9">E isso faz diferença no preço e no atendimento do seu condomínio.</p>
+        <p class="arraste mt2" style="color:#fffdf9">Arraste →</p></div>${rodape()}</div>`,
+      `<div class="s bege">${tag(2, n)}<p class="eyebrow">1 · Preço</p><h2 class="mt1">Sem taxa de franquia, <em>preço mais justo</em> na prateleira.</h2>
+        <p class="lead mt2">Redes de franquia repassam royalties e taxas para a marca. A Mio não paga nada disso, e essa diferença fica no preço dos produtos.</p>
+        <div class="produtos" style="left:40px;right:40px;bottom:170px;justify-content:center">
+          <img src="${PROD("guarana_2l")}" style="height:420px;margin-right:-30px"><img src="${PROD("arm_italac_leite")}" style="height:330px;margin-right:-20px"><img src="${PROD("arm_ruffles")}" style="height:330px;margin-right:-20px"><img src="${PROD("heineken_lata")}" style="height:220px;margin-right:-10px"><img src="${PROD("arm_ype_limao")}" style="height:330px">
+        </div>${rodape(false)}</div>`,
+      `<div class="s vinho">${tag(3, n)}<p class="eyebrow">2 · Atendimento</p><h2 class="mt1">Quem decide está <em>aqui do lado</em>, não em outro estado.</h2>
+        <ul class="lista mt3">
+          <li><span class="check">✓</span><div>Síndico fala direto com a Mio<small>Sem central de atendimento de rede</small></div></li>
+          <li><span class="check">✓</span><div>Reposição rápida<small>Com equipe própria em SJC e Jacareí</small></div></li>
+          <li><span class="check">✓</span><div>Mix do jeito do condomínio<small>A gente ouve os moradores e ajusta</small></div></li>
+        </ul>${rodape()}</div>`,
+      `<div class="s bege">${tag(4, n)}<p class="eyebrow">3 · Do Vale, para o Vale</p>
+        <div class="mt3"><div class="num">21</div><p class="lead">condomínios em São José dos Campos e Jacareí</p></div>
+        <h2 class="mt3">Empresa local, equipe própria, <em>zero franquia.</em></h2>
+        <div class="z mt-a" style="margin-bottom:110px"><span class="pill" style="font-size:30px;padding:18px 32px;letter-spacing:.04em;text-transform:none">Quer uma Mio no seu condomínio? Link na bio</span></div>${rodape(false)}</div>`,
     ],
-    legenda: `A Mio Express nasceu em São José dos Campos. 💛
+    legenda: `A Mio Express não é franquia. E isso muda tudo pra você. 💛
 
-Não somos franquia: quem projeta, instala, abastece e atende cada condomínio é o nosso próprio time. Isso quer dizer reposição rápida, conversa direta com o síndico e um mix pensado para os moradores daqui.
+💰 Sem royalties e taxas de rede: essa economia vira preço mais justo na prateleira.
+🤝 O síndico fala direto com quem decide, aqui do lado, e não com uma central em outro estado.
+🚚 Reposição rápida com equipe própria em São José dos Campos e Jacareí.
 
-Hoje já são 20 condomínios em SJC e chegamos em Jacareí. Bora pro próximo? 🚀
+Já são 21 condomínios com uma Mio. Bora pro próximo? 🚀
 
-#saojosedoscampos #jacarei #valedoparaiba #empresalocal #mercadoautonomo #condominio #mioexpress`,
+Fale com a gente pelo link na bio ou no WhatsApp (12) 99739-7730.
+
+#saojosedoscampos #jacarei #valedoparaiba #empresalocal #mercadoautonomo #condominio #sindico #mioexpress`
   },
 ];
 

@@ -17,9 +17,9 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
 - **Razão social:** G2J Comércio de Bebidas e Alimentos Ltda, CNPJ 47.326.086/0001-00.
 - **Onde atua:** São José dos Campos (sede) e Jacareí (expansão).
 - **Contato:** WhatsApp (12) 99739-7730. Instagram @mioexpressbrasil. Site https://mioexpress.com.br (o antigo mioexpress.pages.dev continua no ar, por causa do QR code impresso).
-- **Números públicos:** 20 condomínios, +1.800 apartamentos, +5.000 moradores (estimativa de 3 por apartamento).
+- **Números públicos:** 21 condomínios, +1.800 apartamentos, +5.000 moradores (estimativa de 3 por apartamento).
 - **Regra:** nunca citar o nome de nenhum condomínio ou prédio, nem em depoimentos.
-- **Modelo:** custo zero para o condomínio, que pode ter cashback. A Mio instala, abastece, faz a manutenção e cuida da segurança (câmera própria ou do condomínio). Furto é 100% responsabilidade da Mio. A instalação leva cerca de 20 dias. Mínimo de 80 apartamentos. Não é franquia: tem equipe própria.
+- **Modelo:** custo zero para o condomínio, que pode ter cashback. A Mio instala, abastece, faz a manutenção e cuida da segurança (câmera própria ou do condomínio). Furto é 100% responsabilidade da Mio. A instalação leva cerca de 20 dias. Mínimo de 80 apartamentos. Não é franquia: tem equipe própria e, sem royalties, pratica preço mais justo. Isso é diferencial e deve aparecer com frequência.
 - **Compra:** totem de autoatendimento, Pix ou cartão (aproximação ou chip), sem app e sem cadastro.
 - **Marcas parceiras:** Coca-Cola, Heineken, Sadia, Liv Up, Los Los (picolés) e outras.
 
@@ -48,13 +48,13 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
 - **Artes:**
   - Gerador: `node marketing/gerador/posts.mjs [id]`, que gera 1080×1350 em `marketing/posts/<id>/` com `legenda.txt`.
   - Para um post novo, copie um item de `POSTS` no gerador.
-- **Primeiro lote, em rascunho no Metricool desde 26/10/2026** (esperando aprovação do João). As imagens públicas ficam em `public/ig/<id>/` (noindex):
+- **Primeiro lote, em rascunho no Metricool desde 26/10/2026** (esperando aprovação do João). As imagens públicas ficam em `public/ig/<id>/` (noindex; ao mudar uma arte, use pasta nova, como `-v2`, por causa do cache):
   - 28/10 10h: 01 síndico custo zero (carrossel)
   - 30/10 18h: 02 morador 23h
   - 03/11 10h: 04 dúvidas de síndico (carrossel)
   - 04/11 18h: 03 como comprar (carrossel)
   - 06/11 18h: 05 picolé Los Los
-  - 09/11 10h: 06 Do Vale para o Vale
+  - 09/11 10h: 06 não somos franquia (carrossel)
 - **Melhor horário segundo o Metricool:** 10h e 18h nos dias de semana. Posts de síndico às 10h, de morador às 18h.
 - **Segundo lote, a fazer:** noite de jogo (Heineken + snacks + pizza Sadia), depoimento de síndico (sem nome do condomínio), marmitas Liv Up, post de dados (top produtos), Reels com o vídeo dos síndicos e com o institucional, Reels do tour 3D.
 - **Concorrentes:**
