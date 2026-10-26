@@ -199,7 +199,7 @@ Envie para o síndico do seu prédio! 📲
         <p class="arraste mt2">Arraste →</p></div>${rodape()}</div>`,
       `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loslos-freezer")});background-position:50% 25%"></div>${tag(2, n)}
         <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">No freezer da sua Mio</p>
-        <h2 class="mt1">Um monte de sabores,<br><em>24h por dia.</em></h2>
+        <h2 class="mt1">Vários sabores,<br><em>24h por dia.</em></h2>
         <p class="lead mt1">Desce, escolhe e paga no totem.<br>Sem fila e sem sair do condomínio.</p></div>${rodape()}</div>`,
     ],
     legenda: `Pistache, choco dubai, ovomaltine, doce de leite, speculoos… 🍦
