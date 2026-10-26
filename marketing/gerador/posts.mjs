@@ -193,7 +193,7 @@ Envie para o síndico do seu prédio! 📲
   {
     id: "05-picole-los-los",
     slides: () => [
-      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja4-ambiente")});background-position:20% 70%"></div>
+      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja3-loslos")});background-position:-130px -760px;background-size:auto 1900px"></div>
         <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">Calor? A gente resolve</p>
         <h1 class="mt1">Picolé <em>Los Los</em><br>a poucos passos<br>de casa.</h1>
         <p class="lead mt1">Pistache, choco dubai, ovomaltine,<br>doce de leite e speculoos.</p></div>${rodape()}</div>`,
@@ -351,7 +351,7 @@ Qual fantasia ficou melhor? Comenta aqui 👇
         <div class="z mt-a" style="margin-bottom:120px"><p class="eyebrow" style="color:#e2c48f">Sexta à noite</p>
         <h1 class="mt1">Dia de jogo?<br><em>A geladeira<br>tá logo ali.</em></h1>
         <p class="mt1" style="font-size:22px;opacity:.7">Beba com moderação. Venda proibida para menores de 18 anos.</p></div>${rodape()}</div>`,
-      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja4-ambiente")});background-position:20% 70%"></div>
+      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja3-loslos")});background-position:-130px -760px;background-size:auto 1900px"></div>
         <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">Calor? A gente resolve</p>
         <h1 class="mt1">Picolé <em>Los Los</em><br>a poucos passos<br>de casa.</h1></div>${rodape()}</div>`,
     ],

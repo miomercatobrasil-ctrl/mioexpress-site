@@ -50,6 +50,7 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
   - Gerador: `node marketing/gerador/posts.mjs [id]`, que gera 1080×1350 em `marketing/posts/<id>/` com `legenda.txt`.
   - Para um post novo, copie um item de `POSTS` no gerador.
   - Direção visual (João, 26/10): foto real da loja de fundo, com degradê bordô sob o texto. Nada de produto recortado solto no fundo, nem render 3D no feed. Fotos em `assets/source/fotos/` (loja2, loja3, loja4).
+  - Se faltar uma foto que encaixe no tema (ex.: freezer de perto, produto específico), avise o João e peça; ele manda pelo link de upload https://claude.ai/artifact/277x3Jeh3JeTZBehGaqMxf.
   - Quebre as linhas dos títulos à mão (`<br>`): sem palavra sozinha na última linha, e o texto todo dentro da área escura do degradê.
 - **Primeiro lote, em rascunho no Metricool desde 26/10/2026** (esperando aprovação do João). As imagens públicas ficam em `public/ig/<id>/` (noindex; ao mudar uma arte, use pasta nova, como `-v2`, por causa do cache):
   - Ter 27/10 18h (movido de seg 26/10): 09 Halloween "até os produtos se fantasiaram" (carrossel com imagens do GPT, aprovado pelo João, agendado de verdade, marcado como IA). Cupom MIOWEEN10, 10% em doces só na sexta e no sábado (30 e 31/10). Código no totem: mínimo de 8 caracteres, maiúsculas e números
