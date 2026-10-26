@@ -16,6 +16,7 @@ const f = (p) => "file://" + join(ROOT, p);
 const FOTO = (n) => f(`assets/source/fotos/${n}.jpg`);
 const R3D = (n) => f(`marketing/fotos-3d/${n}.png`);
 const PROD = (n) => f(`assets/source/produtos/crop_${n}.png`);
+const HW = (n) => f(`assets/source/halloween/${n}.webp`);
 const LOGO = f("public/brand/logo.svg");
 const LOGO_W = f("public/brand/logo-white.svg");
 
@@ -311,6 +312,34 @@ Marca aqui a turma do jogo 👇
 Beba com moderação. Venda de bebidas alcoólicas proibida para menores de 18 anos.
 
 #futebol #diadejogo #mioexpress #condominio #saojosedoscampos #jacarei`,
+  },
+  {
+    id: "09-halloween-fantasias",
+    slides: () => {
+      const foto = (n, extra = "") => `<div class="s" style="padding:0;background:#3b0d14"><div style="position:absolute;inset:0;background:url(${HW(n)}) center/cover"></div>${extra}
+        <div style="position:absolute;left:0;right:0;bottom:64px;display:flex;justify-content:center;z-index:2"><img src="${LOGO_W}" style="height:58px;opacity:.92"></div></div>`;
+      return [
+        foto("carrinho-fantasma", `<div style="position:absolute;left:84px;right:84px;top:96px;text-align:center;color:#fffdf9;z-index:2"><p class="eyebrow" style="color:#e2c48f">Halloween na Mio</p><h2 class="mt1" style="font-size:64px;text-shadow:0 2px 24px rgba(0,0,0,.35)">Até os produtos<br>se fantasiaram.</h2></div>`),
+        foto("lata-abobora"),
+        foto("garrafa-fantasma"),
+        foto("mumia"),
+        foto("picole-vampiro"),
+        `<div class="s" style="background:radial-gradient(ellipse 80% 60% at 50% 45%, #7a1f2b 0%, #3b0d14 70%);color:#fffdf9;align-items:center;justify-content:center;text-align:center">
+          <p class="eyebrow" style="color:#e2c48f">31 de outubro</p>
+          <h1 class="mt1" style="font-size:96px">Doces ou<br>travessuras?</h1>
+          <p class="lead mt2" style="font-size:36px">Doces, refri gelado e tudo para a noite.<br>24h, dentro do seu condomínio.</p>
+          <div style="position:absolute;left:0;right:0;bottom:64px;display:flex;justify-content:center"><img src="${LOGO_W}" style="height:58px"></div></div>`,
+      ];
+    },
+    legenda: `Na Mio, até os produtos entraram no clima. 🎃👻
+
+Abóbora, fantasma, múmia, vampiro… e o nosso carrinho também quis se fantasiar.
+
+Neste sábado (31/10) a criançada vai bater na sua porta: doces, refri gelado e tudo para a noite estão na sua Mio, 24h por dia, dentro do condomínio.
+
+Qual fantasia ficou melhor? Comenta aqui 👇
+
+#halloween #docesoutravessuras #mioexpress #condominio #saojosedoscampos #jacarei`,
   },
 ];
 
