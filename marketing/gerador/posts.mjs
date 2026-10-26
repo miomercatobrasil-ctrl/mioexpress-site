@@ -270,6 +270,21 @@ Marca aqui o vizinho que sempre esquece de comprar os doces 👇
 
 #halloween #docesoutravessuras #mioexpress #condominio #saojosedoscampos #jacarei`,
   },
+  {
+    id: "07b-halloween-minimal",
+    slides: () => [
+      `<div class="s" style="background:radial-gradient(ellipse 70% 55% at 50% 47%, #7a1f2b 0%, #3b0d14 55%, #1c0609 100%);color:#fffdf9;align-items:center;text-align:center">
+        <p class="eyebrow" style="margin-top:10px">31 de outubro</p>
+        <img src="${PROD("arm_fini_dentadura")}" style="position:absolute;left:50%;top:50%;height:540px;transform:translate(-50%,-62%) rotate(-6deg);filter:drop-shadow(0 40px 60px rgba(0,0,0,.55)) drop-shadow(0 0 80px rgba(176,141,87,.25))">
+        <div class="mt-a" style="margin-bottom:150px"><h2 style="font-size:64px">Fantasia de última hora?</h2><p class="lead mt1" style="font-size:32px">Tem na Mio. 24h, dentro do condomínio.</p></div>
+        <div class="rodape" style="justify-content:center"><img src="${LOGO_W}"></div></div>`,
+    ],
+    legenda: `Fantasia de última hora? 🧛‍♂️
+
+Os doces (e os dentes de vampiro) estão na sua Mio, 24h por dia, dentro do condomínio. Quando a criançada bater na porta neste sábado, você já está preparado. 🎃
+
+#halloween #docesoutravessuras #mioexpress #condominio #saojosedoscampos #jacarei`,
+  },
 ];
 
 const only = process.argv[2];
