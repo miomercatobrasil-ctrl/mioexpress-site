@@ -21,7 +21,7 @@ NOMES = {
     "02-morador-23h": ("Post · Moradores", "Acabou o leite? Desce ali."),
     "03-como-comprar": ("Carrossel · Moradores", "Pegou, passou, pagou"),
     "04-duvidas-sindico": ("Carrossel · Síndicos", "5 dúvidas de síndico"),
-    "05-picole-los-los": ("Post · Produto parceiro", "Picolé Los Los a poucos passos de casa"),
+    "05-picole-los-los": ("Carrossel · Produto parceiro", "Picolé Los Los a poucos passos de casa"),
     "06-nao-somos-franquia": ("Carrossel · Marca", "A Mio não é franquia"),
     "07-halloween": ("Post · Data comemorativa", "Halloween: os doces estão na Mio"),
     "08-noite-de-jogo": ("Post · Moradores", "Dia de jogo? A geladeira tá logo ali."),

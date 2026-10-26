@@ -192,11 +192,15 @@ Envie para o síndico do seu prédio! 📲
   },
   {
     id: "05-picole-los-los",
-    slides: () => [
-      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja3-loslos")});background-position:-130px -760px;background-size:auto 1900px"></div>
+    slides: (n = 2) => [
+      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loslos-picoles")});background-position:50% 30%"></div>
         <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">Calor? A gente resolve</p>
         <h1 class="mt1">Picolé <em>Los Los</em><br>a poucos passos<br>de casa.</h1>
-        <p class="lead mt1">Pistache, choco dubai, ovomaltine,<br>doce de leite e speculoos.</p></div>${rodape()}</div>`,
+        <p class="arraste mt2">Arraste →</p></div>${rodape()}</div>`,
+      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loslos-freezer")});background-position:50% 25%"></div>${tag(2, n)}
+        <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">No freezer da sua Mio</p>
+        <h2 class="mt1">Um monte de sabores,<br><em>24h por dia.</em></h2>
+        <p class="lead mt1">Desce, escolhe e paga no totem.<br>Sem fila e sem sair do condomínio.</p></div>${rodape()}</div>`,
     ],
     legenda: `Pistache, choco dubai, ovomaltine, doce de leite, speculoos… 🍦
 
