@@ -1,5 +1,5 @@
 # Monta marketing/plano/index.html (plano de marketing da Mio) a partir das artes e legendas geradas.
-import glob, html, json, os
+import glob, html, json, os, re
 HERE = os.path.dirname(os.path.abspath(__file__))
 POSTS = os.path.join(HERE, "..", "posts")
 
@@ -12,7 +12,7 @@ for d in sorted(glob.glob(os.path.join(POSTS, "*/")), key=lambda d: ORDEM.index(
     pid = os.path.basename(d.rstrip("/"))
     if pid in ANTIGOS:
         continue
-    imgs = [f"img/{pid}-{os.path.basename(f)[:-4]}.jpg" for f in sorted(glob.glob(d + "*.png"))]
+    imgs = [f"img/{pid}-{os.path.basename(f)[:-4]}.jpg" for f in sorted(glob.glob(d + "*.png")) if re.fullmatch(r"\d\d|story", os.path.basename(f)[:-4])]
     leg = open(os.path.join(d, "legenda.txt"), encoding="utf-8").read().strip()
     posts.append((pid, imgs, leg))
 
