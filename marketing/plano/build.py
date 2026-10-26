@@ -3,9 +3,15 @@ import glob, html, json, os
 HERE = os.path.dirname(os.path.abspath(__file__))
 POSTS = os.path.join(HERE, "..", "posts")
 
+# Artes antigas (produto recortado / 3D) saem do plano; serão refeitas com foto real.
+ANTIGOS = {"01-sindico-custo-zero", "02-morador-23h", "03-como-comprar", "04-duvidas-sindico", "05-picole-los-los", "06-nao-somos-franquia", "07-halloween", "07b-halloween-minimal", "08-noite-de-jogo"}
+ORDEM = ["12-concurso-churrasco", "10-teste-foto-real", "09-halloween-fantasias"]
+
 posts = []
-for d in sorted(glob.glob(os.path.join(POSTS, "*/"))):
+for d in sorted(glob.glob(os.path.join(POSTS, "*/")), key=lambda d: ORDEM.index(os.path.basename(d.rstrip("/"))) if os.path.basename(d.rstrip("/")) in ORDEM else 99):
     pid = os.path.basename(d.rstrip("/"))
+    if pid in ANTIGOS:
+        continue
     imgs = [f"img/{pid}-{os.path.basename(f)[:-4]}.jpg" for f in sorted(glob.glob(d + "*.png"))]
     leg = open(os.path.join(d, "legenda.txt"), encoding="utf-8").read().strip()
     posts.append((pid, imgs, leg))
