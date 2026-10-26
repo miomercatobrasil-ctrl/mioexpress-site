@@ -31,7 +31,8 @@ body { width: 1080px; height: 1350px; font-family: M, sans-serif; color: #2b1d1a
 .foto.escura::after { background: linear-gradient(180deg, rgba(43,29,26,0) 15%, rgba(43,29,26,.7) 45%, rgba(43,29,26,.95) 100%); }
 .foto.topo::after { background: linear-gradient(180deg, rgba(43,29,26,.75) 0%, rgba(43,29,26,.1) 45%, rgba(43,29,26,.85) 100%); }
 .z { position: relative; z-index: 1; }
-.eyebrow { font-size: 26px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #b08d57; text-shadow: 0 2px 12px rgba(0,0,0,.6); }
+.eyebrow { font-size: 26px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #b08d57; }
+.ft ~ .z .eyebrow, .ft2 ~ .z .eyebrow { text-shadow: 0 2px 12px rgba(0,0,0,.6); }
 .pill { display: inline-block; align-self: flex-start; padding: 12px 24px; border-radius: 99px; background: #7a1f2b; color: #fffdf9; font-size: 24px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
 h1 { font-size: 104px; line-height: .98; font-weight: 700; letter-spacing: -.035em; }
 h2 { font-size: 76px; line-height: 1.02; font-weight: 700; letter-spacing: -.03em; }
@@ -71,9 +72,9 @@ const POSTS = [
   {
     id: "01-sindico-custo-zero",
     slides: (n = 5) => [
-      `<div class="s"><div class="foto" style="background-image:url(${FOTO("loja-frente")})"></div>
+      `<div class="s"><div class="ft baixo" style="background-image:url(${FOTO("loja4-frente")});background-position:50% 30%"></div>
         <div class="z mt-a"><span class="pill">Para síndicos</span>
-        <h1 class="mt1" style="color:#fffdf9">Um mini mercado 24h no seu condomínio.<br><em>Custo zero.</em></h1>
+        <h1 class="mt1" style="color:#fffdf9;font-size:80px">Um mini mercado 24h<br>no seu condomínio.<br><em>Custo zero.</em></h1>
         <p class="lead mt1" style="color:#fffdf9">A Mio instala, abastece e cuida de tudo.</p>
         <p class="arraste mt2" style="color:#fffdf9;margin-bottom:90px">Arraste para ver como funciona →</p></div>${rodape()}</div>`,
       `<div class="s bege">${tag(2, n)}<p class="eyebrow">O que a Mio faz</p><h2 class="mt1">Você não precisa se preocupar com <em>nada</em>.</h2>
@@ -95,7 +96,7 @@ const POSTS = [
         <div class="mt2"><div class="num">+1.800</div><p class="lead">apartamentos</p></div>
         <div class="mt2"><div class="num">+5.000</div><p class="lead">moradores (estimativa)</p></div>
         <p class="lead mt2" style="font-weight:700;color:#7a1f2b">Empresa do Vale. Sem franquia, com equipe própria.</p>${rodape(false)}</div>`,
-      `<div class="s"><div class="foto topo" style="background-image:url(${R3D("armario")})"></div>${tag(5, n)}
+      `<div class="s escuro"><div class="ft2" style="background-image:url(${FOTO("loja3-frente-b")});background-position:50% 75%"></div>${tag(5, n)}
         <div class="z"><h2 style="color:#fffdf9">Quer uma Mio no seu condomínio?</h2>
         <p class="lead mt1" style="color:#fffdf9">Atendemos condomínios a partir de 80 apartamentos em São José dos Campos e Jacareí.</p></div>
         <div class="z mt-a" style="margin-bottom:110px"><span class="pill" style="font-size:30px;padding:18px 32px;letter-spacing:.04em;text-transform:none">Fale com a gente: link na bio</span></div>${rodape()}</div>`,
@@ -113,19 +114,10 @@ Já são 21 condomínios com uma Mio em São José dos Campos e Jacareí. E não
   {
     id: "02-morador-23h",
     slides: () => [
-      `<div class="s escuro">
-        <p class="eyebrow">23h47</p>
+      `<div class="s" style="color:#fffdf9;background:#3b0d14"><div class="ft2" style="background-image:url(${FOTO("loja3-prateleiras")});background-position:50% 62%"></div>
+        <div class="z"><p class="eyebrow">23h47</p>
         <h1 class="mt1">Acabou o leite?<br><em>Desce ali.</em></h1>
-        <p class="lead mt2">Sua Mio fica aberta 24h, dentro do condomínio. Sem fila, sem trânsito, sem sair de chinelo na rua.</p>
-        <div class="produtos" style="left:40px;right:40px;bottom:190px;justify-content:center">
-          <img src="${PROD("arm_italac_leite")}" style="height:360px;margin-right:-20px">
-          <img src="${PROD("cocazero_2l")}" style="height:470px;margin-right:-30px">
-          <img src="${PROD("arm_pringles")}" style="height:330px;margin-right:-10px">
-          <img src="${PROD("heineken_lata")}" style="height:230px;margin-right:-10px">
-          <img src="${PROD("arm_kitkat")}" style="height:150px;margin-right:-20px">
-          <img src="${PROD("guarana_2l")}" style="height:450px;margin-right:-20px">
-          <img src="${PROD("arm_doritos")}" style="height:300px">
-        </div>${rodape()}</div>`,
+        <p class="lead mt1">Sua Mio fica aberta 24h, dentro do condomínio. Sem fila, sem trânsito,<br>sem sair de chinelo.</p></div>${rodape()}</div>`,
     ],
     legenda: `Aquela hora em que bate a vontade (ou a emergência) e o mercado mais perto já fechou… 🌙
 
@@ -175,13 +167,13 @@ Salva esse post para mostrar para quem ainda não conhece a Mio do prédio 😉
         ["Qual o tamanho mínimo?", "Atendemos condomínios a partir de 80 apartamentos, para garantir variedade e reposição constante."],
       ];
       return [
-        `<div class="s vinho"><p class="eyebrow" style="color:#e2c48f">Síndico pergunta, a Mio responde</p>
-          <h1 class="mt1">5 dúvidas sobre ter um mercado no condomínio</h1>
-          <p class="arraste mt2">Arraste →</p>
-          <div class="foto" style="top:auto;height:560px;background-image:url(${R3D("armario")});border-radius:36px;left:84px;right:84px;bottom:170px"></div>${rodape()}</div>`,
+        `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja3-frente-c")});background-position:50% 40%"></div>
+        <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">Síndico pergunta, a Mio responde</p>
+        <h1 class="mt1" style="font-size:92px">5 dúvidas sobre<br>ter um mercado<br><em>no condomínio</em></h1>
+        <p class="arraste mt2">Arraste →</p></div>${rodape()}</div>`,
         ...qs.map(([q, a], i) => `<div class="s bege">${tag(i + 2, n)}<p class="q">Dúvida ${i + 1}</p><h2 class="mt1">${q}</h2>
           <div class="card mt2"><p class="lead" style="opacity:1">${a}</p></div>
-          <div class="foto" style="top:auto;height:440px;background-image:url(${[FOTO("loja-frente"), FOTO("loja-detalhe"), FOTO("loja-angulo"), R3D("geladeiras"), FOTO("freezer-geladeira")][i]});border-radius:36px;left:84px;right:84px;bottom:170px"></div>${rodape(false)}</div>`),
+          <div class="foto" style="top:auto;height:440px;background-image:url(${[FOTO("loja4-frente"), FOTO("loja3-perfil"), FOTO("loja3-frente-b"), FOTO("loja3-lateral"), FOTO("loja3-geladeiras")][i]});border-radius:36px;left:84px;right:84px;bottom:170px"></div>${rodape(false)}</div>`),
       ];
     },
     legenda: `As 5 perguntas que mais ouvimos de síndicos (e as respostas diretas) 👇
@@ -201,13 +193,10 @@ Envie para o síndico do seu prédio! 📲
   {
     id: "05-picole-los-los",
     slides: () => [
-      `<div class="s" style="background:#7a1f2b;color:#fffdf9">
-        <p class="eyebrow">Calor de verão no Vale</p>
-        <h1 class="mt1">Picolé às 22h?<br><em>Tem.</em></h1>
-        <p class="lead mt1">Los Los no freezer da sua Mio. Escolha o seu sabor.</p>
-        <div class="produtos" style="left:30px;right:30px;bottom:170px;justify-content:center">
-          ${["pistache", "choco_dubai", "ovomaltine", "doce_leite", "speculoos"].map((s, i) => `<img src="${PROD("picole_" + s)}" style="height:520px;margin:0 -40px;transform:rotate(${[-12, -5, 0, 5, 12][i]}deg) translateY(${[30, 8, 0, 8, 30][i]}px)">`).join("")}
-        </div>${rodape()}</div>`,
+      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja4-ambiente")});background-position:20% 70%"></div>
+        <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">Calor? A gente resolve</p>
+        <h1 class="mt1">Picolé <em>Los Los</em><br>a poucos passos<br>de casa.</h1>
+        <p class="lead mt1">Pistache, choco dubai, ovomaltine,<br>doce de leite e speculoos.</p></div>${rodape()}</div>`,
     ],
     legenda: `Pistache, choco dubai, ovomaltine, doce de leite, speculoos… 🍦
 
@@ -225,9 +214,7 @@ Os picolés Los Los estão no freezer da sua Mio, 24h por dia. Qual é o seu fav
         <p class="arraste mt2" style="color:#fffdf9">Arraste →</p></div>${rodape()}</div>`,
       `<div class="s bege">${tag(2, n)}<p class="eyebrow">1 · Preço</p><h2 class="mt1">Sem taxa de franquia, <em>preço mais justo</em> na prateleira.</h2>
         <p class="lead mt2">Redes de franquia repassam royalties e taxas para a marca. A Mio não paga nada disso, e essa diferença fica no preço dos produtos.</p>
-        <div class="produtos" style="left:40px;right:40px;bottom:170px;justify-content:center">
-          <img src="${PROD("guarana_2l")}" style="height:420px;margin-right:-30px"><img src="${PROD("arm_italac_leite")}" style="height:330px;margin-right:-20px"><img src="${PROD("arm_ruffles")}" style="height:330px;margin-right:-20px"><img src="${PROD("heineken_lata")}" style="height:220px;margin-right:-10px"><img src="${PROD("arm_ype_limao")}" style="height:330px">
-        </div>${rodape(false)}</div>`,
+        <div class="foto" style="top:auto;height:520px;background-image:url(${FOTO("loja3-prateleiras")});background-position:50% 65%;border-radius:36px;left:84px;right:84px;bottom:170px"></div>${rodape(false)}</div>`,
       `<div class="s vinho">${tag(3, n)}<p class="eyebrow">2 · Atendimento</p><h2 class="mt1">Quem decide está <em>aqui do lado</em>, não em outro estado.</h2>
         <ul class="lista mt3">
           <li><span class="check">✓</span><div>Síndico fala direto com a Mio<small>Sem central de atendimento de rede</small></div></li>
@@ -236,7 +223,8 @@ Os picolés Los Los estão no freezer da sua Mio, 24h por dia. Qual é o seu fav
         </ul>${rodape()}</div>`,
       `<div class="s bege">${tag(4, n)}<p class="eyebrow">3 · Do Vale, para o Vale</p>
         <div class="mt3"><div class="num">21</div><p class="lead">condomínios em São José dos Campos e Jacareí</p></div>
-        <h2 class="mt3">Empresa local, equipe própria, <em>zero franquia.</em></h2>
+        <h2 class="mt2">Empresa local, equipe própria, <em>zero franquia.</em></h2>
+        <div class="foto" style="top:auto;height:300px;background-image:url(${FOTO("loja4-frente")});background-position:50% 45%;border-radius:36px;left:84px;right:84px;bottom:270px"></div>
         <div class="z mt-a" style="margin-bottom:110px"><span class="pill" style="font-size:30px;padding:18px 32px;letter-spacing:.04em;text-transform:none">Quer uma Mio no seu condomínio? Link na bio</span></div>${rodape(false)}</div>`,
     ],
     legenda: `A Mio Express não é franquia. E isso muda tudo pra você. 💛
@@ -294,19 +282,10 @@ Os doces (e os dentes de vampiro) estão na sua Mio, 24h por dia, dentro do cond
   {
     id: "08-noite-de-jogo",
     slides: () => [
-      `<div class="s escuro">
-        <p class="eyebrow">Noite de jogo</p>
-        <h1 class="mt1">Hoje tem jogo.<br><em>A Mio tem o resto.</em></h1>
-        <p class="lead mt2">Cerveja gelada, salgadinho e refri a poucos passos do sofá. Sem perder nenhum lance.</p>
-        <div class="produtos" style="left:30px;right:30px;bottom:200px;justify-content:center">
-          <img src="${PROD("arm_doritos")}" style="height:330px;margin-right:-40px;transform:rotate(-8deg)">
-          <img src="${PROD("heineken_ln")}" style="height:440px;margin-right:-20px">
-          <img src="${PROD("spaten")}" style="height:300px;margin-right:-20px">
-          <img src="${PROD("arm_pringles")}" style="height:340px;margin-right:-20px">
-          <img src="${PROD("cocazero_2l")}" style="height:440px;margin-right:-30px">
-          <img src="${PROD("arm_ruffles")}" style="height:320px;transform:rotate(8deg)">
-        </div>
-        <p style="position:absolute;left:84px;right:84px;bottom:140px;font-size:20px;opacity:.6;text-align:center">Beba com moderação. Venda proibida para menores de 18 anos.</p>${rodape()}</div>`,
+      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja3-geladeiras")});background-position:30% 55%;background-size:auto 1600px"></div>
+        <div class="z mt-a" style="margin-bottom:120px"><p class="eyebrow" style="color:#e2c48f">Sexta à noite</p>
+        <h1 class="mt1">Dia de jogo?<br><em>A geladeira<br>tá logo ali.</em></h1>
+        <p class="mt1" style="font-size:22px;opacity:.7">Beba com moderação. Venda proibida para menores de 18 anos.</p></div>${rodape()}</div>`,
     ],
     legenda: `Hoje tem jogo? ⚽🍺
 
