@@ -56,6 +56,9 @@ p.lead { font-size: 38px; line-height: 1.35; font-weight: 500; opacity: .88; }
 .passo { display: flex; gap: 34px; align-items: center; }
 .passo b { flex: none; width: 120px; height: 120px; border-radius: 50%; background: #b08d57; color: #3b0d14; font-size: 60px; display: grid; place-items: center; }
 .tag { position: absolute; top: 84px; right: 84px; z-index: 2; font-size: 24px; font-weight: 700; letter-spacing: .12em; opacity: .8; }
+.ft { position: absolute; inset: 0; background-size: cover; }
+.ft::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(59,13,20,.97) 0%, rgba(59,13,20,.9) 30%, rgba(59,13,20,.25) 52%, rgba(59,13,20,0) 66%, rgba(59,13,20,.75) 100%); }
+.ft.baixo::after { background: linear-gradient(180deg, rgba(59,13,20,.55) 0%, rgba(59,13,20,0) 22%, rgba(59,13,20,0) 45%, rgba(59,13,20,.92) 72%, rgba(59,13,20,.98) 100%); }
 `;
 
 const rodape = (claro = true, extra = "@mioexpressbrasil") => `<div class="rodape"><img src="${claro ? LOGO_W : LOGO}"><span>${extra}</span></div>`;
@@ -347,6 +350,24 @@ Neste sábado (31/10) a criançada vai bater na sua porta: doces, refri gelado e
 Qual fantasia ficou melhor? Comenta aqui 👇
 
 #halloween #docesoutravessuras #mioexpress #condominio #saojosedoscampos #jacarei`,
+  },
+  {
+    id: "10-teste-foto-real",
+    slides: () => [
+      `<div class="s" style="color:#fffdf9"><div class="ft" style="background-image:url(${FOTO("loja3-frente")});background-position:50% 100%;background-size:auto 1650px"></div>
+        <div class="z"><p class="eyebrow">23h47</p>
+        <h1 class="mt1">Acabou o leite?<br><em>Desce ali.</em></h1>
+        <p class="lead mt1">Sua Mio fica aberta 24h, dentro do condomínio. Sem fila, sem trânsito, sem sair de chinelo.</p></div>${rodape()}</div>`,
+      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja2-angulo")});background-position:50% 30%"></div>
+        <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow">Síndico pergunta, a Mio responde</p>
+        <h1 class="mt1" style="font-size:92px">5 dúvidas sobre ter um mercado <em>no condomínio</em></h1>
+        <p class="arraste mt2">Arraste →</p></div>${rodape()}</div>`,
+      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja2-totem")});background-position:50% 35%"></div>
+        <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow">Na Mio é assim</p>
+        <h1 class="mt1">Pegou. Passou.<br><em>Pagou.</em></h1>
+        <p class="lead mt1">Sem app, sem cadastro. Pix ou cartão no totem.</p></div>${rodape()}</div>`,
+    ],
+    legenda: `teste de layout`,
   },
 ];
 
