@@ -1,0 +1,412 @@
+<title>Plano Mio Instagram</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: coluna de leitura larga com faixas de cor por bloco (bege = estratégia, bordô = execução), artes reais em tira rolável */
+:root {
+  --bg: #f5eee4; --surface: #fffdf9; --fg: #2b1d1a; --muted: #6e5d56; --line: rgba(43,29,26,.12);
+  --vinho: #7a1f2b; --vinho-fg: #fffdf9; --dourado: #9a7640; --band: #ece1d2;
+  --ok: #2f7d4f; --warn: #a8641c;
+  --display: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --body: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #1d1412; --surface: #2a1d1a; --fg: #f3e9dd; --muted: #c2aea3; --line: rgba(243,233,221,.14);
+  --vinho: #c4505f; --vinho-fg: #fffdf9; --dourado: #d2ad73; --band: #261a17; --ok: #6cc08e; --warn: #e2a25a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #1d1412; --surface: #2a1d1a; --fg: #f3e9dd; --muted: #c2aea3; --line: rgba(243,233,221,.14);
+  --vinho: #c4505f; --vinho-fg: #fffdf9; --dourado: #d2ad73; --band: #261a17; --ok: #6cc08e; --warn: #e2a25a; color-scheme: dark }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+section { padding-block: 56px; border-top: 1px solid var(--line); }
+section.band { background: var(--band); }
+h1, h2, h3 { font-family: var(--display); line-height: 1.1; letter-spacing: -.02em; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 800; }
+h2 { font-size: clamp(1.6rem, 4vw, 2.3rem); font-weight: 700; }
+h3 { font-size: 1.2rem; font-weight: 700; }
+p { margin: 0; max-width: 68ch; }
+a { color: var(--vinho); }
+.kicker { font-size: .74rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--dourado); }
+.stack { display: grid; gap: 14px; }
+.stack-lg { display: grid; gap: 28px; }
+.lead { font-size: 1.12rem; color: var(--muted); }
+header.top { padding-block: 64px 48px; }
+.facts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.fact { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; font-size: .9rem; font-weight: 600; }
+.fact b { color: var(--vinho); }
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 28px; font-size: .92rem; font-weight: 600; }
+nav.toc a { text-decoration: none; }
+nav.toc a:hover, nav.toc a:focus-visible { text-decoration: underline; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.box p, .box li { color: var(--muted); font-size: .95rem; }
+.box ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.pct { font-size: 2rem; font-weight: 800; color: var(--vinho); line-height: 1; font-variant-numeric: tabular-nums; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 760px; font-size: .9rem; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td.mio, th.mio { background: color-mix(in srgb, var(--vinho) 9%, transparent); font-weight: 600; }
+.note { font-size: .82rem; color: var(--muted); }
+.chip { display: inline-block; font-size: .72rem; font-weight: 700; padding: 3px 9px; border-radius: 99px; letter-spacing: .04em; white-space: nowrap; }
+.chip.s { background: color-mix(in srgb, var(--vinho) 16%, transparent); color: var(--vinho); }
+.chip.m { background: color-mix(in srgb, var(--dourado) 22%, transparent); color: var(--fg); }
+.chip.r { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
+.chip.novo { background: var(--fg); color: var(--bg); }
+.cal { display: grid; gap: 14px; }
+.week { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+.week h3 { padding: 14px 20px; background: var(--vinho); color: var(--vinho-fg); font-size: 1rem; }
+.days { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.day { padding: 16px 20px; border-right: 1px solid var(--line); display: grid; gap: 6px; align-content: start; }
+.day:last-child { border-right: 0; }
+.day .d { font-size: .74rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.day strong { font-size: .98rem; line-height: 1.3; }
+.day a { font-size: .85rem; }
+@media (max-width: 720px) { .days { grid-template-columns: 1fr; } .day { border-right: 0; border-bottom: 1px solid var(--line); } .day:last-child { border-bottom: 0; } }
+.posts { display: grid; gap: 22px; }
+.post { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+.post__strip { display: flex; gap: 10px; overflow-x: auto; padding: 16px; background: color-mix(in srgb, var(--fg) 6%, transparent); scroll-snap-type: x mandatory; }
+.post__strip img { flex: none; width: min(280px, 70vw); height: auto; aspect-ratio: 4 / 5; border-radius: 10px; scroll-snap-align: start; box-shadow: 0 6px 18px rgba(0,0,0,.12); }
+.post__body { padding: 22px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.legenda { white-space: pre-wrap; font-family: var(--body); font-size: .88rem; background: var(--bg); border-radius: 12px; padding: 14px; margin: 8px 0 0; max-height: 320px; overflow: auto; }
+summary { cursor: pointer; font-weight: 600; font-size: .92rem; }
+.copiar { justify-self: start; font: inherit; font-weight: 700; font-size: .88rem; padding: 10px 18px; border-radius: 99px; border: 0; background: var(--vinho); color: var(--vinho-fg); cursor: pointer; }
+.copiar:focus-visible, summary:focus-visible { outline: 3px solid var(--dourado); outline-offset: 2px; }
+.arquivo { font-size: .8rem; color: var(--muted); }
+code { font-size: .85em; background: color-mix(in srgb, var(--fg) 8%, transparent); padding: 1px 6px; border-radius: 6px; overflow-wrap: anywhere; }
+@media (max-width: 820px) { .post { grid-template-columns: 1fr; } }
+.steps { counter-reset: s; display: grid; gap: 12px; padding: 0; margin: 0; list-style: none; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; }
+.steps li::before { content: counter(s); width: 40px; height: 40px; border-radius: 50%; background: var(--vinho); color: var(--vinho-fg); display: grid; place-items: center; font-weight: 800; }
+.steps li p { color: var(--muted); font-size: .95rem; }
+.quote { border-left: 4px solid var(--dourado); padding: 4px 0 4px 18px; font-size: 1.05rem; font-weight: 600; max-width: 68ch; }
+.bio { background: var(--surface); border: 1px dashed var(--vinho); border-radius: 16px; padding: 18px 20px; white-space: pre-line; font-weight: 600; max-width: 520px; }
+footer { padding-block: 40px 64px; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<header class="top"><div class="wrap stack">
+  <p class="kicker">Mio Express · Marketing · out/2026</p>
+  <h1>Plano de Instagram e crescimento da Mio</h1>
+  <p class="lead">Estratégia para os próximos 3 meses: o que postar, quando, para quem e como transformar o Instagram em novos condomínios e em mais vendas nas unidades atuais. Os 6 primeiros posts já estão prontos, com legenda.</p>
+  <div class="facts">
+    <span class="fact">Público: <b>síndicos + moradores</b></span>
+    <span class="fact">Ritmo: <b>3 posts/semana</b> + stories</span>
+    <span class="fact">Anúncios: <b>até R$ 500/mês</b></span>
+    <span class="fact">Material: <b>fotos, vídeos e 3D atuais</b></span>
+  </div>
+  <nav class="toc" aria-label="Seções">
+    <a href="#posicionamento">Posicionamento</a><a href="#concorrencia">Concorrência</a><a href="#pilares">Pilares</a>
+    <a href="#calendario">Calendário</a><a href="#posts">Posts prontos</a><a href="#perfil">Perfil</a>
+    <a href="#anuncios">Anúncios</a><a href="#crescer">Além do Instagram</a><a href="#metas">Metas</a><a href="#proximos">Próximos passos</a>
+  </nav>
+</div></header>
+
+<section id="posicionamento" class="band"><div class="wrap stack-lg">
+  <div class="stack"><p class="kicker">1 · Posicionamento</p><h2>A Mio é o mercado do condomínio feito por gente do Vale</h2>
+  <p class="lead">Os concorrentes grandes são franquias de Curitiba e de Santa Catarina, falando ao mesmo tempo com investidor, síndico e morador. A Mio não vende franquia, então o perfil pode falar só com quem importa: quem mora e quem decide.</p></div>
+  <p class="quote">Mini mercado 24h dentro do seu condomínio. Custo zero para o condomínio, sem app para o morador, com equipe própria aqui do Vale.</p>
+  <div class="grid3">
+    <div class="box"><h3>Do Vale, para o Vale</h3><p>Operação própria em São José dos Campos: quem instala, abastece e atende o síndico é a Mio. As franquias locais dos concorrentes têm presença fraca.</p></div>
+    <div class="box"><h3>Sem app, sem cadastro</h3><p>Pegou, passou, pagou no totem com Pix ou cartão. Market4u e InHouse exigem app, e isso é um atrito real para o morador.</p></div>
+    <div class="box"><h3>Marcas parceiras</h3><p>Coca-Cola, Heineken, Sadia, Liv Up, Los Los. Lançamentos, combos e sorteios com essas marcas viram conteúdo que os concorrentes locais não têm.</p></div>
+    <div class="box"><h3>A hora da emergência</h3><p>O pico de vendas do setor é das 18h às 2h, e 67% dos clientes compram por emergência. "Esqueceu o leite às 23h?" é o nosso território.</p></div>
+    <div class="box"><h3>Síndico sem dor de cabeça</h3><p>Custo zero, furto por conta da Mio, câmera, instalação em ~20 dias e possível cashback. Mercadinho pode valorizar o imóvel entre R$ 10 mil e R$ 30 mil.</p></div>
+    <div class="box"><h3>Experiência 3D</h3><p>Nenhum concorrente deixa o síndico "entrar" na loja antes de assinar. O link mioexpress.com.br/experiencia é um diferencial para usar em todo post de síndico.</p></div>
+  </div>
+</div></section>
+
+<section id="concorrencia"><div class="wrap stack-lg">
+  <div class="stack"><p class="kicker">2 · Concorrência</p><h2>Quem disputa os condomínios do Vale</h2>
+  <p class="lead">O setor tem cerca de 10 mil mercadinhos no Brasil, cresceu 53,5% em 2024 e menos de 10% dos 200 mil condomínios têm um. Ainda tem muito espaço, mas as redes grandes já fazem prospecção ativa em SJC.</p></div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Rede</th><th>Tamanho</th><th>Modelo</th><th>Para o morador</th><th>Instagram</th><th>O que dá para aprender</th></tr></thead>
+    <tbody>
+      <tr><td><b>Market4u</b></td><td>~2.700 lojas, 185 cidades</td><td>Franquia (PR)</td><td>App, cashback, delivery</td><td>@market4u.br · ~88 mil</td><td>Página só para SJC e Taubaté no Google; "Indique &amp; Ganhe" paga até R$ 4 mil por condomínio indicado; Celso Portiolli como garoto-propaganda</td></tr>
+      <tr><td><b>InHouse Market</b></td><td>1.800+ lojas</td><td>Licença de marca</td><td>App; mix escolhido por pesquisa com moradores</td><td>@inhousemarket.br · ~150 mil + perfis por cidade</td><td>Pesquisa com moradores para montar o mix; contas locais por cidade</td></tr>
+      <tr><td><b>SmartStore</b></td><td>~2 mil lojas</td><td>Licença</td><td>App/totem</td><td>@smartstore_brasil · ~27 mil</td><td>Divulga dados (ticket médio R$ 15,93, bebidas = 25% das vendas) e ganha imprensa</td></tr>
+      <tr><td><b>Minha Quitandinha</b></td><td>800+ lojas</td><td>Franquia (SC)</td><td>Totem/app</td><td>@minhaquitandinhabr · ~19 mil; franqueado SJC com ~114</td><td>Concorrente local direto, mas com perfil fraco em SJC</td></tr>
+      <tr><td><b>Honest Market / Fast4You</b></td><td>300–650 lojas</td><td>Franquia</td><td>App/totem</td><td>~27 mil / fraco</td><td>Foco em vender franquia; o setor questiona a maturidade dessas redes</td></tr>
+      <tr><td><b>Vale Market 24h</b></td><td>~6 lojas (2021)</td><td>Própria (Vale)</td><td>App + cartão</td><td>@valemarketbrasil</td><td>Foi o "primeiro do Vale", mas parece parado: a liderança local está aberta</td></tr>
+      <tr><td class="mio">Mio Express</td><td class="mio">20 condomínios, +1.800 aptos</td><td class="mio">Própria (SJC)</td><td class="mio">Totem, sem app</td><td class="mio">@mioexpressbrasil</td><td class="mio">Local, marcas parceiras, experiência 3D</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Números públicos das próprias empresas e da imprensa (Giro News, Mercado &amp; Consumo, Diário do Comércio, Central do Varejo, AMLabs). Seguidores vêm de páginas em cache e podem estar desatualizados. Não foi possível abrir os perfis para medir frequência e engajamento.</p>
+  <div class="grid3">
+    <div class="box"><h3>Copiar</h3><ul><li>Páginas no Google por cidade e bairro</li><li>Programa de indicação de condomínio</li><li>Prova social com números e vídeo de síndico</li><li>Dados próprios ("o que SJC compra às 23h")</li></ul></div>
+    <div class="box"><h3>Evitar</h3><ul><li>Falar com investidor no feed</li><li>Exigir app e cadastro</li><li>Números inflados</li><li>Falar de furto de forma que constranja o morador</li></ul></div>
+    <div class="box"><h3>Onde ganhar</h3><ul><li>Ser "a do Vale" antes que uma rede grande ocupe o espaço</li><li>Imprensa local: não há matéria recente do setor em SJC</li><li>Sorteios e combos com marcas parceiras</li><li>Conteúdo para síndico no Instagram (os outros fazem só em blog)</li></ul></div>
+  </div>
+</div></section>
+
+<section id="pilares" class="band"><div class="wrap stack-lg">
+  <div class="stack"><p class="kicker">3 · Linha editorial</p><h2>Cinco pilares para não faltar assunto</h2>
+  <p class="lead">Cada semana tem pelo menos um post para síndico e um para morador. A cor do chip mostra o público de cada pilar no calendário.</p></div>
+  <div class="grid3">
+    <div class="box"><span class="pct">30%</span><h3>Para síndicos <span class="chip s">Síndico</span></h3><p>Custo zero, dúvidas (furto, câmera, prazo), passo a passo da instalação, depoimentos, valorização do imóvel, checklist para assembleia.</p></div>
+    <div class="box"><span class="pct">25%</span><h3>Dia a dia do morador <span class="chip m">Morador</span></h3><p>Cenas de emergência e conveniência: 23h, noite de filme, café da manhã, dia de jogo, chuva. Humor leve, situações reais.</p></div>
+    <div class="box"><span class="pct">20%</span><h3>Produtos e parceiros <span class="chip m">Morador</span></h3><p>Novidades, sabores Los Los, marmitas Liv Up, combos Heineken e Sadia, "mais vendidos da semana", enquetes de sabor.</p></div>
+    <div class="box"><span class="pct">15%</span><h3>Marca e bastidores <span class="chip r">Todos</span></h3><p>Do Vale para o Vale, reposição acontecendo, nova unidade inaugurada, tour 3D, números da Mio.</p></div>
+    <div class="box"><span class="pct">10%</span><h3>Comunidade <span class="chip r">Todos</span></h3><p>Enquetes "o que falta na sua Mio?", sorteios com marcas, datas comemorativas, repost de moradores.</p></div>
+    <div class="box"><h3>Formatos</h3><p><b>Carrossel</b> para explicar e salvar (síndico). <b>Post único</b> para produto e humor. <b>Reels</b> 1x por semana com vídeo institucional, vídeo de síndicos e gravação do 3D. <b>Stories</b> todos os dias: enquete, caixinha, novidades.</p></div>
+  </div>
+</div></section>
+
+<section id="calendario"><div class="wrap stack-lg">
+  <div class="stack"><p class="kicker">4 · Calendário · 4 semanas</p><h2>Segunda, quarta e sexta</h2>
+  <p class="lead">Melhor horário: segunda e quarta às 12h (síndico no almoço) e sexta às 19h (morador chegando em casa). Stories ao longo do dia, com reforço depois das 20h. <span class="chip novo">Pronto</span> marca os posts que já estão desenhados.</p></div>
+  <div class="cal">
+    <div class="week"><h3>Semana 1 · Apresentação</h3><div class="days">
+      <div class="day"><span class="d">Seg 12h</span><span class="chip s">Síndico</span><strong>Carrossel: mini mercado 24h, custo zero</strong><a href="#01-sindico-custo-zero">Pronto · ver arte</a></div>
+      <div class="day"><span class="d">Qua 12h</span><span class="chip m">Morador</span><strong>Post: "Acabou o leite? Desce ali."</strong><a href="#02-morador-23h">Pronto · ver arte</a></div>
+      <div class="day"><span class="d">Sex 19h</span><span class="chip r">Todos</span><strong>Reels: tour 3D pela Mio (gravação de tela do site, 20 s, música em alta)</strong><span class="note">Roteiro abaixo</span></div>
+    </div></div>
+    <div class="week"><h3>Semana 2 · Como funciona</h3><div class="days">
+      <div class="day"><span class="d">Seg 12h</span><span class="chip s">Síndico</span><strong>Carrossel: 5 dúvidas de síndico</strong><a href="#04-duvidas-sindico">Pronto · ver arte</a></div>
+      <div class="day"><span class="d">Qua 12h</span><span class="chip m">Morador</span><strong>Carrossel: pegou, passou, pagou</strong><a href="#03-como-comprar">Pronto · ver arte</a></div>
+      <div class="day"><span class="d">Sex 19h</span><span class="chip m">Morador</span><strong>Post: picolé Los Los + enquete de sabor nos stories</strong><a href="#05-picole-los-los">Pronto · ver arte</a></div>
+    </div></div>
+    <div class="week"><h3>Semana 3 · Confiança</h3><div class="days">
+      <div class="day"><span class="d">Seg 12h</span><span class="chip r">Todos</span><strong>Post: Do Vale, para o Vale</strong><a href="#06-do-vale-para-o-vale">Pronto · ver arte</a></div>
+      <div class="day"><span class="d">Qua 12h</span><span class="chip s">Síndico</span><strong>Reels: vídeo dos síndicos (corte de 30 s com legenda)</strong><span class="note">Usar o vídeo que já está no site</span></div>
+      <div class="day"><span class="d">Sex 19h</span><span class="chip m">Morador</span><strong>Post: noite de jogo (Heineken + Doritos + pizza Sadia)</strong><span class="note">Próximo lote de artes</span></div>
+    </div></div>
+    <div class="week"><h3>Semana 4 · Prova social</h3><div class="days">
+      <div class="day"><span class="d">Seg 12h</span><span class="chip s">Síndico</span><strong>Carrossel: depoimento de síndico ("Recomendo com total confiança")</strong><span class="note">Próximo lote de artes</span></div>
+      <div class="day"><span class="d">Qua 12h</span><span class="chip m">Morador</span><strong>Post: marmitas Liv Up para quem chega tarde</strong><span class="note">Próximo lote de artes</span></div>
+      <div class="day"><span class="d">Sex 19h</span><span class="chip r">Todos</span><strong>Reels: vídeo institucional (corte de 30 s)</strong><span class="note">Usar o vídeo que já está no site</span></div>
+    </div></div>
+  </div>
+  <div class="grid2">
+    <div class="box"><h3>Stories da semana (roteiro fixo)</h3><ul><li><b>Seg:</b> repost do post + caixinha "Síndico, qual sua dúvida?"</li><li><b>Ter:</b> enquete "O que falta na sua Mio?"</li><li><b>Qua:</b> repost + "novidade na prateleira"</li><li><b>Qui:</b> quiz "Qual o produto mais vendido?"</li><li><b>Sex:</b> repost + contagem "fim de semana chegando"</li><li><b>Sáb/Dom:</b> 1 story leve (sorvete, filme, jogo)</li></ul></div>
+    <div class="box"><h3>Roteiro do Reels 3D (semana 1)</h3><ul><li>0–3 s: texto "Já pensou ter um mercado 24h no seu prédio?" sobre a entrada da loja</li><li>3–12 s: gravação de tela entrando pelo jardim até o armário</li><li>12–17 s: tocar na Coca, ir ao totem, "Compra concluída!"</li><li>17–20 s: "Entre você também: link na bio"</li><li>Gravar no celular em mioexpress.com.br/experiencia, tela em pé</li></ul></div>
+  </div>
+</div></section>
+
+<section id="posts" class="band"><div class="wrap stack-lg">
+  <div class="stack"><p class="kicker">5 · Posts prontos</p><h2>Primeiro lote: 6 posts, 18 imagens</h2>
+  <p class="lead">Arraste as artes para o lado para ver o carrossel inteiro. As imagens em tamanho real (1080 × 1350) estão na pasta indicada em cada post.</p></div>
+  <div class="posts">
+<article class="post" id="01-sindico-custo-zero">
+  <div class="post__strip"><img src="img/01-sindico-custo-zero-01.jpg" alt="Mini mercado 24h, custo zero — imagem 1 de 5" loading="lazy" width="720" height="900"><img src="img/01-sindico-custo-zero-02.jpg" alt="Mini mercado 24h, custo zero — imagem 2 de 5" loading="lazy" width="720" height="900"><img src="img/01-sindico-custo-zero-03.jpg" alt="Mini mercado 24h, custo zero — imagem 3 de 5" loading="lazy" width="720" height="900"><img src="img/01-sindico-custo-zero-04.jpg" alt="Mini mercado 24h, custo zero — imagem 4 de 5" loading="lazy" width="720" height="900"><img src="img/01-sindico-custo-zero-05.jpg" alt="Mini mercado 24h, custo zero — imagem 5 de 5" loading="lazy" width="720" height="900"></div>
+  <div class="post__body">
+    <p class="kicker">Carrossel · Síndicos · 5 imagens</p>
+    <h3>Mini mercado 24h, custo zero</h3>
+    <details><summary>Ver legenda</summary><pre class="legenda">Síndico, imagina oferecer aos moradores um mini mercado aberto 24h, dentro do condomínio, sem gastar nada? 🛒
+
+A Mio Express instala, abastece, faz a manutenção e cuida da segurança. O condomínio só ganha: mais conforto, um diferencial que valoriza o empreendimento e, em alguns casos, cashback.
+
+Já são 20 condomínios em São José dos Campos com uma Mio.
+
+👉 Quer levar para o seu? Fale com a gente pelo link na bio ou no WhatsApp (12) 99739-7730.
+
+#mercadoautonomo #minimercado #condominio #sindico #saojosedoscampos #jacarei #sjc #valedoparaiba #mioexpress</pre></details>
+    <button type="button" class="copiar" data-texto="Síndico, imagina oferecer aos moradores um mini mercado aberto 24h, dentro do condomínio, sem gastar nada? 🛒
+
+A Mio Express instala, abastece, faz a manutenção e cuida da segurança. O condomínio só ganha: mais conforto, um diferencial que valoriza o empreendimento e, em alguns casos, cashback.
+
+Já são 20 condomínios em São José dos Campos com uma Mio.
+
+👉 Quer levar para o seu? Fale com a gente pelo link na bio ou no WhatsApp (12) 99739-7730.
+
+#mercadoautonomo #minimercado #condominio #sindico #saojosedoscampos #jacarei #sjc #valedoparaiba #mioexpress">Copiar legenda</button>
+    <p class="arquivo">Arquivos: <code>marketing/posts/01-sindico-custo-zero/</code></p>
+  </div>
+</article>
+<article class="post" id="02-morador-23h">
+  <div class="post__strip"><img src="img/02-morador-23h-01.jpg" alt="Acabou o leite? Desce ali. — imagem 1 de 1" loading="lazy" width="720" height="900"></div>
+  <div class="post__body">
+    <p class="kicker">Post · Moradores</p>
+    <h3>Acabou o leite? Desce ali.</h3>
+    <details><summary>Ver legenda</summary><pre class="legenda">Aquela hora em que bate a vontade (ou a emergência) e o mercado mais perto já fechou… 🌙
+
+Na Mio é só descer: aberto 24h, dentro do seu condomínio. Pegou, passou no totem, pagou com Pix ou cartão. Pronto.
+
+Marca aqui quem sempre lembra que acabou alguma coisa às 23h 👇
+
+#mioexpress #mercado24h #condominio #saojosedoscampos #jacarei #conveniencia</pre></details>
+    <button type="button" class="copiar" data-texto="Aquela hora em que bate a vontade (ou a emergência) e o mercado mais perto já fechou… 🌙
+
+Na Mio é só descer: aberto 24h, dentro do seu condomínio. Pegou, passou no totem, pagou com Pix ou cartão. Pronto.
+
+Marca aqui quem sempre lembra que acabou alguma coisa às 23h 👇
+
+#mioexpress #mercado24h #condominio #saojosedoscampos #jacarei #conveniencia">Copiar legenda</button>
+    <p class="arquivo">Arquivos: <code>marketing/posts/02-morador-23h/</code></p>
+  </div>
+</article>
+<article class="post" id="03-como-comprar">
+  <div class="post__strip"><img src="img/03-como-comprar-01.jpg" alt="Pegou, passou, pagou — imagem 1 de 4" loading="lazy" width="720" height="900"><img src="img/03-como-comprar-02.jpg" alt="Pegou, passou, pagou — imagem 2 de 4" loading="lazy" width="720" height="900"><img src="img/03-como-comprar-03.jpg" alt="Pegou, passou, pagou — imagem 3 de 4" loading="lazy" width="720" height="900"><img src="img/03-como-comprar-04.jpg" alt="Pegou, passou, pagou — imagem 4 de 4" loading="lazy" width="720" height="900"></div>
+  <div class="post__body">
+    <p class="kicker">Carrossel · Moradores · 4 imagens</p>
+    <h3>Pegou, passou, pagou</h3>
+    <details><summary>Ver legenda</summary><pre class="legenda">Pegou, passou, pagou. ✅ Comprar na Mio é simples assim:
+
+1️⃣ Pegue o que precisar nas prateleiras e geladeiras
+2️⃣ Passe os produtos no totem de autoatendimento
+3️⃣ Pague com Pix ou cartão (aproximação ou chip)
+
+Sem app, sem cadastro, sem fila. 24h por dia, dentro do seu condomínio.
+
+Salva esse post para mostrar para quem ainda não conhece a Mio do prédio 😉
+
+#mioexpress #mercadoautonomo #autoatendimento #condominio #saojosedoscampos</pre></details>
+    <button type="button" class="copiar" data-texto="Pegou, passou, pagou. ✅ Comprar na Mio é simples assim:
+
+1️⃣ Pegue o que precisar nas prateleiras e geladeiras
+2️⃣ Passe os produtos no totem de autoatendimento
+3️⃣ Pague com Pix ou cartão (aproximação ou chip)
+
+Sem app, sem cadastro, sem fila. 24h por dia, dentro do seu condomínio.
+
+Salva esse post para mostrar para quem ainda não conhece a Mio do prédio 😉
+
+#mioexpress #mercadoautonomo #autoatendimento #condominio #saojosedoscampos">Copiar legenda</button>
+    <p class="arquivo">Arquivos: <code>marketing/posts/03-como-comprar/</code></p>
+  </div>
+</article>
+<article class="post" id="04-duvidas-sindico">
+  <div class="post__strip"><img src="img/04-duvidas-sindico-01.jpg" alt="5 dúvidas de síndico — imagem 1 de 6" loading="lazy" width="720" height="900"><img src="img/04-duvidas-sindico-02.jpg" alt="5 dúvidas de síndico — imagem 2 de 6" loading="lazy" width="720" height="900"><img src="img/04-duvidas-sindico-03.jpg" alt="5 dúvidas de síndico — imagem 3 de 6" loading="lazy" width="720" height="900"><img src="img/04-duvidas-sindico-04.jpg" alt="5 dúvidas de síndico — imagem 4 de 6" loading="lazy" width="720" height="900"><img src="img/04-duvidas-sindico-05.jpg" alt="5 dúvidas de síndico — imagem 5 de 6" loading="lazy" width="720" height="900"><img src="img/04-duvidas-sindico-06.jpg" alt="5 dúvidas de síndico — imagem 6 de 6" loading="lazy" width="720" height="900"></div>
+  <div class="post__body">
+    <p class="kicker">Carrossel · Síndicos · 6 imagens</p>
+    <h3>5 dúvidas de síndico</h3>
+    <details><summary>Ver legenda</summary><pre class="legenda">As 5 perguntas que mais ouvimos de síndicos (e as respostas diretas) 👇
+
+💰 Custo: zero
+🔒 Furto: responsabilidade 100% da Mio
+📹 Câmera: a nossa ou a do condomínio
+⏱️ Instalação: ~20 dias
+🏢 Tamanho mínimo: 80 apartamentos
+
+Ficou alguma dúvida? Manda nos comentários ou chama no WhatsApp pelo link na bio.
+
+Envie para o síndico do seu prédio! 📲
+
+#sindico #sindicoprofissional #condominio #mercadoautonomo #saojosedoscampos #jacarei #mioexpress</pre></details>
+    <button type="button" class="copiar" data-texto="As 5 perguntas que mais ouvimos de síndicos (e as respostas diretas) 👇
+
+💰 Custo: zero
+🔒 Furto: responsabilidade 100% da Mio
+📹 Câmera: a nossa ou a do condomínio
+⏱️ Instalação: ~20 dias
+🏢 Tamanho mínimo: 80 apartamentos
+
+Ficou alguma dúvida? Manda nos comentários ou chama no WhatsApp pelo link na bio.
+
+Envie para o síndico do seu prédio! 📲
+
+#sindico #sindicoprofissional #condominio #mercadoautonomo #saojosedoscampos #jacarei #mioexpress">Copiar legenda</button>
+    <p class="arquivo">Arquivos: <code>marketing/posts/04-duvidas-sindico/</code></p>
+  </div>
+</article>
+<article class="post" id="05-picole-los-los">
+  <div class="post__strip"><img src="img/05-picole-los-los-01.jpg" alt="Picolé às 22h? Tem. — imagem 1 de 1" loading="lazy" width="720" height="900"></div>
+  <div class="post__body">
+    <p class="kicker">Post · Produto parceiro</p>
+    <h3>Picolé às 22h? Tem.</h3>
+    <details><summary>Ver legenda</summary><pre class="legenda">Pistache, choco dubai, ovomaltine, doce de leite, speculoos… 🍦
+
+Os picolés Los Los estão no freezer da sua Mio, 24h por dia. Qual é o seu favorito? Vota aqui embaixo 👇
+
+#loslos #picole #sorvete #mioexpress #condominio #saojosedoscampos #verao</pre></details>
+    <button type="button" class="copiar" data-texto="Pistache, choco dubai, ovomaltine, doce de leite, speculoos… 🍦
+
+Os picolés Los Los estão no freezer da sua Mio, 24h por dia. Qual é o seu favorito? Vota aqui embaixo 👇
+
+#loslos #picole #sorvete #mioexpress #condominio #saojosedoscampos #verao">Copiar legenda</button>
+    <p class="arquivo">Arquivos: <code>marketing/posts/05-picole-los-los/</code></p>
+  </div>
+</article>
+<article class="post" id="06-do-vale-para-o-vale">
+  <div class="post__strip"><img src="img/06-do-vale-para-o-vale-01.jpg" alt="Do Vale, para o Vale — imagem 1 de 1" loading="lazy" width="720" height="900"></div>
+  <div class="post__body">
+    <p class="kicker">Post · Marca</p>
+    <h3>Do Vale, para o Vale</h3>
+    <details><summary>Ver legenda</summary><pre class="legenda">A Mio Express nasceu em São José dos Campos. 💛
+
+Não somos franquia: quem projeta, instala, abastece e atende cada condomínio é o nosso próprio time. Isso quer dizer reposição rápida, conversa direta com o síndico e um mix pensado para os moradores daqui.
+
+Hoje já são 20 condomínios em SJC e chegamos em Jacareí. Bora pro próximo? 🚀
+
+#saojosedoscampos #jacarei #valedoparaiba #empresalocal #mercadoautonomo #condominio #mioexpress</pre></details>
+    <button type="button" class="copiar" data-texto="A Mio Express nasceu em São José dos Campos. 💛
+
+Não somos franquia: quem projeta, instala, abastece e atende cada condomínio é o nosso próprio time. Isso quer dizer reposição rápida, conversa direta com o síndico e um mix pensado para os moradores daqui.
+
+Hoje já são 20 condomínios em SJC e chegamos em Jacareí. Bora pro próximo? 🚀
+
+#saojosedoscampos #jacarei #valedoparaiba #empresalocal #mercadoautonomo #condominio #mioexpress">Copiar legenda</button>
+    <p class="arquivo">Arquivos: <code>marketing/posts/06-do-vale-para-o-vale/</code></p>
+  </div>
+</article>
+  </div>
+</div></section>
+
+<section id="perfil"><div class="wrap stack-lg">
+  <div class="stack"><p class="kicker">6 · Perfil</p><h2>Ajustes no @mioexpressbrasil</h2></div>
+  <div class="grid2">
+    <div class="stack"><h3>Bio sugerida</h3><div class="bio">Mini mercado 24h dentro do seu condomínio 🛒
+Custo zero para o condomínio · sem app para o morador
+São José dos Campos e Jacareí
+👇 Quero uma Mio no meu prédio</div><p class="note">Link da bio: mioexpress.com.br. Nome do perfil: "Mio Express · Mercado no condomínio" (ajuda na busca do Instagram).</p></div>
+    <div class="box"><h3>Destaques (capas na cor bordô)</h3><ul><li><b>Como comprar</b>: o carrossel "pegou, passou, pagou"</li><li><b>Síndico</b>: custo zero + dúvidas + 3D</li><li><b>Dúvidas</b>: as respostas que já existem</li><li><b>Novidades</b>: produtos que chegaram</li><li><b>Unidades</b>: inaugurações (sem nome de prédio, só bairro)</li></ul></div>
+  </div>
+</div></section>
+
+<section id="anuncios" class="band"><div class="wrap stack-lg">
+  <div class="stack"><p class="kicker">7 · Anúncios · R$ 500/mês</p><h2>Onde investir pouco e bem</h2></div>
+  <div class="grid2">
+    <div class="box"><span class="pct">R$ 300</span><h3>Síndicos (novos condomínios)</h3><ul><li>Anúncio do carrossel "custo zero" com botão "Enviar mensagem" no WhatsApp</li><li>Região: São José dos Campos e Jacareí, 28 a 65 anos</li><li>Interesses: administração de condomínios, síndico, imóveis, gestão predial</li><li>Rodar 4 semanas sem mexer; trocar a arte só se o custo por conversa passar de ~R$ 25</li></ul></div>
+    <div class="box"><span class="pct">R$ 200</span><h3>Moradores (vender mais)</h3><ul><li>Impulsionar os 2 melhores posts de morador do mês</li><li>Raio de 1 km em volta dos condomínios atendidos (alfinetes no mapa do Meta)</li><li>Objetivo: alcance/engajamento, R$ 10–15 por dia em 2 janelas de 1 semana</li></ul></div>
+  </div>
+  <p class="note">Com essa verba, o mais importante é a constância: o mesmo anúncio de síndico rodando o mês todo vale mais do que vários testes pequenos.</p>
+</div></section>
+
+<section id="crescer"><div class="wrap stack-lg">
+  <div class="stack"><p class="kicker">8 · Além do Instagram</p><h2>O que mais faz a Mio crescer</h2><p class="lead">Ordenado do mais barato e rápido para o mais trabalhoso.</p></div>
+  <ol class="steps">
+    <li><div><h3>Google Meu Negócio</h3><p>Perfil "Mio Express · Mercado autônomo em condomínio" com fotos, link do site e pedido de avaliação para síndicos atuais. É grátis e aparece quando alguém busca "mercado no condomínio SJC".</p></div></li>
+    <li><div><h3>QR code dentro de cada loja</h3><p>Adesivo no totem: "Siga a Mio e peça um produto" (Instagram) e "Seu síndico quer uma Mio? Indique" (WhatsApp). Os moradores atuais viram o canal de captação.</p></div></li>
+    <li><div><h3>Indique um condomínio</h3><p>Morador ou síndico que indicar um prédio que fechar contrato ganha um prêmio (vale-compras na Mio ou R$ 300 a R$ 500). A Market4u paga até R$ 4 mil, então um valor local menor ainda é atraente.</p></div></li>
+    <li><div><h3>Administradoras de condomínio</h3><p>Visitar as administradoras de SJC e Jacareí com o link do 3D. Uma administradora atende dezenas de prédios: é o atalho mais rápido para novos contratos.</p></div></li>
+    <li><div><h3>Imprensa local</h3><p>Pauta para O Vale, Meon e TV Vanguarda com dados próprios: "o que SJC compra depois das 22h", "top 10 da Mio". Não há matéria recente do setor na região.</p></div></li>
+    <li><div><h3>Sorteios com marcas parceiras</h3><p>Ex.: "kit Heineken para o jogo" ou "1 mês de picolé Los Los", com regra "siga + marque 2 vizinhos". Peça à marca o produto do prêmio.</p></div></li>
+    <li><div><h3>Páginas no site por cidade</h3><p>Como a Market4u faz: uma página para São José dos Campos e outra para Jacareí no mioexpress.com.br. Eu posso montar quando quiser.</p></div></li>
+  </ol>
+</div></section>
+
+<section id="metas" class="band"><div class="wrap stack-lg">
+  <div class="stack"><p class="kicker">9 · Metas · 90 dias</p><h2>Como saber se está funcionando</h2>
+  <p class="lead">As metas finais dependem dos números de hoje. Anote os atuais antes de começar (seguidores, alcance do último mês, leads de síndico por mês) para comparar.</p></div>
+  <div class="grid3">
+    <div class="box"><h3>Novos condomínios</h3><p>Conversas de síndico no WhatsApp vindas do Instagram e do site (GA4: evento generate_lead). Meta inicial: 4 a 8 conversas por mês e 1 contrato novo por mês.</p></div>
+    <div class="box"><h3>Moradores</h3><p>Seguidores que moram nos condomínios atendidos (dá para ver pela localização no Meta) e respostas nas enquetes. Meta: 10% dos apartamentos atendidos seguindo a Mio.</p></div>
+    <div class="box"><h3>Constância</h3><p>36 posts em 12 semanas e stories em pelo menos 5 dias por semana. No começo, constância conta mais do que viralizar.</p></div>
+  </div>
+</div></section>
+
+<section id="proximos"><div class="wrap stack-lg">
+  <div class="stack"><p class="kicker">10 · Próximos passos</p><h2>Para começar nesta semana</h2></div>
+  <ol class="steps">
+    <li><div><h3>Atualizar bio, nome e destaques</h3><p>Texto pronto na seção 6.</p></div></li>
+    <li><div><h3>Agendar os 6 posts prontos</h3><p>No Meta Business Suite, nos dias e horários do calendário. Legenda pronta em cada post.</p></div></li>
+    <li><div><h3>Ligar o anúncio de síndico</h3><p>R$ 10 por dia com o carrossel "custo zero" e botão de WhatsApp.</p></div></li>
+    <li><div><h3>Mandar para mim</h3><p>Os números atuais do Instagram e, se tiver, os 10 produtos mais vendidos. Com isso eu desenho o segundo lote (semanas 3 e 4) e o post de dados.</p></div></li>
+  </ol>
+</div></section>
+
+<footer><div class="wrap">Plano feito para a Mio Express (G2J Comércio de Bebidas e Alimentos Ltda). Fontes da pesquisa de mercado: Giro News, Mercado &amp; Consumo, Diário do Comércio, Central do Varejo, AMLabs 2025, Tribuna Hoje, A Gazeta. Artes geradas a partir das fotos e do 3D da Mio.</div></footer>
+
+<script>
+document.querySelectorAll(".copiar").forEach((b) => {
+  b.addEventListener("click", () => {
+    const t = b.dataset.texto;
+    const ok = () => { const o = b.textContent; b.textContent = "Legenda copiada"; setTimeout(() => (b.textContent = o), 1800); };
+    const sel = () => { const pre = b.parentElement.querySelector(".legenda"); const d = b.parentElement.querySelector("details"); if (d) d.open = true; const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = "Selecionada: copie com Ctrl/⌘+C"; };
+    try { navigator.clipboard.writeText(t).then(ok, sel); } catch (e) { sel(); }
+  });
+});
+</script>

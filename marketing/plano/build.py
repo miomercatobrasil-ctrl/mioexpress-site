@@ -1,0 +1,39 @@
+# Monta marketing/plano/index.html (plano de marketing da Mio) a partir das artes e legendas geradas.
+import glob, html, json, os
+HERE = os.path.dirname(os.path.abspath(__file__))
+POSTS = os.path.join(HERE, "..", "posts")
+
+posts = []
+for d in sorted(glob.glob(os.path.join(POSTS, "*/"))):
+    pid = os.path.basename(d.rstrip("/"))
+    imgs = [f"img/{pid}-{os.path.basename(f)[:-4]}.jpg" for f in sorted(glob.glob(d + "*.png"))]
+    leg = open(os.path.join(d, "legenda.txt"), encoding="utf-8").read().strip()
+    posts.append((pid, imgs, leg))
+
+NOMES = {
+    "01-sindico-custo-zero": ("Carrossel · Síndicos", "Mini mercado 24h, custo zero"),
+    "02-morador-23h": ("Post · Moradores", "Acabou o leite? Desce ali."),
+    "03-como-comprar": ("Carrossel · Moradores", "Pegou, passou, pagou"),
+    "04-duvidas-sindico": ("Carrossel · Síndicos", "5 dúvidas de síndico"),
+    "05-picole-los-los": ("Post · Produto parceiro", "Picolé às 22h? Tem."),
+    "06-do-vale-para-o-vale": ("Post · Marca", "Do Vale, para o Vale"),
+}
+
+cards = []
+for pid, imgs, leg in posts:
+    tipo, nome = NOMES.get(pid, ("Post", pid))
+    strip = "".join(f'<img src="{i}" alt="{html.escape(nome)} — imagem {k+1} de {len(imgs)}" loading="lazy" width="720" height="900">' for k, i in enumerate(imgs))
+    cards.append(f'''<article class="post" id="{pid}">
+  <div class="post__strip">{strip}</div>
+  <div class="post__body">
+    <p class="kicker">{tipo}{" · " + str(len(imgs)) + " imagens" if len(imgs) > 1 else ""}</p>
+    <h3>{html.escape(nome)}</h3>
+    <details><summary>Ver legenda</summary><pre class="legenda">{html.escape(leg)}</pre></details>
+    <button type="button" class="copiar" data-texto="{html.escape(leg, quote=True)}">Copiar legenda</button>
+    <p class="arquivo">Arquivos: <code>marketing/posts/{pid}/</code></p>
+  </div>
+</article>''')
+
+page = open(os.path.join(HERE, "template.html"), encoding="utf-8").read().replace("<!--POSTS-->", "\n".join(cards))
+open(os.path.join(HERE, "index.html"), "w", encoding="utf-8").write(page)
+print("ok", len(posts), "posts")
