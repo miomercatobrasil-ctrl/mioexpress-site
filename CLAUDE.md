@@ -52,9 +52,9 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
   - Direção visual (João, 26/10): foto real da loja de fundo, com degradê bordô sob o texto. Nada de produto recortado solto no fundo, nem render 3D no feed. Fotos em `assets/source/fotos/` (loja2, loja3, loja4).
   - Quebre as linhas dos títulos à mão (`<br>`): sem palavra sozinha na última linha, e o texto todo dentro da área escura do degradê.
 - **Primeiro lote, em rascunho no Metricool desde 26/10/2026** (esperando aprovação do João). As imagens públicas ficam em `public/ig/<id>/` (noindex; ao mudar uma arte, use pasta nova, como `-v2`, por causa do cache):
-  - Seg 26/10 18h: 09 Halloween "até os produtos se fantasiaram" (carrossel com imagens do GPT, aprovado pelo João, agendado de verdade, marcado como IA). Cupom MIOWEEN10, 10% em doces só na sexta e no sábado (30 e 31/10). Código no totem: mínimo de 8 caracteres, maiúsculas e números
-  - Stories agendados: seg 26/10 18h10 (chamada para o post), sexta 30/10 10h e sábado 31/10 10h (cupom de Halloween). O gerador de stories fica em `marketing/gerador/stories.mjs`.
-  - Ter 27/10 10h: 12 concurso cultural "Churrasco com os Vizinhos" (agendado de verdade, id 406921134, marcado como IA). Vai até 02/11 23h59, com resultado em 03/11. Stories em 27/10 10h10 (id 406921225) e 01/11 10h (id 406921405). O João impulsiona e fixa o post.
+  - Ter 27/10 18h (movido de seg 26/10): 09 Halloween "até os produtos se fantasiaram" (carrossel com imagens do GPT, aprovado pelo João, agendado de verdade, marcado como IA). Cupom MIOWEEN10, 10% em doces só na sexta e no sábado (30 e 31/10). Código no totem: mínimo de 8 caracteres, maiúsculas e números
+  - Stories agendados: ter 27/10 18h10 (chamada para o post), sexta 30/10 10h e sábado 31/10 10h (cupom de Halloween). O gerador de stories fica em `marketing/gerador/stories.mjs`.
+  - Seg 26/10 15h30: 12 concurso cultural "Churrasco com os Vizinhos" (agendado de verdade, uuid -8349506528234748637, marcado como IA). Vai até 02/11 23h59, com resultado em 03/11. Stories em 26/10 15h40 (uuid 27113977999476542) e 01/11 10h (id 406921405). O João impulsiona e fixa o post.
   - Os rascunhos abaixo vão ser refeitos na linha de fotos reais e reagendados (o João liberou mudar as datas em 26/10).
   - Qua 28/10 10h: 01 síndico custo zero (carrossel)
   - Sex 30/10 18h: 07 Halloween dos doces. Ficou em rascunho e não sai; o João vai apagar.
