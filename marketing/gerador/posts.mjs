@@ -330,7 +330,7 @@ Beba com moderação. Venda de bebidas alcoólicas proibida para menores de 18 a
           <p class="lead mt2" style="font-size:36px">Doces, refri gelado e tudo para a noite.<br>24h, dentro do seu condomínio.</p>
           <div class="mt3" style="border:2px dashed #e2c48f;border-radius:28px;padding:28px 44px">
             <p style="font-size:24px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#e2c48f">Cupom no totem</p>
-            <p style="font-size:72px;font-weight:800;letter-spacing:.04em;margin-top:6px">MIOWEEN</p>
+            <p style="font-size:72px;font-weight:800;letter-spacing:.04em;margin-top:6px">MIOWEEN10</p>
             <p style="font-size:30px;font-weight:600;margin-top:4px">10% off em doces até 01/11</p>
           </div>
           <div style="position:absolute;left:0;right:0;bottom:64px;display:flex;justify-content:center"><img src="${LOGO_W}" style="height:58px"></div></div>`,
@@ -342,7 +342,7 @@ Abóbora, fantasma, múmia, vampiro… e o nosso carrinho também quis se fantas
 
 Neste sábado (31/10) a criançada vai bater na sua porta: doces, refri gelado e tudo para a noite estão na sua Mio, 24h por dia, dentro do condomínio.
 
-🍬 Use o cupom MIOWEEN no totem e ganhe 10% de desconto em doces até domingo (01/11).
+🍬 Use o cupom MIOWEEN10 no totem e ganhe 10% de desconto em doces até domingo (01/11).
 
 Qual fantasia ficou melhor? Comenta aqui 👇
 

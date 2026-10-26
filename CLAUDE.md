@@ -50,7 +50,7 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
   - Gerador: `node marketing/gerador/posts.mjs [id]`, que gera 1080×1350 em `marketing/posts/<id>/` com `legenda.txt`.
   - Para um post novo, copie um item de `POSTS` no gerador.
 - **Primeiro lote, em rascunho no Metricool desde 26/10/2026** (esperando aprovação do João). As imagens públicas ficam em `public/ig/<id>/` (noindex; ao mudar uma arte, use pasta nova, como `-v2`, por causa do cache):
-  - Seg 26/10 18h: 09 Halloween "até os produtos se fantasiaram" (carrossel com imagens do GPT, aprovado pelo João, agendado de verdade, marcado como IA)
+  - Seg 26/10 18h: 09 Halloween "até os produtos se fantasiaram" (carrossel com imagens do GPT, aprovado pelo João, agendado de verdade, marcado como IA). Cupom MIOWEEN10, 10% em doces até 01/11. Código no totem: mínimo de 8 caracteres, maiúsculas e números
   - Qua 28/10 10h: 01 síndico custo zero (carrossel)
   - Sex 30/10 18h: 07 Halloween (doces ou travessuras)
   - Ter 03/11 10h: 04 dúvidas de síndico (carrossel)
@@ -59,7 +59,7 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
   - Qui 12/11 18h: 05 picolé Los Los
   - Qui 19/11 18h: 02 morador 23h
 - **Imagens criativas:** o João gera no GPT a partir dos prompts que eu escrevo (produto vira personagem, fundo bordô, uma luz só, sem marcas, estilo das campanhas do McDonald's). Eu monto com o logo e o texto. As imagens ficam em `assets/source/<campanha>/`. Marque `isAiGenerated: true`.
-- **Datas comemorativas:** vale fazer post temático (Halloween, Dia do Síndico 30/11, Black Friday, Natal e Ano Novo, verão, Carnaval). Promoção com desconto só se o totem permitir, então pergunte ao João.
+- **Datas comemorativas:** vale fazer post temático (Halloween, Dia do Síndico 30/11, Black Friday, Natal e Ano Novo, verão, Carnaval). O totem aceita cupom: porcentagem ou valor, por categoria, fabricante ou produto, com validade e limite de uso; o código precisa ter no mínimo 8 caracteres. Promoções vão para os stories; no feed, no máximo 1 por mês.
 - **Melhor horário segundo o Metricool:** 10h e 18h nos dias de semana. Posts de síndico às 10h, de morador às 18h.
 - **Segundo lote, a fazer:** noite de jogo (Heineken + snacks + pizza Sadia), depoimento de síndico (sem nome do condomínio), marmitas Liv Up, post de dados (top produtos), Reels com o vídeo dos síndicos e com o institucional, Reels do tour 3D.
 - **Concorrentes:**
