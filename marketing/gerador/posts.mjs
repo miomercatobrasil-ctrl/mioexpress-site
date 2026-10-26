@@ -31,7 +31,7 @@ body { width: 1080px; height: 1350px; font-family: M, sans-serif; color: #2b1d1a
 .foto.escura::after { background: linear-gradient(180deg, rgba(43,29,26,0) 15%, rgba(43,29,26,.7) 45%, rgba(43,29,26,.95) 100%); }
 .foto.topo::after { background: linear-gradient(180deg, rgba(43,29,26,.75) 0%, rgba(43,29,26,.1) 45%, rgba(43,29,26,.85) 100%); }
 .z { position: relative; z-index: 1; }
-.eyebrow { font-size: 26px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #b08d57; }
+.eyebrow { font-size: 26px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #b08d57; text-shadow: 0 2px 12px rgba(0,0,0,.6); }
 .pill { display: inline-block; align-self: flex-start; padding: 12px 24px; border-radius: 99px; background: #7a1f2b; color: #fffdf9; font-size: 24px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
 h1 { font-size: 104px; line-height: .98; font-weight: 700; letter-spacing: -.035em; }
 h2 { font-size: 76px; line-height: 1.02; font-weight: 700; letter-spacing: -.03em; }
@@ -58,6 +58,8 @@ p.lead { font-size: 38px; line-height: 1.35; font-weight: 500; opacity: .88; }
 .tag { position: absolute; top: 84px; right: 84px; z-index: 2; font-size: 24px; font-weight: 700; letter-spacing: .12em; opacity: .8; }
 .ft { position: absolute; inset: 0; background-size: cover; }
 .ft::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(59,13,20,.97) 0%, rgba(59,13,20,.9) 30%, rgba(59,13,20,.25) 52%, rgba(59,13,20,0) 66%, rgba(59,13,20,.75) 100%); }
+.ft2 { position: absolute; left: 0; right: 0; bottom: 0; height: 820px; background-size: cover; }
+.ft2::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, #3b0d14 0%, rgba(59,13,20,0) 28%, rgba(59,13,20,0) 70%, rgba(59,13,20,.85) 100%); }
 .ft.baixo::after { background: linear-gradient(180deg, rgba(59,13,20,.55) 0%, rgba(59,13,20,0) 22%, rgba(59,13,20,0) 45%, rgba(59,13,20,.92) 72%, rgba(59,13,20,.98) 100%); }
 `;
 
@@ -136,7 +138,7 @@ Marca aqui quem sempre lembra que acabou alguma coisa às 23h 👇
   {
     id: "03-como-comprar",
     slides: (n = 4) => [
-      `<div class="s vinho"><p class="eyebrow">Na Mio é assim</p>
+      `<div class="s vinho"><p class="eyebrow" style="color:#e2c48f">Na Mio é assim</p>
         <h1 class="mt1">Pegou.<br>Passou.<br><em>Pagou.</em></h1>
         <p class="lead mt2">Comprar na Mio leva menos de 1 minuto. Arraste e veja →</p>
         <div class="produtos" style="right:20px;bottom:150px"><img src="${PROD("arm_doritos")}" style="height:420px;transform:rotate(-8deg)"><img src="${PROD("cocazero_lata")}" style="height:300px;margin-left:-40px;transform:rotate(6deg)"></div>${rodape()}</div>`,
@@ -173,7 +175,7 @@ Salva esse post para mostrar para quem ainda não conhece a Mio do prédio 😉
         ["Qual o tamanho mínimo?", "Atendemos condomínios a partir de 80 apartamentos, para garantir variedade e reposição constante."],
       ];
       return [
-        `<div class="s vinho"><p class="eyebrow">Síndico pergunta, a Mio responde</p>
+        `<div class="s vinho"><p class="eyebrow" style="color:#e2c48f">Síndico pergunta, a Mio responde</p>
           <h1 class="mt1">5 dúvidas sobre ter um mercado no condomínio</h1>
           <p class="arraste mt2">Arraste →</p>
           <div class="foto" style="top:auto;height:560px;background-image:url(${R3D("armario")});border-radius:36px;left:84px;right:84px;bottom:170px"></div>${rodape()}</div>`,
@@ -354,18 +356,25 @@ Qual fantasia ficou melhor? Comenta aqui 👇
   {
     id: "10-teste-foto-real",
     slides: () => [
-      `<div class="s" style="color:#fffdf9"><div class="ft" style="background-image:url(${FOTO("loja3-frente")});background-position:50% 100%;background-size:auto 1650px"></div>
+      `<div class="s" style="color:#fffdf9;background:#3b0d14"><div class="ft2" style="background-image:url(${FOTO("loja3-prateleiras")});background-position:50% 62%"></div>
         <div class="z"><p class="eyebrow">23h47</p>
         <h1 class="mt1">Acabou o leite?<br><em>Desce ali.</em></h1>
         <p class="lead mt1">Sua Mio fica aberta 24h, dentro do condomínio. Sem fila, sem trânsito, sem sair de chinelo.</p></div>${rodape()}</div>`,
-      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja2-angulo")});background-position:50% 30%"></div>
-        <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow">Síndico pergunta, a Mio responde</p>
+      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja3-frente-c")});background-position:50% 40%"></div>
+        <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">Síndico pergunta, a Mio responde</p>
         <h1 class="mt1" style="font-size:92px">5 dúvidas sobre ter um mercado <em>no condomínio</em></h1>
         <p class="arraste mt2">Arraste →</p></div>${rodape()}</div>`,
-      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja2-totem")});background-position:50% 35%"></div>
-        <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow">Na Mio é assim</p>
+      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja3-totem")});background-position:50% 30%"></div>
+        <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">Na Mio é assim</p>
         <h1 class="mt1">Pegou. Passou.<br><em>Pagou.</em></h1>
         <p class="lead mt1">Sem app, sem cadastro. Pix ou cartão no totem.</p></div>${rodape()}</div>`,
+      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja3-geladeiras")});background-position:30% 55%;background-size:auto 1600px"></div>
+        <div class="z mt-a" style="margin-bottom:120px"><p class="eyebrow" style="color:#e2c48f">Sexta à noite</p>
+        <h1 class="mt1">O jogo começa às 21h30.<br><em>A geladeira tá logo ali.</em></h1>
+        <p class="mt1" style="font-size:22px;opacity:.7">Beba com moderação. Venda proibida para menores de 18 anos.</p></div>${rodape()}</div>`,
+      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja4-ambiente")});background-position:20% 70%"></div>
+        <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">Calor? A gente resolve</p>
+        <h1 class="mt1">Picolé <em>Los Los</em> a poucos passos de casa.</h1></div>${rodape()}</div>`,
     ],
     legenda: `teste de layout`,
   },
