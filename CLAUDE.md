@@ -50,11 +50,13 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
   - Para um post novo, copie um item de `POSTS` no gerador.
 - **Primeiro lote, em rascunho no Metricool desde 26/10/2026** (esperando aprovação do João). As imagens públicas ficam em `public/ig/<id>/` (noindex; ao mudar uma arte, use pasta nova, como `-v2`, por causa do cache):
   - Qua 28/10 10h: 01 síndico custo zero (carrossel)
-  - Sex 30/10 18h: 02 morador 23h
+  - Sex 30/10 18h: 07 Halloween (doces ou travessuras)
   - Ter 03/11 10h: 04 dúvidas de síndico (carrossel)
   - Qui 05/11 18h: 03 como comprar (carrossel)
   - Ter 10/11 10h: 06 não somos franquia (carrossel)
   - Qui 12/11 18h: 05 picolé Los Los
+  - Qui 19/11 18h: 02 morador 23h
+- **Datas comemorativas:** vale fazer post temático (Halloween, Dia do Síndico 30/11, Black Friday, Natal e Ano Novo, verão, Carnaval). Promoção com desconto só se o totem permitir, então pergunte ao João.
 - **Melhor horário segundo o Metricool:** 10h e 18h nos dias de semana. Posts de síndico às 10h, de morador às 18h.
 - **Segundo lote, a fazer:** noite de jogo (Heineken + snacks + pizza Sadia), depoimento de síndico (sem nome do condomínio), marmitas Liv Up, post de dados (top produtos), Reels com o vídeo dos síndicos e com o institucional, Reels do tour 3D.
 - **Concorrentes:**

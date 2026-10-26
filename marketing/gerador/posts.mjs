@@ -245,6 +245,31 @@ Fale com a gente pelo link na bio ou no WhatsApp (12) 99739-7730.
 
 #saojosedoscampos #jacarei #valedoparaiba #empresalocal #mercadoautonomo #condominio #sindico #mioexpress`
   },
+  {
+    id: "07-halloween",
+    slides: () => [
+      `<div class="s escuro">
+        <p class="eyebrow">31/10 · Halloween no condomínio</p>
+        <h1 class="mt1">Doces ou travessuras?<br><em>Os doces estão na Mio.</em></h1>
+        <p class="lead mt2">A criançada vai bater na sua porta. Garanta os doces sem sair do condomínio, a qualquer hora.</p>
+        <div class="produtos" style="left:30px;right:30px;bottom:170px;justify-content:center">
+          <img src="${PROD("arm_fini_dentadura")}" style="height:330px;margin-right:-30px;transform:rotate(-8deg)">
+          <img src="${PROD("arm_kitkat")}" style="height:170px;margin-right:-20px;transform:rotate(4deg)">
+          <img src="${PROD("arm_mms_chocolate")}" style="height:330px;margin-right:-30px">
+          <img src="${PROD("arm_bis")}" style="height:230px;margin-right:-30px;transform:rotate(-4deg)">
+          <img src="${PROD("arm_fini_tubes")}" style="height:340px;transform:rotate(8deg)">
+        </div>${rodape()}</div>`,
+    ],
+    legenda: `Doces ou travessuras? 🎃🍬
+
+Neste sábado (31/10) a criançada vai bater na sua porta, e os doces estão logo ali na sua Mio: Fini, M&M's, KitKat, Bis e muito mais, 24h por dia, dentro do condomínio.
+
+Sem sair de casa, sem fila. Pegou, passou, pagou. 😉
+
+Marca aqui o vizinho que sempre esquece de comprar os doces 👇
+
+#halloween #docesoutravessuras #mioexpress #condominio #saojosedoscampos #jacarei`,
+  },
 ];
 
 const only = process.argv[2];
