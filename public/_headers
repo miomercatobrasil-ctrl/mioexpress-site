@@ -10,3 +10,7 @@
   Cache-Control: public, max-age=0, must-revalidate
 /textures/*
   Cache-Control: public, max-age=0, must-revalidate
+
+/ig/*
+  X-Robots-Tag: noindex
+  Cache-Control: public, max-age=604800
