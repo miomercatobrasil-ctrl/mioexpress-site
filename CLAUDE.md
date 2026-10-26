@@ -41,7 +41,7 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
 ## Marketing (Instagram)
 
 - **Plano completo:** https://claude.ai/artifact/UGP42GxHZJQssHrAYdgqJw. A fonte está em `marketing/plano/` (template.html + build.py).
-- **Públicos e ritmo:** síndicos e moradores, equilibrados. 3 posts por semana: segunda e quarta às 12h, sexta às 19h. Stories todos os dias.
+- **Públicos e ritmo:** síndicos e moradores, equilibrados. 2 posts por semana (decisão do João, para não encher o feed): terça 10h para síndico, quinta 18h para morador. Stories todos os dias.
 - **Pilares:** síndico 30%, dia a dia do morador 25%, produtos e parceiros 20%, marca e bastidores 15%, comunidade 10%.
 - **Anúncios:** até R$ 500 por mês. R$ 300 em anúncio para síndicos com botão de WhatsApp (SJC e Jacareí) e R$ 200 para impulsionar posts de morador num raio de 1 km dos condomínios atendidos.
 - **Material:** só o que já existe (fotos, vídeos `public/video/*.mp4`, 3D). Ninguém grava conteúdo novo por enquanto.
@@ -49,12 +49,12 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
   - Gerador: `node marketing/gerador/posts.mjs [id]`, que gera 1080×1350 em `marketing/posts/<id>/` com `legenda.txt`.
   - Para um post novo, copie um item de `POSTS` no gerador.
 - **Primeiro lote, em rascunho no Metricool desde 26/10/2026** (esperando aprovação do João). As imagens públicas ficam em `public/ig/<id>/` (noindex; ao mudar uma arte, use pasta nova, como `-v2`, por causa do cache):
-  - 28/10 10h: 01 síndico custo zero (carrossel)
-  - 30/10 18h: 02 morador 23h
-  - 03/11 10h: 04 dúvidas de síndico (carrossel)
-  - 04/11 18h: 03 como comprar (carrossel)
-  - 06/11 18h: 05 picolé Los Los
-  - 09/11 10h: 06 não somos franquia (carrossel)
+  - Qua 28/10 10h: 01 síndico custo zero (carrossel)
+  - Sex 30/10 18h: 02 morador 23h
+  - Ter 03/11 10h: 04 dúvidas de síndico (carrossel)
+  - Qui 05/11 18h: 03 como comprar (carrossel)
+  - Ter 10/11 10h: 06 não somos franquia (carrossel)
+  - Qui 12/11 18h: 05 picolé Los Los
 - **Melhor horário segundo o Metricool:** 10h e 18h nos dias de semana. Posts de síndico às 10h, de morador às 18h.
 - **Segundo lote, a fazer:** noite de jogo (Heineken + snacks + pizza Sadia), depoimento de síndico (sem nome do condomínio), marmitas Liv Up, post de dados (top produtos), Reels com o vídeo dos síndicos e com o institucional, Reels do tour 3D.
 - **Concorrentes:**
