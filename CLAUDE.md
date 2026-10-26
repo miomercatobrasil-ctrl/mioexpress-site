@@ -66,7 +66,7 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
 - **Concorrentes:**
   - Market4u (tem página para SJC e paga até R$ 4 mil por indicação), InHouse, SmartStore, Minha Quitandinha (franqueado de SJC com Instagram fraco), Vale Market (local, parece parado).
   - Diferenciais da Mio: empresa local, sem app, marcas parceiras e a experiência 3D (mioexpress.com.br/experiencia).
-- **Metricool (conector, conta id 7664969, fuso America/Sao_Paulo):** serve para analisar o Instagram e agendar. Agende sempre para revisão ou aprovação do João, nunca publique direto.
+- **Metricool (conector, conta id 7664969, fuso America/Sao_Paulo):** serve para analisar o Instagram e agendar. Fluxo combinado em 26/10: eu mostro as artes aqui na conversa; quando o João aprova na conversa, eu agendo direto como agendado (`draft: false`), sem rascunho. Sem aprovação, nada é publicado.
 
 ## Site (Next.js, export estático na Cloudflare Pages)
 
