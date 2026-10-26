@@ -20,6 +20,8 @@ NOMES = {
     "07-halloween": ("Post · Data comemorativa", "Halloween: os doces estão na Mio"),
     "08-noite-de-jogo": ("Post · Moradores", "Hoje tem jogo. A Mio tem o resto."),
     "09-halloween-fantasias": ("Carrossel · Data comemorativa", "Até os produtos se fantasiaram"),
+    "10-teste-foto-real": ("Nova linha · Fotos reais", "Teste: capas com foto real das lojas"),
+    "12-concurso-churrasco": ("Post + story · Concurso cultural", "Churrasco com os Vizinhos"),
 }
 
 cards = []
