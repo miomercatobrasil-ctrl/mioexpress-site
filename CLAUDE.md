@@ -50,7 +50,7 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
   - Gerador: `node marketing/gerador/posts.mjs [id]`, que gera 1080×1350 em `marketing/posts/<id>/` com `legenda.txt`.
   - Para um post novo, copie um item de `POSTS` no gerador.
 - **Primeiro lote, em rascunho no Metricool desde 26/10/2026** (esperando aprovação do João). As imagens públicas ficam em `public/ig/<id>/` (noindex; ao mudar uma arte, use pasta nova, como `-v2`, por causa do cache):
-  - Seg 26/10 18h: 09 Halloween "até os produtos se fantasiaram" (carrossel com imagens do GPT, aprovado pelo João, agendado de verdade, marcado como IA). Cupom MIOWEEN10, 10% em doces até 01/11. Código no totem: mínimo de 8 caracteres, maiúsculas e números
+  - Seg 26/10 18h: 09 Halloween "até os produtos se fantasiaram" (carrossel com imagens do GPT, aprovado pelo João, agendado de verdade, marcado como IA). Cupom MIOWEEN10, 10% em doces só na sexta e no sábado (30 e 31/10). Código no totem: mínimo de 8 caracteres, maiúsculas e números
   - Qua 28/10 10h: 01 síndico custo zero (carrossel)
   - Sex 30/10 18h: 07 Halloween (doces ou travessuras)
   - Ter 03/11 10h: 04 dúvidas de síndico (carrossel)
