@@ -31,6 +31,7 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
   - Dourado `#b08d57`.
   - Tinta `#2b1d1a`.
   - Branco quente `#fffdf9`.
+- **Cor principal:** o bordô do logo (decisão do João, 26/10). O feed antigo usava um vermelho mais vivo, mas daqui pra frente é bordô. Nos prompts de imagem (GPT), peça o fundo "bordô profundo #7a1f2b".
 - **Fonte:** Montserrat. Títulos em 700, com o destaque em dourado (no fundo bege, o destaque é bordô).
 - **Logos:** `public/brand/logo.svg` (bordô) e `public/brand/logo-white.svg`.
 - **Fotos reais:** `assets/source/fotos/*.jpg`.
