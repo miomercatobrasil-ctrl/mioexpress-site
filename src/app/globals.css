@@ -3139,3 +3139,16 @@ body:has(.ambiente.is-explore) .wa-float {
   height: 100%;
   padding: 28px 26px;
 }
+
+/* Proposta exclusiva (/p/...) */
+.proposta__hero { background: var(--bege-2); padding: calc(var(--header-h) + 64px) 0 72px; }
+.proposta__lead { max-width: 560px; margin: 18px 0 28px; font-size: 18px; line-height: 1.55; opacity: 0.88; }
+.proposta__ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+.proposta__ghost { border-color: var(--line); }
+.proposta__motivos { padding-top: 64px; padding-bottom: 80px; }
+.proposta__motivos ul { list-style: none; padding: 0; margin: 28px 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.proposta__motivos li { background: var(--white); border-radius: var(--radius); padding: 22px; display: grid; gap: 6px; }
+.proposta__motivos li strong { color: var(--vinho); font-size: 18px; }
+.proposta__motivos li span { color: var(--muted); line-height: 1.5; }
+.proposta__nums { margin: 8px 0 24px; color: var(--muted); }
+.proposta__nums b { color: var(--vinho); }
