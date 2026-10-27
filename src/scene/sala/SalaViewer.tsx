@@ -94,6 +94,14 @@ export default function SalaViewer({ plan }: { plan: SalaPlan }) {
       const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(plan.glb);
       if (disposed) return;
       sala.placeFurniture(gltf.scene);
+      // reflexos reais: fotografa a própria sala num cubo e usa como ambiente (vidros, piso e metais)
+      const cubeRT = new THREE.WebGLCubeRenderTarget(mobile ? 128 : 256, { type: THREE.HalfFloatType });
+      const cubeCam = new THREE.CubeCamera(0.05, 30, cubeRT);
+      cubeCam.position.set(2.3, 1.45, 2.7);
+      cubeCam.update(renderer, scene);
+      scene.environment = pmrem.fromCubemap(cubeRT.texture).texture;
+      scene.environmentIntensity = 0.85;
+      cubeRT.dispose();
       setLoading(false);
       request();
     })().catch((e) => {

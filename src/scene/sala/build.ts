@@ -135,7 +135,7 @@ function gardenTexture() {
   out.width = 1024;
   out.height = 512;
   const o = out.getContext("2d")!;
-  o.filter = "blur(2px)";
+  o.filter = "blur(5px)";
   o.drawImage(c, 0, 0, 1024, 512);
   const t = new THREE.CanvasTexture(out);
   t.colorSpace = THREE.SRGBColorSpace;
@@ -154,7 +154,7 @@ export function buildSala(scene: THREE.Scene, p: SalaPlan, opts: { shadows: bool
     bordo: M({ color: "#7a1f2b", roughness: 0.85 }),
     teto: M({ color: "#e9e1d2", roughness: 0.95, side: THREE.DoubleSide }),
     caixilho: M({ color: "#f4f4f2", roughness: 0.4, metalness: 0.2 }),
-    vidro: new THREE.MeshPhysicalMaterial({ color: "#fff", roughness: 0.05, transparent: true, opacity: 0.22 }),
+    vidro: new THREE.MeshPhysicalMaterial({ color: "#fff", roughness: 0.02, metalness: 0, transmission: 1, thickness: 0, ior: 1.5, envMapIntensity: 1.4 }),
     jateado: M({ color: "#f3f5f6", roughness: 0.6, transparent: true, opacity: 0.85 }),
     escritorio: M({ color: "#a7abaf", roughness: 0.9 }),
     madeira: M({ color: "#dcc7a6", roughness: 0.7 }),
@@ -311,7 +311,18 @@ export function buildSala(scene: THREE.Scene, p: SalaPlan, opts: { shadows: bool
   const ang: Record<string, number> = { "+x": 0, "-z": Math.PI / 2, "-x": Math.PI, "+z": -Math.PI / 2 };
   function placeFurniture(src: THREE.Object3D) {
     src.traverse((o) => {
-      if ((o as THREE.Mesh).isMesh) o.castShadow = o.receiveShadow = opts.shadows;
+      const m = o as THREE.Mesh;
+      if (!m.isMesh) return;
+      m.castShadow = m.receiveShadow = opts.shadows;
+      // portas de vidro das geladeiras: lisas e reflexivas
+      for (const mt of (Array.isArray(m.material) ? m.material : [m.material]) as THREE.MeshStandardMaterial[]) {
+        if (mt.transparent && mt.opacity < 0.7) {
+          mt.roughness = 0.03;
+          mt.metalness = 0;
+          mt.envMapIntensity = 1.8;
+          mt.opacity = Math.max(mt.opacity, 0.18);
+        }
+      }
     });
     const put = (name: string, from: string, to: string, x: number, z: number, keep?: (m: THREE.Object3D) => boolean) => {
       const base = src.getObjectByName(name);
@@ -330,6 +341,7 @@ export function buildSala(scene: THREE.Scene, p: SalaPlan, opts: { shadows: bool
       o.updateMatrixWorld(true);
       const bb = new THREE.Box3().setFromObject(o), c = bb.getCenter(new THREE.Vector3());
       o.position.set(-c.x, keep ? -bb.min.y + 0.8 : -bb.min.y, -c.z);
+      holder.userData.c = new THREE.Vector3(c.x, bb.min.y, c.z);
       holder.rotation.y = ang[to] - ang[from];
       holder.position.set(x, 0, z);
       room.add(holder);
@@ -345,11 +357,59 @@ export function buildSala(scene: THREE.Scene, p: SalaPlan, opts: { shadows: bool
     arm?.updateMatrixWorld(true);
     const A = arm ? new THREE.Box3().setFromObject(arm).getSize(new THREE.Vector3()) : new THREE.Vector3(0.72, 2.3, 3.6);
     put("armario_mio", "+x", "+z", 1.73 + A.z / 2, A.x / 2);
-    put("geladeira_coca", "+z", "+x", XW + 0.4, 0.37);
-    put("geladeira_mio_1", "+z", "+x", XW + 0.36, 1.08);
-    put("geladeira_mio_1", "+z", "+x", XW + 0.36, 1.79);
+    // vidro das portas: LED no topo, fundo claro e reflexo em faixas (mesmo truque da experiência do site)
+    const reflTex = (() => {
+      const c = document.createElement("canvas");
+      c.width = 256;
+      c.height = 512;
+      const g = c.getContext("2d")!;
+      g.translate(128, 256);
+      g.rotate(-0.5);
+      for (const [x, w, a] of [[-70, 46, 0.55], [-8, 14, 0.35], [40, 70, 0.22]] as const) {
+        const gr = g.createLinearGradient(x - w / 2, 0, x + w / 2, 0);
+        gr.addColorStop(0, "rgba(255,255,255,0)");
+        gr.addColorStop(0.5, `rgba(255,255,255,${a})`);
+        gr.addColorStop(1, "rgba(255,255,255,0)");
+        g.fillStyle = gr;
+        g.fillRect(x - w / 2, -600, w, 1200);
+      }
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    })();
+    const refl = new THREE.MeshBasicMaterial({ map: reflTex, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending, depthWrite: false });
+    const glassTint = new THREE.MeshPhysicalMaterial({ color: "#dfe8ec", roughness: 0.02, metalness: 0, transparent: true, opacity: 0.08, envMapIntensity: 2, depthWrite: false });
+    const strip = new THREE.MeshBasicMaterial({ color: new THREE.Color(2.4, 2.35, 2.2), toneMapped: false });
+    const back = new THREE.MeshBasicMaterial({ color: "#d9d3cb" });
+    const DOORS = {
+      geladeira_mio_1: { door: [1.545, 1.94, 0.665], w: 0.47, h: 1.3, glass: 0.042, back: 0.4 },
+      geladeira_coca: { door: [2.245, 2.04, 0.655], w: 0.55, h: 1.6, glass: 0.032, back: 0 },
+    } as const;
+    const fridge = (name: keyof typeof DOORS, to: string, x: number, z: number) => {
+      const holder = put(name, "+z", to, x, z);
+      if (!holder) return;
+      const d = DOORS[name], c = holder.userData.c as THREE.Vector3;
+      const grp = new THREE.Group();
+      grp.position.set(d.door[0] - c.x, d.door[1] - c.y, d.door[2] - c.z);
+      holder.add(grp);
+      const m = (geo: THREE.BufferGeometry, mt: THREE.Material, px: number, py: number, pz: number) => {
+        const me = new THREE.Mesh(geo, mt);
+        me.position.set(px, py, pz);
+        grp.add(me);
+      };
+      m(new THREE.BoxGeometry(d.w, 0.012, 0.01), strip, 0, -0.006, 0);
+      if (d.back) m(new THREE.PlaneGeometry(d.w, d.h), back, 0, -d.h / 2, -d.back);
+      m(new THREE.PlaneGeometry(d.w + 0.02, d.h + 0.25), glassTint, 0, -d.h / 2 + 0.05, d.glass - 0.002);
+      m(new THREE.PlaneGeometry(d.w + 0.02, d.h + 0.25), refl, 0, -d.h / 2 + 0.05, d.glass);
+      const led = new THREE.PointLight("#fff4e0", 0.5, 1.2, 2);
+      led.position.set(0, -0.15, d.glass + 0.15);
+      grp.add(led);
+    };
+    fridge("geladeira_coca", "+x", XW + 0.4, 0.37);
+    fridge("geladeira_mio_1", "+x", XW + 0.36, 1.08);
+    fridge("geladeira_mio_1", "+x", XW + 0.36, 1.79);
     put("freezer_loslos", "-x", "+x", 0.36, 2.76);
-    for (const x of [0.36, 1.08, 1.81, 2.51]) put("geladeira_mio_1", "+z", "-z", x, ZB - 0.36);
+    for (const x of [0.36, 1.08, 1.81, 2.51]) fridge("geladeira_mio_1", "-z", x, ZB - 0.36);
     totem("+z", 2.59, 3.1);
     totem("-x", XL - 0.25, 3.5);
     // LED do armário
