@@ -3177,3 +3177,18 @@ body:has(.ambiente.is-explore) .wa-float {
 .proposta__dep cite { font-style: normal; font-weight: 600; font-size: 14px; }
 .proposta__final { padding-bottom: 88px; }
 .proposta__final .btn { margin-top: 24px; }
+
+/* Loja 3D do condomínio (/p/...) */
+.sala3d { position: relative; margin-top: 24px; height: min(72vh, 640px); min-height: 420px; border-radius: var(--radius-lg); overflow: hidden; background: #e6e9ea; }
+.sala3d:not(.is-on) .sala3d__canvas { pointer-events: none; }
+.sala3d.is-on .sala3d__canvas { touch-action: none; }
+.sala3d__start { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); border: 0; border-radius: 99px; padding: 16px 26px; font: inherit; font-weight: 700; background: var(--vinho); color: var(--white); cursor: pointer; box-shadow: 0 10px 30px rgba(59, 13, 20, 0.35); }
+.sala3d__close { position: absolute; top: 12px; right: 12px; border: 0; border-radius: 99px; padding: 8px 14px; font: inherit; font-weight: 600; font-size: 13px; background: var(--white); color: var(--ink); cursor: pointer; }
+.sala3d__canvas { position: absolute; inset: 0; }
+.sala3d__canvas canvas { display: block; width: 100%; height: 100%; }
+.sala3d__loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-weight: 600; background: rgba(230, 233, 234, 0.85); }
+.sala3d__views { position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.sala3d__views button { flex: none; border: 0; border-radius: 99px; padding: 10px 16px; font: inherit; font-weight: 600; font-size: 14px; background: rgba(255, 253, 249, 0.92); color: var(--ink); cursor: pointer; box-shadow: 0 4px 14px rgba(43, 29, 26, 0.12); }
+.sala3d__views button.is-on { background: var(--vinho); color: var(--white); }
+.sala3d__hint { position: absolute; top: 12px; left: 12px; margin: 0; padding: 6px 12px; border-radius: 99px; background: rgba(43, 29, 26, 0.55); color: var(--white); font-size: 12px; pointer-events: none; }
+.proposta__nota a { color: var(--vinho); font-weight: 600; }

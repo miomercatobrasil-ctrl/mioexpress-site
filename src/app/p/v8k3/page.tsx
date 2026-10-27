@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { whatsappLink } from "@/lib/site";
 import { depoimentos } from "@/lib/content";
+import { SalaSection } from "@/components/SalaSection";
 
 // Proposta exclusiva para um condomínio em negociação (link do folder/QR code).
 // Não citar o nome do condomínio aqui: o repositório é público. Fora do sitemap e sem indexação.
@@ -80,14 +81,24 @@ export default function Proposta() {
               Uma Mio feita <span className="is-accent">para o seu condomínio.</span>
             </h1>
             <p className="proposta__lead">
-              Um mercado 24h organizado, sempre abastecido e sem aplicativo, pensado para os {APTOS} apartamentos do seu condomínio. Entre em
-              uma loja Mio em 3D e veja como funciona.
+              Um mercado 24h organizado, sempre abastecido e sem aplicativo, pensado para os {APTOS} apartamentos do seu condomínio. Entre na
+              loja que projetamos para o seu espaço.
             </p>
             <div className="proposta__ctas">
-              <Link className="btn btn--primary" href="/experiencia">Entrar na loja em 3D</Link>
+              <a className="btn btn--primary" href="#loja">Ver a sua loja em 3D</a>
               <a className="btn btn--ghost proposta__ghost" href={wa} target="_blank" rel="noopener">Falar no WhatsApp</a>
             </div>
           </div>
+        </section>
+
+        <section id="loja" className="container proposta__sec">
+          <p className="eyebrow">A sua loja em 3D</p>
+          <h2 className="h2">Assim fica a Mio <span className="is-accent">no seu condomínio.</span></h2>
+          <p className="proposta__lead2">Estudo de layout feito com as medidas do espaço. Gire, aproxime e use as vistas para conhecer cada canto.</p>
+          <SalaSection />
+          <p className="proposta__nota">
+            Quer ver como funciona a compra no totem? <Link href="/experiencia">Entre numa loja Mio de verdade em 3D</Link>.
+          </p>
         </section>
 
         <section className="container proposta__sec">
