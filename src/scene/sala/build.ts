@@ -97,17 +97,17 @@ export function buildSala(scene: THREE.Scene, p: SalaPlan, opts: { shadows: bool
   const M = (o: THREE.MeshStandardMaterialParameters) => new THREE.MeshStandardMaterial(o);
   const mat = {
     piso: M({ map: plankTexture(XR, ZB), roughness: 0.55 }),
-    parede: M({ color: "#efe7da", roughness: 0.9 }),
+    parede: M({ color: "#e6d9c4", roughness: 0.92 }),
     bordo: M({ color: "#7a1f2b", roughness: 0.85 }),
-    teto: M({ color: "#f4f1ea", roughness: 0.95, side: THREE.DoubleSide }),
+    teto: M({ color: "#e9e1d2", roughness: 0.95, side: THREE.DoubleSide }),
     caixilho: M({ color: "#f4f4f2", roughness: 0.4, metalness: 0.2 }),
     vidro: new THREE.MeshPhysicalMaterial({ color: "#fff", roughness: 0.05, transparent: true, opacity: 0.22 }),
     jateado: M({ color: "#f3f5f6", roughness: 0.6, transparent: true, opacity: 0.85 }),
     escritorio: M({ color: "#a7abaf", roughness: 0.9 }),
     madeira: M({ color: "#dcc7a6", roughness: 0.7 }),
     vinho: M({ color: "#6a1a24", roughness: 0.6 }),
-    branco: M({ color: "#f6f6f4", roughness: 0.4 }),
-    jardim: new THREE.MeshBasicMaterial({ map: gardenTexture() }),
+    branco: M({ color: "#ece8e0", roughness: 0.45 }),
+    jardim: new THREE.MeshBasicMaterial({ map: gardenTexture(), color: "#e8e2cf" }),
   };
   const productMats = CORES.map((color) => M({ color, roughness: 0.5 }));
 
@@ -171,22 +171,22 @@ export function buildSala(scene: THREE.Scene, p: SalaPlan, opts: { shadows: bool
 
   // luz
   for (const [x, z] of [[1.2, 1.0], [3.2, 1.0], [1.2, 2.6], [3.2, 2.6], [1.2, 4.3], [3.0, 4.3], [4.6, 1.6]]) {
-    const l = new THREE.PointLight("#fff1dc", 2.6, 5.5, 1.6);
+    const l = new THREE.PointLight("#ffdcae", 2.1, 5.5, 1.6);
     l.position.set(x, H - 0.1, z);
     scene.add(l);
-    const disk = new THREE.Mesh(new THREE.CircleGeometry(0.08, 24), new THREE.MeshBasicMaterial({ color: "#fffaf0" }));
+    const disk = new THREE.Mesh(new THREE.CircleGeometry(0.08, 24), new THREE.MeshBasicMaterial({ color: "#fff1d6" }));
     disk.rotation.x = Math.PI / 2;
     disk.position.set(x, H - 0.001, z);
     room.add(disk);
   }
-  const sun = new THREE.DirectionalLight("#fff4e2", 2.0);
+  const sun = new THREE.DirectionalLight("#ffe6c2", 1.4);
   sun.position.set(XR + 6, 5, 2.5);
   sun.target.position.set(2, 0, 3);
   sun.castShadow = opts.shadows;
   sun.shadow.mapSize.set(2048, 2048);
   Object.assign(sun.shadow.camera, { left: -7, right: 7, top: 7, bottom: -7 });
   sun.shadow.bias = -0.0005;
-  scene.add(sun, sun.target, new THREE.HemisphereLight("#eef3ff", "#5a5a5a", 0.45));
+  scene.add(sun, sun.target, new THREE.HemisphereLight("#fff1dc", "#5e5850", 0.35));
 
   // estantes sem modelo próprio: produtos genéricos
   const prateleiras = (g: THREE.Object3D, w: number, d: number, y0: number, n: number, dy: number) => {

@@ -23,15 +23,16 @@ export default function SalaViewer({ plan }: { plan: SalaPlan }) {
     const renderer = new THREE.WebGLRenderer({ antialias: !mobile, powerPreference: "high-performance" });
     renderer.setPixelRatio(Math.min(devicePixelRatio, mobile ? 1.5 : 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.82;
     renderer.shadowMap.enabled = !mobile;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     el.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#e6e9ea");
+    scene.background = new THREE.Color("#e9e4da");
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-    scene.environmentIntensity = 0.55;
+    scene.environmentIntensity = 0.4;
 
     const camera = new THREE.PerspectiveCamera(60, 1, 0.05, 60);
     const controls = new OrbitControls(camera, renderer.domElement);
