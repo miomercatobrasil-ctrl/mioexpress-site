@@ -78,6 +78,7 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
 - Ideia do João (27/10): link 3D privado com o mercado projetado para um condomínio específico, usando a mesma experiência do site (o .glb vem de `NEXT_PUBLIC_SCENE_GLB`/`GLB_URL` em `src/scene/Experience.tsx`).
 - Primeiro alvo: condomínio "GS" (800+ apartamentos). A Dani está fazendo o projeto. O nome real NÃO pode ir para o repositório, que é público: use só o código.
 - Página com código na URL (ex.: `/p/<codigo>`), noindex, fora do sitemap.
+- Fotos e medidas do espaço do GS ficam em `assets/privado/gs/` (git-ignored, nunca commitar). Hoje o espaço é operado por um concorrente (Honest Market); o condomínio libera só 1 ponto.
 
 ## Site (Next.js, export estático na Cloudflare Pages)
 
