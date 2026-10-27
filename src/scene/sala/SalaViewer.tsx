@@ -47,7 +47,7 @@ export default function SalaViewer({ plan }: { plan: SalaPlan }) {
     const request = () => (dirty = true);
     controls.addEventListener("change", request);
 
-    const sala = buildSala(scene, plan, { shadows: !mobile });
+    const sala = buildSala(scene, plan, { shadows: !mobile, reflections: mobile ? 0.5 : 1 });
     let disposed = false;
 
     // câmera: começa na porta

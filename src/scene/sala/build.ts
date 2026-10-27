@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { Reflector } from "three/examples/jsm/objects/Reflector.js";
 
 // Loja Mio projetada para um condomínio (planta em L). Metros.
 // x: do vidro da administração (x = 0) para a direita; z: da parede do fundo (z = 0) até a porta (z = zb).
@@ -62,35 +63,87 @@ function plankTexture(xr: number, zb: number) {
   return t;
 }
 
-// vista do jardim pela janela (desfocada, sem foto do local)
+// vista do jardim pela janela: céu, prédio ao fundo, árvores, gramado e caminho (pintado, sem foto do local)
 function gardenTexture() {
+  const W = 2048, H = 1024;
   const c = document.createElement("canvas");
-  c.width = 512;
-  c.height = 256;
+  c.width = W;
+  c.height = H;
   const g = c.getContext("2d")!;
-  const sky = g.createLinearGradient(0, 0, 0, 256);
-  sky.addColorStop(0, "#dfeaf0");
-  sky.addColorStop(0.55, "#cfe0d4");
-  sky.addColorStop(1, "#8fa982");
-  g.fillStyle = sky;
-  g.fillRect(0, 0, 512, 256);
-  g.filter = "blur(10px)";
-  let seed = 3;
+  let seed = 11;
   const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  for (let i = 0; i < 90; i++) {
-    g.fillStyle = `hsla(${95 + rnd() * 40},${35 + rnd() * 25}%,${28 + rnd() * 25}%,0.55)`;
+  const hz = H * 0.56; // horizonte (meio da janela)
+  const sky = g.createLinearGradient(0, 0, 0, hz);
+  sky.addColorStop(0, "#b9d6ec");
+  sky.addColorStop(1, "#eef3ef");
+  g.fillStyle = sky;
+  g.fillRect(0, 0, W, hz);
+  // nuvens leves
+  g.fillStyle = "rgba(255,255,255,0.7)";
+  for (let i = 0; i < 9; i++) {
     g.beginPath();
-    g.arc(rnd() * 512, 40 + rnd() * 170, 18 + rnd() * 40, 0, Math.PI * 2);
+    g.ellipse(rnd() * W, 60 + rnd() * 200, 120 + rnd() * 160, 30 + rnd() * 30, 0, 0, Math.PI * 2);
     g.fill();
   }
-  g.fillStyle = "rgba(90,70,55,0.5)";
-  for (let i = 0; i < 6; i++) g.fillRect(40 + i * 85 + rnd() * 30, 120, 8, 136);
-  const t = new THREE.CanvasTexture(c);
+  // prédios ao fundo (tons do condomínio: bege e rosado)
+  for (const [x, w, h, col] of [[180, 300, 420, "#e9d6c4"], [1350, 380, 520, "#e4cdbd"], [1780, 220, 360, "#ece0d0"]] as [number, number, number, string][]) {
+    g.fillStyle = col;
+    g.fillRect(x, hz - h, w, h);
+    g.fillStyle = "rgba(120,140,155,0.45)";
+    for (let yy = hz - h + 24; yy < hz - 20; yy += 46) for (let xx = x + 20; xx < x + w - 30; xx += 52) g.fillRect(xx, yy, 30, 22);
+    g.fillStyle = "rgba(255,255,255,0.5)";
+    for (let yy = hz - h + 64; yy < hz; yy += 92) g.fillRect(x, yy, w, 5);
+  }
+  // gramado e caminho
+  const lawn = g.createLinearGradient(0, hz, 0, H);
+  lawn.addColorStop(0, "#9bb878");
+  lawn.addColorStop(1, "#6e9150");
+  g.fillStyle = lawn;
+  g.fillRect(0, hz, W, H - hz);
+  g.fillStyle = "#e6dccb";
+  g.beginPath();
+  g.moveTo(W * 0.42, hz);
+  g.lineTo(W * 0.5, hz);
+  g.lineTo(W * 0.72, H);
+  g.lineTo(W * 0.38, H);
+  g.closePath();
+  g.fill();
+  // fileira de árvores ao fundo
+  const canopy = (x: number, y: number, r: number, dark: string, light: string) => {
+    for (let i = 0; i < 14; i++) {
+      const cx = x + (rnd() - 0.5) * r * 1.4, cy = y + (rnd() - 0.6) * r * 0.9, rr = r * (0.35 + rnd() * 0.35);
+      const gr = g.createRadialGradient(cx - rr * 0.3, cy - rr * 0.4, rr * 0.1, cx, cy, rr);
+      gr.addColorStop(0, light);
+      gr.addColorStop(1, dark);
+      g.fillStyle = gr;
+      g.beginPath();
+      g.arc(cx, cy, rr, 0, Math.PI * 2);
+      g.fill();
+    }
+  };
+  for (let x = 0; x < W; x += 110 + rnd() * 60) canopy(x, hz - 40 - rnd() * 40, 70 + rnd() * 40, "#4f6b3a", "#86a865");
+  // árvores da frente com tronco
+  for (const [x, r] of [[420, 230], [1180, 260], [1820, 210]] as [number, number][]) {
+    g.fillStyle = "#6b5443";
+    g.fillRect(x - 12, hz - 150, 24, 260);
+    canopy(x, hz - 260, r, "#3f5d2e", "#9cc06f");
+  }
+  // canteiros baixos
+  for (let x = 0; x < W; x += 60) canopy(x, H * 0.9 + rnd() * 30, 40, "#3d5a2b", "#7fa35a");
+  // um desfoque só (vidro e profundidade), barato no celular
+  const out = document.createElement("canvas");
+  out.width = 1024;
+  out.height = 512;
+  const o = out.getContext("2d")!;
+  o.filter = "blur(2px)";
+  o.drawImage(c, 0, 0, 1024, 512);
+  const t = new THREE.CanvasTexture(out);
   t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
   return t;
 }
 
-export function buildSala(scene: THREE.Scene, p: SalaPlan, opts: { shadows: boolean }) {
+export function buildSala(scene: THREE.Scene, p: SalaPlan, opts: { shadows: boolean; reflections: number }) {
   const { h: H, zb: ZB, xr: XR, xl: XL, zs: ZS, xw: XW, zw: ZW } = p;
   const room = new THREE.Group();
   scene.add(room);
@@ -107,7 +160,7 @@ export function buildSala(scene: THREE.Scene, p: SalaPlan, opts: { shadows: bool
     madeira: M({ color: "#dcc7a6", roughness: 0.7 }),
     vinho: M({ color: "#6a1a24", roughness: 0.6 }),
     branco: M({ color: "#ece8e0", roughness: 0.45 }),
-    jardim: new THREE.MeshBasicMaterial({ map: gardenTexture(), color: "#e8e2cf" }),
+    jardim: new THREE.MeshBasicMaterial({ map: gardenTexture(), color: "#f2eee4" }),
   };
   const productMats = CORES.map((color) => M({ color, roughness: 0.5 }));
 
@@ -138,6 +191,20 @@ export function buildSala(scene: THREE.Scene, p: SalaPlan, opts: { shadows: bool
   const piso = new THREE.Mesh(pisoG, mat.piso);
   piso.receiveShadow = true;
   room.add(piso);
+  // reflexo: espelho logo abaixo do piso, que fica levemente translúcido (vinílico acetinado)
+  if (opts.reflections) {
+    const ref = new Reflector(new THREE.ShapeGeometry(shape), {
+      textureWidth: Math.round(innerWidth * opts.reflections),
+      textureHeight: Math.round(innerHeight * opts.reflections),
+      color: 0xb4b4b4,
+    });
+    ref.rotation.x = -Math.PI / 2;
+    ref.position.y = -0.002;
+    room.add(ref);
+    mat.piso.transparent = true;
+    mat.piso.opacity = 0.8;
+    mat.piso.roughness = 0.38;
+  }
   const teto = new THREE.Mesh(pisoG.clone(), mat.teto);
   teto.position.y = H;
   room.add(teto);
@@ -204,14 +271,14 @@ export function buildSala(scene: THREE.Scene, p: SalaPlan, opts: { shadows: bool
   };
   {
     const g = new THREE.Group(), w = 2.44, d = 0.5, h = 0.9;
-    box(w, 0.08, d, mat.vinho, 0, 0.04, 0, g);
+    box(w - 0.06, 0.08, d - 0.06, mat.vinho, 0, 0.04, 0.01, g);
     box(w, 0.04, d, mat.madeira, 0, h, 0, g);
     box(0.03, h, d, mat.vinho, -w / 2, h / 2, 0, g);
     box(0.03, h, d, mat.vinho, w / 2, h / 2, 0, g);
     box(w, h, 0.02, mat.madeira, 0, h / 2, -d / 2 + 0.01, g);
     prateleiras(g, w, d, 0.1, 2, 0.4);
-    g.rotation.y = Math.PI / 2;
-    g.position.set(XR - d / 2, 0, 0.52 + w / 2);
+    g.rotation.y = -Math.PI / 2;
+    g.position.set(XR - d / 2 - 0.01, 0, 0.52 + w / 2);
     room.add(g);
   }
   {
@@ -246,19 +313,33 @@ export function buildSala(scene: THREE.Scene, p: SalaPlan, opts: { shadows: bool
     src.traverse((o) => {
       if ((o as THREE.Mesh).isMesh) o.castShadow = o.receiveShadow = opts.shadows;
     });
-    const put = (name: string, from: string, to: string, x: number, z: number) => {
+    const put = (name: string, from: string, to: string, x: number, z: number, keep?: (m: THREE.Object3D) => boolean) => {
       const base = src.getObjectByName(name);
       if (!base) return;
       const o = base.clone(true);
+      if (keep) {
+        const drop: THREE.Object3D[] = [];
+        o.traverse((m) => {
+          if ((m as THREE.Mesh).isMesh && !keep(m)) drop.push(m);
+        });
+        drop.forEach((m) => m.removeFromParent());
+      }
       const holder = new THREE.Group();
       holder.add(o);
       o.position.set(0, 0, 0);
       o.updateMatrixWorld(true);
       const bb = new THREE.Box3().setFromObject(o), c = bb.getCenter(new THREE.Vector3());
-      o.position.set(-c.x, -bb.min.y, -c.z);
+      o.position.set(-c.x, keep ? -bb.min.y + 0.8 : -bb.min.y, -c.z);
       holder.rotation.y = ang[to] - ang[from];
       holder.position.set(x, 0, z);
       room.add(holder);
+      return holder;
+    };
+    // totem em pé: só o terminal, a prateleira e a tela (sem o suporte de parede e as sacolas), sobre um pedestal
+    const totem = (to: string, x: number, z: number) => {
+      put("totem_pagamento", "+x", to, x, z, (m) => /_(1|2|7)$/.test(m.name));
+      box(0.12, 0.8, 0.12, mat.vinho, x, 0.4, z);
+      box(0.34, 0.03, 0.3, mat.vinho, x, 0.015, z);
     };
     const arm = src.getObjectByName("armario_mio");
     arm?.updateMatrixWorld(true);
@@ -269,8 +350,8 @@ export function buildSala(scene: THREE.Scene, p: SalaPlan, opts: { shadows: bool
     put("geladeira_mio_1", "+z", "+x", XW + 0.36, 1.79);
     put("freezer_loslos", "-x", "+x", 0.36, 2.76);
     for (const x of [0.36, 1.08, 1.81, 2.51]) put("geladeira_mio_1", "+z", "-z", x, ZB - 0.36);
-    put("totem_pagamento", "+x", "+z", 2.59, 3.1);
-    put("totem_pagamento", "+x", "-x", XL - 0.2, 3.5);
+    totem("+z", 2.59, 3.1);
+    totem("-x", XL - 0.25, 3.5);
     // LED do armário
     const led = new THREE.PointLight("#ffd79a", 1.6, 3, 2);
     led.position.set(1.73 + A.z / 2, 2.1, 0.8);
