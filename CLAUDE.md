@@ -73,6 +73,12 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
   - Diferenciais da Mio: empresa local, sem app, marcas parceiras e a experiência 3D (mioexpress.com.br/experiencia).
 - **Metricool (conector, conta id 7664969, fuso America/Sao_Paulo):** serve para analisar o Instagram e agendar. Fluxo combinado em 26/10: eu mostro as artes aqui na conversa; quando o João aprova na conversa, eu agendo direto como agendado (`draft: false`), sem rascunho. Sem aprovação, nada é publicado.
 
+## Projetos 3D exclusivos (vendas)
+
+- Ideia do João (27/10): link 3D privado com o mercado projetado para um condomínio específico, usando a mesma experiência do site (o .glb vem de `NEXT_PUBLIC_SCENE_GLB`/`GLB_URL` em `src/scene/Experience.tsx`).
+- Primeiro alvo: condomínio "GS" (800+ apartamentos). A Dani está fazendo o projeto. O nome real NÃO pode ir para o repositório, que é público: use só o código.
+- Página com código na URL (ex.: `/p/<codigo>`), noindex, fora do sitemap.
+
 ## Site (Next.js, export estático na Cloudflare Pages)
 
 - **Deploy:** um push na `main` publica sozinho. Confira com `gh api repos/miomercatobrasil-ctrl/mioexpress-site/commits/<sha>/check-runs`.
