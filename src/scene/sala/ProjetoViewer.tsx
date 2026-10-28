@@ -170,6 +170,15 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
             floatUv1(m.geometry);
             for (const mat of ([] as THREE.Material[]).concat(m.material)) {
               const s = mat as THREE.MeshStandardMaterial;
+              // divisória de vidro azulado: atrás dela não há nada modelado; vira vidro jateado (fosco, claro)
+              if (/translucent_glass/i.test(s.name)) {
+                s.color.set("#ece8e1");
+                s.transparent = true;
+                s.opacity = 0.9;
+                s.roughness = 0.35;
+                s.metalness = 0;
+                continue;
+              }
               // o export do SketchUp perde a transparência de alguns vidros: reconhece também pelo nome
               if (/vidro|glass|transparente/i.test(s.name)) {
                 s.transparent = true;

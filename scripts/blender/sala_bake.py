@@ -370,7 +370,10 @@ def bake(o):
     cut = int(size * STRIPE)
     body = img2[:, :cut].reshape(-1, 3)
     lit_px = body[body.max(axis=1) > 1e-4]
-    img2[:, cut:] = np.percentile(lit_px, 70, axis=0) if len(lit_px) else np.zeros(3)
+    # objeto só de peças pequenas (sem área própria no lightmap): usa a luz média da sala
+    avg = np.percentile(lit_px, 70, axis=0) if len(lit_px) > 100 else GAIN.get("avg", np.full(3, 0.5))
+    GAIN.setdefault("avg", avg)
+    img2[:, cut:] = avg
     enc = np.clip(img2.reshape(-1, 3) * GAIN["g"], 0, 1) ** (1 / 2.2)
     out = np.concatenate([enc, np.ones((enc.shape[0], 1), np.float32)], axis=1).ravel()
     save = bpy.data.images.new(f"lm8_{o.name}", size, size)
@@ -421,8 +424,13 @@ def fill_fridges(fill):
     small = [m for m in src if diag(m) < 0.4]
     smin, smax = bbox3(src)
     blocks = []
-    for y0, y1 in fill["source_levels"]:
-        ms = [m for m in small if y0 - 0.01 <= bbox3([m])[0].y < y1]
+    levels = [y0 for y0, _ in fill["source_levels"]]
+    # cada peça vai para a prateleira logo abaixo dela (latas apoiadas um pouco abaixo da borda contam)
+    def shelf_of(m):
+        y = bbox3([m])[0].y + 0.03
+        return max((i for i, l in enumerate(levels) if l <= y), default=0)
+    for i, (y0, y1) in enumerate(fill["source_levels"]):
+        ms = [m for m in small if shelf_of(m) == i]
         if ms:
             lo, hi = bbox3(ms)
             blocks.append((ms, Vector((hi.x, y0, (lo.z + hi.z) / 2)), hi.z - lo.z))
@@ -469,7 +477,7 @@ for o in [o for o in bpy.data.objects if o.type == "MESH"]:
     n = len(o.data.polygons)
     if n > 120:
         d = diag(o)
-        decimate(o, 100 if d < 0.35 else 1500 if d < 1.2 else 20000)
+        decimate(o, 48 if d < 0.35 else 1500 if d < 1.2 else 20000)
 
 # depois de simplificar: as cópias usam as peças leves
 if CFG.get("fill"):
