@@ -17,7 +17,7 @@ const PLAN_V8K3: ProjetoPlan = {
     { label: "Entrada", position: [3.3, 1.6, 5.3], target: [3.1, 1.1, 0.5] },
     { label: "Armário", position: [3.6, 1.55, 2.3], target: [3.6, 1.2, 0] },
     { label: "Geladeiras", position: [3.0, 1.55, 2.4], target: [0, 1.1, 1.5] },
-    { label: "Gôndola", position: [4.3, 1.6, 4.5], target: [2.4, 0.8, 2.4] },
+    { label: "Gôndola", position: [1.3, 1.6, 4.6], target: [2.5, 0.8, 2.3] },
     { label: "Totem", position: [1.5, 1.6, 3.0], target: [5.3, 1.1, 2.6] },
   ],
 };

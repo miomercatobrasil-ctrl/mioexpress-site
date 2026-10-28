@@ -128,15 +128,17 @@ def clean(o):
     for f in bm.faces:
         key = tuple(sorted(tuple(round(c, 3) for c in v.co) for v in f.verts))
         groups.setdefault(key, []).append(f)
-    ref = bm.faces.layers.float_vector.get("mio_ref")
-    has = bm.faces.layers.float.get("mio_has")
+    from mathutils.bvhtree import BVHTree
+
+    bvh = BVHTree.FromBMesh(bm)
 
     def score(f):
         c = f.calc_center_median()
-        if has is not None and f[has] > 0.5:
-            # móvel: fica a face que aponta para fora da peça
-            return f.normal.dot((c - Vector(f[ref])).normalized())
-        # paredes, piso e teto: fica a face virada para dentro da loja
+        # lado de dentro de um painel (tampo, lateral, fundo de prateleira): logo atrás da face há outra superfície
+        hit = bvh.ray_cast(c + f.normal * 0.002, f.normal, 0.04)
+        if hit[0] is not None:
+            return -10.0
+        # senão: fica a face virada para dentro da loja
         return f.normal.dot((CAM_B - c).normalized())
 
     dead = []
@@ -494,36 +496,6 @@ for o in [o for o in bpy.data.objects if o.type == "MESH"]:
 if CFG.get("fill"):
     fill_fridges(CFG["fill"])
 
-def mark_outward(objs):
-    """Guarda em cada face o centro da peça a que pertence (para clean() escolher a face de fora).
-    Peça = a própria malha quando tem volume (lata, garrafa); senão o grupo do SketchUp em volta (painel)."""
-    shift = Vector((OFF[0], -OFF[1], 0))
-    cache = {}
-
-    def group_box(g):
-        if g.name not in cache:
-            pts = [m.matrix_world @ Vector(c) for m in mesh_desc(g) for c in m.bound_box]
-            cache[g.name] = (Vector((min(p.x for p in pts), min(p.y for p in pts), min(p.z for p in pts))),
-                             Vector((max(p.x for p in pts), max(p.y for p in pts), max(p.z for p in pts))))
-        return cache[g.name]
-
-    for o in objs:
-        if o.data.users > 1:
-            o.data = o.data.copy()
-        pts = [o.matrix_world @ Vector(c) for c in o.bound_box]
-        lo = Vector((min(p.x for p in pts), min(p.y for p in pts), min(p.z for p in pts)))
-        hi = Vector((max(p.x for p in pts), max(p.y for p in pts), max(p.z for p in pts)))
-        if min(hi - lo) < 0.01 and o.parent:
-            lo, hi = group_box(o.parent)
-        c = (lo + hi) / 2 + shift
-        me = o.data
-        r = me.attributes.get("mio_ref") or me.attributes.new("mio_ref", "FLOAT_VECTOR", "FACE")
-        h = me.attributes.get("mio_has") or me.attributes.new("mio_has", "FLOAT", "FACE")
-        n = len(me.polygons)
-        r.data.foreach_set("vector", [v for _ in range(n) for v in c])
-        h.data.foreach_set("value", [1.0] * n)
-
-
 top = bpy.data.objects
 group_of = {}
 for g, names in CFG["groups"].items():
@@ -538,10 +510,6 @@ for o in list(bpy.data.objects):
         g = group_of.get(p.name)
         p = p.parent
     buckets.setdefault(g or "outros", []).append(o)
-for g, ms in buckets.items():
-    if g != "estrutura":
-        mark_outward(ms)
-log("faces externas marcadas")
 objs = []
 for g, ms in buckets.items():
     o = join(g, ms)
