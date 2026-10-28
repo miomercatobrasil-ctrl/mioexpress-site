@@ -397,6 +397,68 @@ function findObjectId(o: THREE.Object3D | null): ObjectId | null {
   return null;
 }
 
+/** Piso da loja em porcelanato polido (placas de 90 × 90 cm, rejunte fino), no lugar da textura de pedra.
+ *  UV novo pela posição (metros), para a placa ter o tamanho real; o UV do lightmap fica intacto. */
+function porcelanatoFloor(scene: THREE.Object3D) {
+  const TILE = 0.9, N = 2, S = 1024;
+  const c = document.createElement("canvas");
+  c.width = c.height = S;
+  const g = c.getContext("2d")!;
+  let seed = 5;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const cell = S / N;
+  for (let i = 0; i < N; i++)
+    for (let j = 0; j < N; j++) {
+      const x = i * cell, y = j * cell, tone = 214 + Math.round(rnd() * 8);
+      g.fillStyle = `rgb(${tone},${tone - 5},${tone - 12})`;
+      g.fillRect(x, y, cell, cell);
+      // veios bem suaves (porcelanato acetinado, não pedra)
+      for (let k = 0; k < 5; k++) {
+        g.strokeStyle = `rgba(150,140,128,${0.05 + rnd() * 0.05})`;
+        g.lineWidth = 1 + rnd() * 2;
+        g.beginPath();
+        let px = x + rnd() * cell, py = y;
+        g.moveTo(px, py);
+        while (py < y + cell) {
+          px += (rnd() - 0.5) * 40;
+          py += 20 + rnd() * 30;
+          g.lineTo(px, py);
+        }
+        g.stroke();
+      }
+    }
+  g.fillStyle = "rgba(150,140,128,0.95)";
+  for (let i = 0; i <= N; i++) {
+    g.fillRect(i * cell - 2, 0, 4, S);
+    g.fillRect(0, i * cell - 2, S, 4);
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.anisotropy = 8;
+  scene.getObjectByName("piso")?.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh || (m.material as THREE.Material).name !== "Material_0") return;
+    m.updateWorldMatrix(true, false);
+    const pos = m.geometry.attributes.position as THREE.BufferAttribute;
+    const v = new THREE.Vector3(), uv = new Float32Array(pos.count * 2);
+    for (let i = 0; i < pos.count; i++) {
+      v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld);
+      uv[i * 2] = v.x / (TILE * N);
+      uv[i * 2 + 1] = v.z / (TILE * N);
+    }
+    m.geometry = m.geometry.clone();
+    m.geometry.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+    const mat = (m.material as THREE.MeshStandardMaterial).clone();
+    mat.map = tex;
+    mat.color.set("#ffffff");
+    mat.roughness = 0.3;
+    mat.metalness = 0;
+    mat.envMapIntensity = 0.9;
+    m.material = mat;
+  });
+}
+
 /** As geladeiras Mio são vinho; no SketchUp o corpo saiu com materiais pretos ("Color M08", "METAL PRETO"). */
 function tintMioFridges(scene: THREE.Object3D) {
   const vinho = new THREE.Color("#6e1c24");
@@ -561,6 +623,7 @@ function useModel(url: string, gl: THREE.WebGLRenderer, root: THREE.Scene, camer
     removeEntranceBlock(gltf.scene);
     closeWindows(gltf.scene);
     iceWalls(gltf.scene);
+    porcelanatoFloor(gltf.scene);
     await fixTotem(gltf.scene);
     // tudo pronto antes de entrar na cena: luz assada aplicada, texturas na GPU aos poucos e shaders
     // compilados em paralelo (sem isso o primeiro quadro compilava ~200 materiais de uma vez)
