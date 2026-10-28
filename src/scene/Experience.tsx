@@ -10,7 +10,7 @@ import { INTRO_PATH } from "./layout";
 import { sceneStore } from "./store";
 import { LightRig } from "./LightRig";
 import { isWeakGpu } from "./perf";
-import { CameraLook, FloorReflection, SceneEnvironment } from "./Effects";
+import { CameraLook, FloorReflection, RoomReflections, SceneEnvironment } from "./Effects";
 
 const GLB_URL = process.env.NEXT_PUBLIC_SCENE_GLB || "/models/mio-terracos.glb";
 
@@ -64,6 +64,7 @@ export default function Experience({ mobile, reducedMotion, running }: { mobile:
       <Suspense fallback={null}>
         <GlbScene url={GLB_URL} />
         {!lite && <FloorReflection />}
+        <RoomReflections size={lite ? 128 : 256} />
         <Hotspots />
         <Ready />
       </Suspense>

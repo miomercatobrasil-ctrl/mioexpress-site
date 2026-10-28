@@ -124,7 +124,7 @@ export function LightRig({ reducedMotion }: { reducedMotion: boolean }) {
     bg.lerp(night ? NIGHT_BG : DAY_BG, 1 - Math.exp(-k * dt));
     gl.setClearColor(bg);
     if (scene.fog) (scene.fog as THREE.Fog).color.copy(bg);
-    gl.toneMappingExposure = damp(gl.toneMappingExposure, night ? 0.95 : 0.85, k, dt);
+    gl.toneMappingExposure = damp(gl.toneMappingExposure, night ? 0.92 : 0.8, k, dt);
     // superfícies com lightmap descartam essa luz à noite no shader; ela fica só para os itens transparentes
     scene.environmentIntensity = damp(scene.environmentIntensity ?? 0.6, night ? (baked ? 0.45 : 0.1) : 0.6, k, dt);
   });
@@ -132,9 +132,9 @@ export function LightRig({ reducedMotion }: { reducedMotion: boolean }) {
   return (
     <>
       <hemisphereLight ref={hemi} args={["#ffe2bd", "#b38a62", 1.5]} />
-      <ambientLight ref={amb} intensity={0.35} color="#ffe9cc" />
+      <ambientLight ref={amb} intensity={0.35} color="#ffe2bd" />
       {/* luz do dia entrando pelo jardim */}
-      <directionalLight ref={sun} position={[10, 6, 1.5]} intensity={1.3} color="#fff1d6" />
+      <directionalLight ref={sun} position={[10, 6, 1.5]} intensity={1.3} color="#ffe6c2" />
       {/* LED do armário: uma luz por módulo + fitas visíveis */}
       {MODULES.map(([z0, z1], i) => (
         <pointLight

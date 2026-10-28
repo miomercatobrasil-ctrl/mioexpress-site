@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import * as THREE from "three";
-import { useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
+import { sceneStore } from "./store";
 import { MeshReflectorMaterial } from "@react-three/drei";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
@@ -21,6 +22,60 @@ export function SceneEnvironment() {
       pmrem.dispose();
     };
   }, [gl, scene]);
+  return null;
+}
+
+/** Reflexos reais: fotografa a própria loja num cubo (do meio do salão) e usa como ambiente.
+ *  Vidros, piso, metais e embalagens passam a refletir a loja de verdade. Refaz ao alternar dia/noite. */
+export function RoomReflections({ size = 256 }: { size?: number }) {
+  const gl = useThree((s) => s.gl);
+  const scene = useThree((s) => s.scene);
+  const st = useMemo(() => ({ frames: 0, key: "", env: null as THREE.Texture | null, tuned: false }), []);
+  const tools = useMemo(() => {
+    const rt = new THREE.WebGLCubeRenderTarget(size, { type: THREE.HalfFloatType });
+    const cam = new THREE.CubeCamera(0.05, 30, rt);
+    cam.position.set(2.0, 1.4, 2.4);
+    return { rt, cam, pmrem: new THREE.PMREMGenerator(gl) };
+  }, [gl, size]);
+  useEffect(
+    () => () => {
+      tools.rt.dispose();
+      tools.pmrem.dispose();
+      st.env?.dispose();
+    },
+    [tools, st],
+  );
+  useFrame(() => {
+    const { night, led } = sceneStore.get();
+    const key = `${night}-${led}`;
+    // espera a loja (e os lightmaps) aparecerem; depois só refaz quando a luz muda
+    if (key !== st.key) {
+      st.key = key;
+      st.frames = 0;
+    }
+    st.frames++;
+    if (st.frames !== 90) return;
+    if (!st.tuned) {
+      st.tuned = true;
+      scene.traverse((o) => {
+        const m = o as THREE.Mesh;
+        if (!m.isMesh) return;
+        for (const mt of (Array.isArray(m.material) ? m.material : [m.material]) as THREE.MeshStandardMaterial[]) {
+          // vidros das geladeiras: lisos, para o reflexo aparecer
+          if (mt?.isMeshStandardMaterial && mt.transparent && mt.opacity < 0.7) {
+            mt.roughness = 0.03;
+            mt.metalness = 0;
+            mt.envMapIntensity = 1.8;
+          }
+        }
+      });
+    }
+    tools.cam.update(gl, scene);
+    const env = tools.pmrem.fromCubemap(tools.rt.texture).texture;
+    scene.environment = env;
+    st.env?.dispose();
+    st.env = env;
+  });
   return null;
 }
 
@@ -52,8 +107,8 @@ export function FloorReflection() {
       <planeGeometry args={[4.5, 4.7]} />
       <MeshReflectorMaterial
         transparent
-        opacity={0.32}
-        blur={[260, 80]}
+        opacity={0.42}
+        blur={[180, 60]}
         resolution={512}
         mixBlur={1}
         mixStrength={0.9}
@@ -63,7 +118,7 @@ export function FloorReflection() {
         maxDepthThreshold={1.2}
         color="#b9aa95"
         metalness={0.1}
-        mirror={0.45}
+        mirror={0.6}
       />
     </mesh>
   );
