@@ -498,6 +498,15 @@ def mark_outward(objs):
     """Guarda em cada face o centro da peça a que pertence (para clean() escolher a face de fora).
     Peça = a própria malha quando tem volume (lata, garrafa); senão o grupo do SketchUp em volta (painel)."""
     shift = Vector((OFF[0], -OFF[1], 0))
+    cache = {}
+
+    def group_box(g):
+        if g.name not in cache:
+            pts = [m.matrix_world @ Vector(c) for m in mesh_desc(g) for c in m.bound_box]
+            cache[g.name] = (Vector((min(p.x for p in pts), min(p.y for p in pts), min(p.z for p in pts))),
+                             Vector((max(p.x for p in pts), max(p.y for p in pts), max(p.z for p in pts))))
+        return cache[g.name]
+
     for o in objs:
         if o.data.users > 1:
             o.data = o.data.copy()
@@ -505,10 +514,7 @@ def mark_outward(objs):
         lo = Vector((min(p.x for p in pts), min(p.y for p in pts), min(p.z for p in pts)))
         hi = Vector((max(p.x for p in pts), max(p.y for p in pts), max(p.z for p in pts)))
         if min(hi - lo) < 0.01 and o.parent:
-            sib = mesh_desc(o.parent)
-            pts = [m.matrix_world @ Vector(c) for m in sib for c in m.bound_box]
-            lo = Vector((min(p.x for p in pts), min(p.y for p in pts), min(p.z for p in pts)))
-            hi = Vector((max(p.x for p in pts), max(p.y for p in pts), max(p.z for p in pts)))
+            lo, hi = group_box(o.parent)
         c = (lo + hi) / 2 + shift
         me = o.data
         r = me.attributes.get("mio_ref") or me.attributes.new("mio_ref", "FLOAT_VECTOR", "FACE")
@@ -535,6 +541,7 @@ for o in list(bpy.data.objects):
 for g, ms in buckets.items():
     if g != "estrutura":
         mark_outward(ms)
+log("faces externas marcadas")
 objs = []
 for g, ms in buckets.items():
     o = join(g, ms)
