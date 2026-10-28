@@ -405,12 +405,75 @@ for o in [o for o in bpy.data.objects if o.type == "MESH"]:
     if o.material_slots and all(s.material in drop for s in o.material_slots):
         bpy.data.objects.remove(o, do_unlink=True)
 
+def fill_fridges(fill):
+    """Geladeiras vazias no projeto: copia as fileiras de bebidas da geladeira de referência para cada prateleira.
+    Coordenadas three: B = C·T·C⁻¹ (three (x,y,z) ↔ Blender (x,−z,y))."""
+    from mathutils import Matrix
+
+    C = Matrix(((1, 0, 0, 0), (0, 0, -1, 0), (0, 1, 0, 0), (0, 0, 0, 1)))
+    Ci = C.inverted()
+
+    def bbox3(objs):
+        pts = [C.inverted() @ (m.matrix_world @ Vector(c)) for m in objs for c in m.bound_box]
+        return Vector((min(p.x for p in pts), min(p.y for p in pts), min(p.z for p in pts))), Vector((max(p.x for p in pts), max(p.y for p in pts), max(p.z for p in pts)))
+
+    src = mesh_desc(bpy.data.objects[fill["source"]])
+    small = [m for m in src if diag(m) < 0.4]
+    smin, smax = bbox3(src)
+    blocks = []
+    for y0, y1 in fill["source_levels"]:
+        ms = [m for m in small if y0 - 0.01 <= bbox3([m])[0].y < y1]
+        if ms:
+            lo, hi = bbox3(ms)
+            blocks.append((ms, Vector((hi.x, y0, (lo.z + hi.z) / 2)), hi.z - lo.z))
+    n = 0
+    for name in fill["targets"]:
+        t = bpy.data.objects.get(name)
+        if not t:
+            continue
+        tm = mesh_desc(t)
+        lo, hi = bbox3(tm)
+        cen = (lo + hi) / 2
+        # frente = lado do vidro da porta
+        glass = [m for m in tm if any(s.material and "glass" in s.material.name.lower() for s in m.material_slots)]
+        g0, g1 = bbox3(glass) if glass else (lo, hi)
+        d = (g0 + g1) / 2 - cen
+        if abs(d.x) >= abs(d.z):
+            sign = 1 if d.x > 0 else -1
+            rot = Matrix.Rotation(0 if sign > 0 else math.pi, 4, "Y")
+            width = hi.z - lo.z
+            front = lambda lvl: Vector(((hi.x if sign > 0 else lo.x) - sign * fill["inset"], lvl, cen.z))  # noqa: E731
+        else:
+            sign = 1 if d.z > 0 else -1
+            rot = Matrix.Rotation(-math.pi / 2 if sign > 0 else math.pi / 2, 4, "Y")
+            width = hi.x - lo.x
+            front = lambda lvl: Vector((cen.x, lvl, (hi.z if sign > 0 else lo.z) - sign * fill["inset"]))  # noqa: E731
+        for i, lvl in enumerate(fill["levels"]):
+            ms, anchor, bw = blocks[fill["order"][i % len(fill["order"])]]
+            k = min(1.0, (width - 0.12) / max(bw, 1e-3))
+            T3 = Matrix.Translation(front(lvl)) @ rot @ Matrix.Diagonal((1, 1, k, 1)) @ Matrix.Translation(-anchor)
+            B = C @ T3 @ Ci
+            for m in ms:
+                c = m.copy()
+                c.parent = None
+                c.matrix_world = B @ m.matrix_world
+                bpy.context.scene.collection.objects.link(c)
+                c.parent = t
+                c.matrix_parent_inverse = t.matrix_world.inverted()
+                n += 1
+    log(f"geladeiras preenchidas: {n} peças copiadas")
+
+
 # simplifica peças pesadas (latas, sacolas) antes de juntar
 for o in [o for o in bpy.data.objects if o.type == "MESH"]:
     n = len(o.data.polygons)
-    if n > 200:
+    if n > 120:
         d = diag(o)
-        decimate(o, 160 if d < 0.35 else 1500 if d < 1.2 else 20000)
+        decimate(o, 100 if d < 0.35 else 1500 if d < 1.2 else 20000)
+
+# depois de simplificar: as cópias usam as peças leves
+if CFG.get("fill"):
+    fill_fridges(CFG["fill"])
 
 top = bpy.data.objects
 group_of = {}

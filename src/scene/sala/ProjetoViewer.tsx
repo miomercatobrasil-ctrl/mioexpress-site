@@ -170,6 +170,11 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
             floatUv1(m.geometry);
             for (const mat of ([] as THREE.Material[]).concat(m.material)) {
               const s = mat as THREE.MeshStandardMaterial;
+              // o export do SketchUp perde a transparência de alguns vidros: reconhece também pelo nome
+              if (/vidro|glass|transparente/i.test(s.name)) {
+                s.transparent = true;
+                s.opacity = Math.min(s.opacity, 0.12);
+              }
               if (s.transparent && s.opacity < 0.6) {
                 // vidro: quase invisível, só o reflexo
                 s.depthWrite = false;
