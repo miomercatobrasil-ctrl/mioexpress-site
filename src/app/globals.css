@@ -3212,3 +3212,6 @@ body:has(.ambiente.is-explore) .wa-float {
   mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
+.proposta__render { margin: 24px 0 0; }
+.proposta__render img { display: block; width: 100%; height: auto; border-radius: var(--radius-lg); box-shadow: 0 24px 60px rgba(43, 29, 26, 0.18); }
+.proposta__render figcaption { margin-top: 10px; font-size: 13px; color: var(--muted); }

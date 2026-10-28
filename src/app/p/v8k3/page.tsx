@@ -91,6 +91,16 @@ export default function Proposta() {
           </div>
         </section>
 
+        <section className="container proposta__sec">
+          <p className="eyebrow">O projeto</p>
+          <h2 className="h2">A Mio pensada <span className="is-accent">para o seu espaço.</span></h2>
+          <figure className="proposta__render">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/p/projeto.jpg" alt="Projeto da loja Mio para o condomínio: armário iluminado, geladeiras, gôndola e totem" width={1800} height={955} />
+            <figcaption>Projeto: Daniele Faustino Arquitetura &amp; Interiores · imagem ilustrativa</figcaption>
+          </figure>
+        </section>
+
         <section id="loja" className="container proposta__sec">
           <p className="eyebrow">A sua loja em 3D</p>
           <h2 className="h2">Assim fica a Mio <span className="is-accent">no seu condomínio.</span></h2>
