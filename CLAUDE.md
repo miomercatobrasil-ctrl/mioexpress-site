@@ -78,6 +78,7 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
 - Ideia do João (27/10): link 3D privado com o mercado projetado para um condomínio específico, usando a mesma experiência do site (o .glb vem de `NEXT_PUBLIC_SCENE_GLB`/`GLB_URL` em `src/scene/Experience.tsx`).
 - Primeiro alvo: condomínio "GS" (800+ apartamentos). A Dani está fazendo o projeto. O nome real NÃO pode ir para o repositório, que é público: use só o código.
 - Página com código na URL (ex.: `/p/<codigo>`), noindex, fora do sitemap.
+- Proposta do GS no ar em `/p/v8k3/` (folder A5 com QR em `marketing/folder/`). Loja 3D navegável em `src/scene/sala/` (layout em `build.ts`, conforme a planta de 27/10; estudo provisório até o projeto da Dani). Pendente: projeto da Dani, produtos reais na gôndola/armário baixo, vista da janela (imagem do GPT).
 - Fotos e medidas do espaço do GS ficam em `assets/privado/gs/` (git-ignored, nunca commitar). Hoje o espaço é operado por um concorrente (Honest Market); o condomínio libera só 1 ponto.
 
 ## Site (Next.js, export estático na Cloudflare Pages)
@@ -85,4 +86,4 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
 - **Deploy:** um push na `main` publica sozinho. Confira com `gh api repos/miomercatobrasil-ctrl/mioexpress-site/commits/<sha>/check-runs`.
 - **DNS:** fica na Cloudflare, e o domínio continua registrado na GoDaddy (detalhes em `docs/DNS-GODADDY.md`).
 - **Analytics e Google:** GA4 `G-066E2MVTX1`. Search Console verificado e sitemap enviado.
-- **Experiência 3D:** fica em `src/scene/`. Lightmaps feitos no Blender (`scripts/blender/`). Modo leve para GPU fraca. A simulação de compra acontece na tela do totem.
+- **Experiência 3D:** fica em `src/scene/`. Reflexo real da loja via CubeCamera (`RoomReflections` em `Effects.tsx`), piso em porcelanato 90×90 (`porcelanatoFloor` em `GlbScene.tsx`), luz mais quente (28/10). Lightmaps feitos no Blender (`scripts/blender/`). Modo leve para GPU fraca. A simulação de compra acontece na tela do totem.
