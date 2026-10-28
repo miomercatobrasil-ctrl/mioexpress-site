@@ -164,11 +164,22 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
           if (!obj) return;
           const lm = await loadLightmap(`${plan.base}lightmaps/${half}${name}.webp`).catch(() => null);
           if (!lm) return;
+          // o mesmo material aparece em vários objetos (MDF no armário, na gôndola…) e cada objeto tem o seu
+          // lightmap: cada objeto recebe a sua cópia do material
+          const own = new Map<THREE.Material, THREE.Material>();
+          const done = new Set<THREE.Material>();
           obj.traverse((o) => {
             const m = o as THREE.Mesh;
             if (!m.isMesh) return;
             floatUv1(m.geometry);
-            for (const mat of ([] as THREE.Material[]).concat(m.material)) {
+            const mats = ([] as THREE.Material[]).concat(m.material).map((x) => {
+              if (!own.has(x)) own.set(x, x.clone());
+              return own.get(x)!;
+            });
+            m.material = Array.isArray(m.material) ? mats : mats[0];
+            for (const mat of mats) {
+              if (done.has(mat)) continue;
+              done.add(mat);
               const s = mat as THREE.MeshStandardMaterial;
               // divisória de vidro azulado: atrás dela não há nada modelado; vira vidro jateado (fosco, claro)
               if (/translucent_glass/i.test(s.name)) {
@@ -200,6 +211,7 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
       );
       if (disposed) return;
       scene.add(root);
+      (window as unknown as { __sala: THREE.Object3D }).__sala = root; // DEBUG
 
       // piso: reflexo real (espelho fraco e desfocado pela rugosidade da madeira)
       const shape = new THREE.Shape(plan.floor.map(([x, z]) => new THREE.Vector2(x, -z)));
