@@ -3192,3 +3192,18 @@ body:has(.ambiente.is-explore) .wa-float {
 .sala3d__views button.is-on { background: var(--vinho); color: var(--white); }
 .sala3d__hint { position: absolute; top: 12px; left: 12px; margin: 0; padding: 6px 12px; border-radius: 99px; background: rgba(43, 29, 26, 0.55); color: var(--white); font-size: 12px; pointer-events: none; }
 .proposta__nota a { color: var(--vinho); font-weight: 600; }
+
+/* Acabamento de câmera da experiência 3D: leve contraste e cor (computador) e grão fino de foto */
+@media (hover: hover) and (pointer: fine) {
+  .scene-gl canvas { filter: contrast(1.05) saturate(1.08); }
+}
+.scene-gl::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}

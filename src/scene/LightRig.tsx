@@ -72,6 +72,24 @@ export function LightRig({ reducedMotion }: { reducedMotion: boolean }) {
   }, []);
   useEffect(() => () => fixtureMat.dispose(), [fixtureMat]);
   const stripMat = useMemo(() => new THREE.MeshBasicMaterial({ color: LED.clone(), toneMapped: false }), []);
+  // brilho em volta das fitas de LED (efeito "bloom" sem pós-processamento): degradê aditivo para cima e para baixo
+  const stripGlowMat = useMemo(() => {
+    const c = document.createElement("canvas");
+    c.width = 4;
+    c.height = 128;
+    const g = c.getContext("2d")!;
+    const r = g.createLinearGradient(0, 0, 0, 128);
+    r.addColorStop(0, "rgba(255,214,150,0)");
+    r.addColorStop(0.42, "rgba(255,214,150,0.35)");
+    r.addColorStop(0.5, "rgba(255,226,175,0.9)");
+    r.addColorStop(0.58, "rgba(255,214,150,0.35)");
+    r.addColorStop(1, "rgba(255,214,150,0)");
+    g.fillStyle = r;
+    g.fillRect(0, 0, 4, 128);
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+  }, []);
   useEffect(() => () => stripMat.dispose(), [stripMat]);
 
   useFrame((_, dt) => {
@@ -114,6 +132,7 @@ export function LightRig({ reducedMotion }: { reducedMotion: boolean }) {
     stripMat.userData.v = v;
     const glow = night ? 3.2 : 2.2;
     stripMat.color.setRGB(0.35 + (LED.r * glow - 0.35) * v, 0.35 + (LED.g * glow * 0.88 - 0.35) * v, 0.35 + (LED.b * glow * 0.6 - 0.35) * v);
+    stripGlowMat.opacity = v * (night ? 0.75 : 0.45);
     // luminárias do teto: acesas (brilho, pega no bloom) à noite
     // de dia (fim de tarde) já ficam acesas, mais fracas; à noite brilham
     fixtureMat.opacity = damp(fixtureMat.opacity, 1, k, dt);
@@ -153,6 +172,13 @@ export function LightRig({ reducedMotion }: { reducedMotion: boolean }) {
         SHELF_Y.map((y) => (
           <mesh key={`${m}-${y}`} position={[0.31, y, (z0 + z1) / 2]} material={stripMat} raycast={() => null}>
             <boxGeometry args={[0.012, 0.008, z1 - z0 - 0.04]} />
+          </mesh>
+        )),
+      )}
+      {MODULES.flatMap(([z0, z1], m) =>
+        SHELF_Y.map((y) => (
+          <mesh key={`g${m}-${y}`} position={[0.322, y, (z0 + z1) / 2]} rotation={[0, Math.PI / 2, 0]} material={stripGlowMat} raycast={() => null}>
+            <planeGeometry args={[z1 - z0 - 0.02, 0.09]} />
           </mesh>
         )),
       )}
