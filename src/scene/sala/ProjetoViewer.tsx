@@ -200,7 +200,8 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
                 s.depthWrite = false;
                 s.roughness = 0.03;
                 s.metalness = 0;
-                s.envMapIntensity = 1.6;
+                s.opacity = Math.min(s.opacity, 0.15);
+                s.envMapIntensity = 0.7;
                 continue;
               }
               if (s.emissive && s.emissive.getHex() !== 0) continue;
@@ -211,7 +212,6 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
       );
       if (disposed) return;
       scene.add(root);
-      (window as unknown as { __sala: THREE.Object3D }).__sala = root; // DEBUG
 
       // piso: reflexo real (espelho fraco e desfocado pela rugosidade da madeira)
       const shape = new THREE.Shape(plan.floor.map(([x, z]) => new THREE.Vector2(x, -z)));
@@ -224,7 +224,7 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
       mirror.position.y = 0.003;
       const mm = mirror.material as THREE.ShaderMaterial;
       mm.transparent = true;
-      mm.fragmentShader = mm.fragmentShader.replace("gl_FragColor = vec4( blendOverlay( base.rgb, color ), 1.0 );", "gl_FragColor = vec4( base.rgb, 0.16 );");
+      mm.fragmentShader = mm.fragmentShader.replace("gl_FragColor = vec4( blendOverlay( base.rgb, color ), 1.0 );", "gl_FragColor = vec4( base.rgb, 0.1 );");
       scene.add(mirror);
 
       // reflexos: fotografa a própria sala num cubo e usa como ambiente (vidros, metais, piso)
