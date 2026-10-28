@@ -2610,6 +2610,11 @@ body:has(.ambiente.is-explore) .wa-float {
   color: #6e1c24;
   border: 1.5px solid rgba(110, 28, 36, 0.4);
 }
+.totem-screen__again:hover,
+.totem-screen__again:focus-visible {
+  color: var(--white);
+  border-color: var(--vinho-3);
+}
 .scene-actions.is-hidden {
   opacity: 0;
   pointer-events: none;
