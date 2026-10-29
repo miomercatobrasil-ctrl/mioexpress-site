@@ -1,7 +1,7 @@
 // Comprime a loja projetada (scripts/blender/sala_bake.py) para o site: .glb com meshopt e lightmaps em WebP.
 // Uso: node scripts/optimize-sala.mjs <pasta build> <saída em public/models/p/<código>>
 import { execFileSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
 import { NodeIO } from "@gltf-transform/core";
@@ -61,7 +61,10 @@ execFileSync(
 );
 
 let total = statSync(join(OUT, "sala.glb")).size;
-copyFileSync(join(BUILD, "lightmaps.json"), join(OUT, "lightmaps.json"));
+// versão no manifesto: o visualizador pede os arquivos com ?v=, e o navegador nunca usa luz de uma versão antiga
+const manifest = JSON.parse(readFileSync(join(BUILD, "lightmaps.json"), "utf8"));
+manifest.version = Date.now().toString(36);
+writeFileSync(join(OUT, "lightmaps.json"), JSON.stringify(manifest));
 for (const f of readdirSync(join(BUILD, "lightmaps")).filter((f) => f.endsWith(".png"))) {
   const src = join(BUILD, "lightmaps", f);
   const out = join(OUT, "lightmaps", f.replace(/\.png$/, ".webp"));

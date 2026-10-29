@@ -1,15 +1,1 @@
-{
- "gain": 0.33683526515960693,
- "objects": [
-  "porta",
-  "gondola",
-  "armario",
-  "aparador",
-  "estrutura",
-  "freezer",
-  "totens",
-  "geladeiras2",
-  "geladeiras",
-  "teto"
- ]
-}
+{"gain":0.33683526515960693,"objects":["porta","gondola","armario","aparador","estrutura","freezer","totens","geladeiras2","geladeiras","teto"],"version":"mvtj94r6"}

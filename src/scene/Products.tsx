@@ -601,7 +601,7 @@ export async function freezerPicoles(f: { x: [number, number]; z: [number, numbe
 /** Fileiras de bebidas do site (mesmos rótulos) dentro de geladeiras quaisquer. Usado na loja projetada das
  *  propostas, onde as garrafas do projeto SketchUp ficavam ocas. front: centro da borda da prateleira (x, z);
  *  inward: para dentro da geladeira; rows: altura da prateleira e produto. */
-export async function fridgeRows(fridges: { front: [number, number]; inward: [number, number]; width: number; rows: { y: number; product: string }[] }[]) {
+export async function fridgeRows(fridges: { front: [number, number]; inward: [number, number]; width: number; deep?: number; rows: { y: number; product: string; stack?: number }[] }[]) {
   const json = (await (await fetch(BASE + "produtos.json")).json()) as Record<string, number[]>;
   const img = new Image();
   img.decoding = "async";
@@ -622,10 +622,11 @@ export async function fridgeRows(fridges: { front: [number, number]; inward: [nu
       const fp = footprint(SHAPES[shape]);
       const n = Math.floor((f.width - 0.04) / (fp.w + 0.004));
       for (let k = 0; k < n; k++)
-        for (let d = 0; d < 2; d++) {
+        for (let d = 0; d < (f.deep ?? 2); d++)
+          for (let st = 0; st < (r.stack ?? 1); st++) {
           const across = (k - (n - 1) / 2) * (fp.w + 0.004);
           const inward = 0.03 + fp.d / 2 + d * (fp.d + 0.004);
-          o.position.set(f.front[0] + rx * across + ix * inward, r.y, f.front[1] + rz * across + iz * inward);
+          o.position.set(f.front[0] + rx * across + ix * inward, r.y + st * fp.h, f.front[1] + rz * across + iz * inward);
           o.rotation.set(0, yaw, 0);
           o.updateMatrix();
           const list = byShape.get(shape) ?? [];

@@ -28,7 +28,30 @@ const FRIDGES = {
     ...[1.259, 2.035].map((z) => ({ front: [0.82, z] as [number, number], inward: [-1, 0] as [number, number], width: 0.5, rows: AGUA })),
     { front: [3.87, 3.447] as [number, number], inward: [1, 0] as [number, number], width: 0.42, rows: AGUA },
     ...[0.43, 1.14, 1.85, 2.56].map((x) => ({ front: [x, 5.1] as [number, number], inward: [0, 1] as [number, number], width: 0.5, rows: AGUA })),
+    // geladeira da Coca: cheia, do fundo até a porta
+    {
+      front: [0.99, 0.535] as [number, number],
+      inward: [-1, 0] as [number, number],
+      width: 0.58,
+      deep: 7,
+      rows: [
+        { y: 0.47, product: "cocazero_lata", stack: 2 },
+        { y: 0.675, product: "coca_lata", stack: 2 },
+        { y: 0.975, product: "fanta", stack: 2 },
+        { y: 1.275, product: "guarana_lata", stack: 2 },
+        { y: 1.565, product: "coca_lata", stack: 2 },
+        { y: 1.835, product: "cocazero_220" },
+      ],
+    },
   ],
+};
+
+// sacos de carvão: os do projeto vinham amassados e furados; viram sacos cheios, 2 por módulo do armário
+const SACKS = {
+  hide: /carv/i,
+  image: "/images/p/carvao.jpg",
+  size: [0.62, 0.11, 0.34] as V3,
+  at: [2.325, 3.155, 3.99, 4.83].flatMap((x) => [[x, 0.125, 0.27], [x, 0.235, 0.28]] as V3[]),
 };
 
 // projeto da arquiteta (modelo SketchUp convertido e com luz assada: scripts/blender/sala_bake.py)
@@ -37,6 +60,7 @@ const PLAN_V8K3: ProjetoPlan = {
   backdrop: "/images/p/janela.jpg",
   leds: LEDS,
   fridges: FRIDGES,
+  sacks: SACKS,
   freezer: { x: [0.12, 0.6], z: [2.62, 3.72], y: 0.62, rows: 2, cols: 7 },
   bounds: { x: [0.35, 5.0], z: [0.6, 5.35], h: 2.9 },
   floor: [[0, 0], [5.45, 0], [5.45, 5.7], [0, 5.7]],
