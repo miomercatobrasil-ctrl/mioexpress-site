@@ -555,3 +555,45 @@ export function Products() {
 }
 
 const ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
+
+/** Picolés Los Los (mesmos rótulos do site) deitados dentro de um freezer horizontal qualquer.
+ *  Usado na loja projetada das propostas (src/scene/sala). x: faixa da profundidade, z: do comprimento. */
+export async function freezerPicoles(f: { x: [number, number]; z: [number, number]; y: number; rows: number; cols: number }) {
+  const json = (await (await fetch(BASE + "produtos.json")).json()) as Record<string, number[]>;
+  const img = new Image();
+  img.decoding = "async";
+  img.src = BASE + "produtos.webp";
+  await img.decode();
+  const map = new THREE.Texture(img);
+  map.colorSpace = THREE.SRGBColorSpace;
+  map.anisotropy = 8;
+  map.needsUpdate = true;
+  const flavors = Object.keys(json).filter((k) => k.startsWith("picole_"));
+  const o = new THREE.Object3D();
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const tiles: number[] = [], mats: THREE.Matrix4[] = [];
+  const dx = (f.x[1] - f.x[0]) / f.rows, dz = (f.z[1] - f.z[0]) / f.cols;
+  let k = 0;
+  for (let col = 0; col < f.cols; col++)
+    for (let row = 0; row < f.rows; row++)
+      for (let side = 0; side < 2; side++) {
+        const uv = json[flavors[k++ % flavors.length]];
+        for (let layer = 0; layer < 3; layer++) {
+          // o picolé deitado ocupa 0,2 m a partir da posição, no sentido de −x
+          o.position.set(f.x[0] + dx * row + (dx + SHAPES.picole.h) / 2 + (rnd() - 0.5) * 0.01, f.y + layer * 0.028, f.z[0] + dz * (col + 0.5) + (side - 0.5) * dz * 0.5);
+          o.rotation.set(-Math.PI / 2 + 0.18 + (rnd() - 0.5) * 0.1, Math.PI / 2 + (rnd() - 0.5) * 0.12, 0, "YXZ");
+          o.updateMatrix();
+          mats.push(o.matrix.clone());
+          tiles.push(...uv);
+        }
+      }
+  const g = buildGeometry(SHAPES.picole);
+  g.setAttribute("aTile", new THREE.InstancedBufferAttribute(new Float32Array(tiles), 4));
+  g.setAttribute("aLit", new THREE.InstancedBufferAttribute(new Float32Array(mats.flatMap(() => [1, 1])), 2));
+  const mesh = new THREE.InstancedMesh(g, makeMaterial(map, true), mats.length);
+  mats.forEach((m, i) => mesh.setMatrixAt(i, m));
+  mesh.instanceMatrix.needsUpdate = true;
+  mesh.computeBoundingSphere();
+  return mesh;
+}

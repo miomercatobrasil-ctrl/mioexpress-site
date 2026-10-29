@@ -6,6 +6,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { Reflector } from "three/examples/jsm/objects/Reflector.js";
+import { freezerPicoles } from "../Products";
 
 type V3 = [number, number, number];
 export type ProjetoPlan = {
@@ -20,6 +21,8 @@ export type ProjetoPlan = {
   backdrop?: string;
   /** fitas de LED visíveis (a luz que elas jogam já está no bake): segmento de a até b, cor quente ou fria */
   leds?: { a: V3; b: V3; cool?: boolean }[];
+  /** freezer horizontal para encher com os picolés Los Los do site */
+  freezer?: { x: [number, number]; z: [number, number]; y: number; rows: number; cols: number };
 };
 
 /** Fitas de LED acesas: barra fina brilhante + halo suave (soma de luz), como numa foto de loja à noite. */
@@ -257,11 +260,18 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
               if (done.has(mat)) continue;
               done.add(mat);
               const s = mat as THREE.MeshStandardMaterial;
-              // plástico das garrafas (água): translúcido mas visível, não some como vidro
+              // embalagens com PNG transparente (Milka, rótulos, logos): sólidas; só o fundo vazio do PNG some
+              if (s.map && s.transparent && !/vidro|glass|transparente|acrylic/i.test(s.name)) {
+                s.transparent = false;
+                s.opacity = 1;
+                s.alphaTest = 0.5;
+                s.depthWrite = true;
+              }
+              // plástico das garrafas (água): quase opaco, levemente azulado, com brilho
               if (/acrylic|^__auto_$/i.test(s.name)) {
-                s.color.set("#e6eef0");
+                s.color.set("#dfe9ee");
                 s.transparent = true;
-                s.opacity = 0.6;
+                s.opacity = 0.88;
                 s.roughness = 0.12;
                 s.metalness = 0;
                 s.envMapIntensity = 1.4;
@@ -291,6 +301,10 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
               // peças muito amassadas (sacos de carvão) se partem em centenas de pedacinhos no lightmap e saíam
               // riscadas: usam só a luz ambiente da própria loja
               if (/carv/i.test(s.name)) {
+                // a foto do saco não se encaixa no modelo amassado (ficava picotada): papel kraft liso
+                s.map = null;
+                s.color.set("#a8825a");
+                s.roughness = 0.85;
                 s.envMapIntensity = 1.1;
                 continue;
               }
@@ -309,6 +323,7 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
       scene.add(root);
 
       if (plan.leds) addLeds(scene, plan.leds);
+      if (plan.freezer) scene.add(await freezerPicoles(plan.freezer).catch(() => new THREE.Object3D()));
 
       if (plan.backdrop) {
         // lá fora: cilindro em volta da loja com a paisagem desfocada (como numa foto de interior)
