@@ -11,6 +11,7 @@ const ProjetoViewer = dynamic(() => import("@/scene/sala/ProjetoViewer"), {
 // projeto da arquiteta (modelo SketchUp convertido e com luz assada: scripts/blender/sala_bake.py)
 const PLAN_V8K3: ProjetoPlan = {
   base: "/models/p/v8k3/",
+  backdrop: "/images/p/janela.jpg",
   bounds: { x: [0.35, 5.0], z: [0.6, 5.35], h: 2.9 },
   floor: [[0, 0], [5.45, 0], [5.45, 5.7], [0, 5.7]],
   views: [

@@ -223,6 +223,9 @@ def tune_material(m):
         b.inputs["Roughness"].default_value = 0.03
         b.inputs["Metallic"].default_value = 0.0
         m["mio_glass"] = 1
+        # vidro deixa passar o sol no bake (o export do SketchUp trazia alguns vidros opacos)
+        b.inputs["Alpha"].default_value = min(b.inputs["Alpha"].default_value, 0.12)
+        m.surface_render_method = "BLENDED"
     if en.get("Type") == "SELF_ILLUMINATED":
         col = hexrgb(en.get("EmissiveColor", "#FFFFFF"))
         warm = [1.0, 0.86, 0.68]

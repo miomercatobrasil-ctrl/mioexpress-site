@@ -16,6 +16,8 @@ export type ProjetoPlan = {
   /** piso em L para o reflexo (pontos x, z) */
   floor: [number, number][];
   views: { label: string; position: V3; target: V3 }[];
+  /** imagem vista pelas janelas (panorama em volta da loja; horizonte a 30% da altura) */
+  backdrop?: string;
 };
 
 // luz assada: o PNG/WebP guarda a luz em gama 2.2; o shader volta para linear (decodificação da GPU varia entre aparelhos)
@@ -212,6 +214,20 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
       );
       if (disposed) return;
       scene.add(root);
+
+      if (plan.backdrop) {
+        // lá fora: cilindro em volta da loja com a paisagem desfocada (como numa foto de interior)
+        const tex = await new THREE.TextureLoader().loadAsync(plan.backdrop);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.repeat.x = 2;
+        const cyl = new THREE.Mesh(
+          new THREE.CylinderGeometry(14, 14, 10, 48, 1, true),
+          new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide, toneMapped: false }),
+        );
+        cyl.position.set((plan.bounds.x[0] + plan.bounds.x[1]) / 2, 2.5, (plan.bounds.z[0] + plan.bounds.z[1]) / 2);
+        scene.add(cyl);
+      }
 
       // piso: reflexo real (espelho fraco e desfocado pela rugosidade da madeira)
       const shape = new THREE.Shape(plan.floor.map(([x, z]) => new THREE.Vector2(x, -z)));
