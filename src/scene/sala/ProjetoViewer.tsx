@@ -146,6 +146,8 @@ function bakeMaterial(mat: THREE.MeshStandardMaterial, lm: THREE.Texture) {
 /** Vidro de verdade: transparente, mas o reflexo aparece inteiro (num material transparente comum o reflexo
  *  também é multiplicado pela opacidade e some). Mais forte de lado (Fresnel), como num expositor. */
 function glassMaterial(s: THREE.MeshStandardMaterial) {
+  // alguns vidros vêm como recorte (alpha 0 + alphaTest): seriam descartados por inteiro
+  s.alphaTest = 0;
   s.depthWrite = false;
   s.roughness = 0.02;
   s.metalness = 0;
@@ -337,6 +339,7 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
     (async () => {
       await MeshoptDecoder.ready;
       // manifesto sempre fresco; o resto vai com ?v=<versão> (o navegador não reaproveita luz de uma versão antiga)
+      const doorGlass: THREE.MeshStandardMaterial[] = [];
       const manifest = (await fetch(plan.base + "lightmaps.json", { cache: "no-store" }).then((r) => r.json())) as { objects: string[]; version?: string };
       const v = manifest.version ? `?v=${manifest.version}` : "";
       const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(plan.base + "sala.glb" + v);
@@ -403,6 +406,7 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
               }
               if (s.transparent && s.opacity < 0.6) {
                 glassMaterial(s);
+                if (name === plan.entry?.door) doorGlass.push(s);
                 continue;
               }
               if (s.emissive && s.emissive.getHex() !== 0) continue;
@@ -485,6 +489,20 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
       cubeCam.update(renderer, scene);
       mirror.visible = true;
       scene.environment = pmrem.fromCubemap(cubeRT.texture).texture;
+      // vidro da porta: reflexo do lado de fora (corredor e letreiro), fotografado na frente da porta, e um pouco
+      // mais forte, para o vidro aparecer de frente como nas geladeiras
+      if (plan.entry && doorGlass.length) {
+        const [x, , z] = plan.entry.position;
+        cubeCam.position.set(x, 1.45, z - 0.35);
+        cubeCam.update(renderer, scene);
+        const outside = pmrem.fromCubemap(cubeRT.texture).texture;
+        for (const g of doorGlass) {
+          g.envMap = outside;
+          g.envMapIntensity = 1.3;
+          g.opacity = 0.16;
+          g.needsUpdate = true;
+        }
+      }
       cubeRT.dispose();
       setLoading(false);
       request();
