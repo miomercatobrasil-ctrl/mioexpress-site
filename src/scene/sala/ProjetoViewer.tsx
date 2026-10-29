@@ -28,7 +28,7 @@ function addLeds(scene: THREE.Scene, leds: NonNullable<ProjetoPlan["leds"]>) {
   const cool = new THREE.Color(0.9, 0.96, 1.0).multiplyScalar(2.2);
   const core = { warm: new THREE.MeshBasicMaterial({ color: warm, toneMapped: false }), cool: new THREE.MeshBasicMaterial({ color: cool, toneMapped: false }) };
   const halo = (c: THREE.Color) =>
-    new THREE.MeshBasicMaterial({ color: c.clone().multiplyScalar(0.12), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+    new THREE.MeshBasicMaterial({ color: c.clone().multiplyScalar(0.08), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
   const haloMat = { warm: halo(warm), cool: halo(cool) };
   const up = new THREE.Vector3(0, 1, 0);
   for (const l of leds) {
@@ -38,7 +38,7 @@ function addLeds(scene: THREE.Scene, leds: NonNullable<ProjetoPlan["leds"]>) {
     const mid = a.clone().add(b).multiplyScalar(0.5);
     const k = l.cool ? "cool" : "warm";
     const bar = new THREE.Mesh(new THREE.BoxGeometry(0.012, len, 0.006), core[k]);
-    const glow = new THREE.Mesh(new THREE.BoxGeometry(0.05, len + 0.03, 0.05), haloMat[k]);
+    const glow = new THREE.Mesh(new THREE.BoxGeometry(0.03, len + 0.02, 0.03), haloMat[k]);
     for (const m of [bar, glow]) {
       m.position.copy(mid);
       m.quaternion.copy(q);
