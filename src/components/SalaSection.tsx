@@ -62,7 +62,10 @@ const PLAN_V8K3: ProjetoPlan = {
   fridges: FRIDGES,
   sacks: SACKS,
   // chegada: do corredor, olhando pela porta de vidro (x 3,5–4,3; z 5,75); a porta abre para dentro
-  entry: { position: [3.95, 1.6, 6.25], target: [3.5, 1.25, 3.0], door: "porta", hinge: [4.3, 5.75], angle: -1.75 },
+  entry: { position: [3.55, 1.6, 7.0], target: [3.45, 1.35, 3.0], door: "porta", hinge: [4.3, 5.75], angle: -1.75 },
+  // nome do condomínio na parede da porta, por fora. Vem da configuração do Cloudflare Pages
+  // (NEXT_PUBLIC_NOME_V8K3), nunca do código: o repositório é público. Sem a variável, não aparece.
+  sign: { text: process.env.NEXT_PUBLIC_NOME_V8K3 ?? "", at: [2.85, 1.75, 5.82], width: 1.1 },
   freezer: { x: [0.12, 0.6], z: [2.62, 3.72], y: 0.62, rows: 2, cols: 7 },
   bounds: { x: [0.35, 5.0], z: [0.6, 5.35], h: 2.9, door: { x: [3.6, 4.2], z: 5.66 } },
   floor: [[0, 0], [5.45, 0], [5.45, 5.7], [0, 5.7]],

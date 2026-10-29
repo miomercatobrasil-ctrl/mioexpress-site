@@ -6,6 +6,8 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { Reflector } from "three/examples/jsm/objects/Reflector.js";
+import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
+import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
 import { freezerPicoles, fridgeRows } from "../Products";
 
 type V3 = [number, number, number];
@@ -21,6 +23,8 @@ export type ProjetoPlan = {
   backdrop?: string;
   /** fitas de LED visíveis (a luz que elas jogam já está no bake): segmento de a até b, cor quente ou fria */
   leds?: { a: V3; b: V3; cool?: boolean }[];
+  /** letreiro na parede de fora (nome do condomínio): texto, centro (x, y, z da face da parede) e largura */
+  sign?: { text: string; at: V3; width: number };
   /** chegada: começa do lado de fora, olhando pela porta de vidro; ao explorar, a porta abre e a câmera entra */
   entry?: { position: V3; target: V3; door: string; hinge: [number, number]; angle: number };
   /** freezer horizontal para encher com os picolés Los Los do site */
@@ -159,6 +163,43 @@ function glassMaterial(s: THREE.MeshStandardMaterial) {
   };
   s.customProgramCacheKey = () => "mio-vidro1";
   s.needsUpdate = true;
+}
+
+/** Letreiro de letras caixa cromadas em alto relevo (texto 3D extrudado), centralizado em `at`, na parede. */
+async function addSign(scene: THREE.Scene, s: NonNullable<ProjetoPlan["sign"]>) {
+  const font = await new FontLoader().loadAsync("/fonts/droid_serif_regular.typeface.json");
+  const chrome = new THREE.MeshStandardMaterial({ color: "#e9ecef", metalness: 1, roughness: 0.14, envMapIntensity: 1.6 });
+  const words = s.text.toUpperCase().split(/\s+/);
+  const lines = words.length > 1 ? [words.slice(0, -1).join(" "), words[words.length - 1]] : words;
+  const group = new THREE.Group();
+  let y = 0;
+  lines.forEach((t, i) => {
+    const size = i === 0 && lines.length > 1 ? 0.13 : 0.1;
+    // espaçamento entre letras: uma geometria por letra
+    const letters = [...t].map((ch) => {
+      if (ch === " ") return { g: null as THREE.BufferGeometry | null, w: size * 0.5 };
+      const g = new TextGeometry(ch, { font, size, depth: 0.018, curveSegments: 6, bevelEnabled: true, bevelThickness: 0.003, bevelSize: 0.0025, bevelSegments: 2 });
+      g.computeBoundingBox();
+      return { g, w: g.boundingBox!.max.x - g.boundingBox!.min.x };
+    });
+    const gap = size * 0.28;
+    const total = letters.reduce((a, l) => a + l.w, 0) + gap * (letters.length - 1);
+    let x = -total / 2;
+    for (const l of letters) {
+      if (l.g) {
+        const m = new THREE.Mesh(l.g, chrome);
+        m.position.set(x - l.g.boundingBox!.min.x, y, 0);
+        group.add(m);
+      }
+      x += l.w + gap;
+    }
+    y -= size * 1.55;
+  });
+  const box = new THREE.Box3().setFromObject(group);
+  const k = s.width / (box.max.x - box.min.x);
+  group.scale.setScalar(Math.min(1, k));
+  group.position.set(s.at[0], s.at[1] - (box.max.y + box.min.y) / 2, s.at[2] + 0.002);
+  scene.add(group);
 }
 
 /** Loja do projeto da arquiteta, com luz assada, navegável (girar, aproximar e vistas prontas). */
@@ -389,6 +430,7 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
       }
 
       if (plan.leds) addLeds(scene, plan.leds);
+      if (plan.sign?.text) await addSign(scene, plan.sign).catch((e) => console.error("letreiro", e));
       if (plan.sacks) {
         const hide = plan.sacks.hide;
         root.traverse((o) => {
