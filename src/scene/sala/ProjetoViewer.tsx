@@ -235,6 +235,17 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
               if (done.has(mat)) continue;
               done.add(mat);
               const s = mat as THREE.MeshStandardMaterial;
+              // plástico das garrafas (água): translúcido mas visível, não some como vidro
+              if (/acrylic|^__auto_$/i.test(s.name)) {
+                s.color.set("#e6eef0");
+                s.transparent = true;
+                s.opacity = 0.6;
+                s.roughness = 0.12;
+                s.metalness = 0;
+                s.envMapIntensity = 1.4;
+                s.depthWrite = false;
+                continue;
+              }
               // divisória de vidro azulado: atrás dela não há nada modelado; vira vidro jateado (fosco, claro)
               if (/translucent_glass/i.test(s.name)) {
                 s.color.set("#ece8e1");
@@ -260,6 +271,12 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
                 continue;
               }
               if (s.emissive && s.emissive.getHex() !== 0) continue;
+              // peças muito amassadas (sacos de carvão) se partem em centenas de pedacinhos no lightmap e saíam
+              // riscadas: usam só a luz ambiente da própria loja
+              if (/carv/i.test(s.name)) {
+                s.envMapIntensity = 1.1;
+                continue;
+              }
               bakeMaterial(s, lm);
             }
           });
