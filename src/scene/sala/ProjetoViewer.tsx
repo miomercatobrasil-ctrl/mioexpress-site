@@ -106,6 +106,28 @@ function bakeMaterial(mat: THREE.MeshStandardMaterial, lm: THREE.Texture) {
   mat.needsUpdate = true;
 }
 
+/** Vidro de verdade: transparente, mas o reflexo aparece inteiro (num material transparente comum o reflexo
+ *  também é multiplicado pela opacidade e some). Mais forte de lado (Fresnel), como num expositor. */
+function glassMaterial(s: THREE.MeshStandardMaterial) {
+  s.depthWrite = false;
+  s.roughness = 0.02;
+  s.metalness = 0;
+  s.color.set("#1a1d1f");
+  s.opacity = 0.14;
+  s.envMapIntensity = 2.6;
+  s.premultipliedAlpha = true;
+  s.onBeforeCompile = (shader) => {
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "#include <opaque_fragment>",
+        "gl_FragColor = vec4( totalDiffuse * diffuseColor.a + totalSpecular + totalEmissiveRadiance, diffuseColor.a );",
+      )
+      .replace("#include <premultiplied_alpha_fragment>", "");
+  };
+  s.customProgramCacheKey = () => "mio-vidro1";
+  s.needsUpdate = true;
+}
+
 /** Loja do projeto da arquiteta, com luz assada, navegável (girar, aproximar e vistas prontas). */
 export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
   const box = useRef<HTMLDivElement>(null);
@@ -246,8 +268,9 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
                 s.depthWrite = false;
                 continue;
               }
-              // divisória de vidro azulado: atrás dela não há nada modelado; vira vidro jateado (fosco, claro)
-              if (/translucent_glass/i.test(s.name)) {
+              // divisória de vidro azulado (só na estrutura; a porta da Coca usa um material de mesmo nome):
+              // atrás dela não há nada modelado, então vira vidro jateado (fosco, claro)
+              if (name === "estrutura" && /translucent_glass/i.test(s.name)) {
                 s.color.set("#ece8e1");
                 s.transparent = true;
                 s.opacity = 0.9;
@@ -261,13 +284,7 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
                 s.opacity = Math.min(s.opacity, 0.12);
               }
               if (s.transparent && s.opacity < 0.6) {
-                // vidro: escuro e liso, mostra o reflexo da loja (mais forte de lado, como vidro de verdade)
-                s.depthWrite = false;
-                s.roughness = 0.03;
-                s.metalness = 0;
-                s.color.multiplyScalar(0.4);
-                s.opacity = Math.min(s.opacity, 0.18);
-                s.envMapIntensity = 3.2;
+                glassMaterial(s);
                 continue;
               }
               if (s.emissive && s.emissive.getHex() !== 0) continue;
@@ -278,6 +295,12 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
                 continue;
               }
               bakeMaterial(s, lm);
+              // dentro das geladeiras: as bebidas ficam iluminadas pelo LED interno (luz fria por cima do bake)
+              if ((name === "geladeiras" || name === "geladeiras2") && !/270920128|skol|A06|M08|METAL|Grate|Gray|Branco|Color_00[18]/i.test(s.name)) {
+                s.emissive.setRGB(0.85, 0.92, 1.0);
+                s.emissiveIntensity = s.map ? 0.45 : 0.3;
+                if (s.map) s.emissiveMap = s.map;
+              }
             }
           });
         }),
