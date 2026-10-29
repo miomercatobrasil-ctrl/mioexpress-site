@@ -498,8 +498,9 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
         const outside = pmrem.fromCubemap(cubeRT.texture).texture;
         for (const g of doorGlass) {
           g.envMap = outside;
-          g.envMapIntensity = 1.3;
-          g.opacity = 0.16;
+          // tom neutro: no Mac o reflexo do corredor deixava o vidro esverdeado
+          g.envMapIntensity = 0.7;
+          g.opacity = 0.1;
           g.needsUpdate = true;
         }
       }
