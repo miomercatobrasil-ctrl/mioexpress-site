@@ -17,6 +17,7 @@ import json
 import math
 import os
 import re
+import shutil
 import sys
 import time
 
@@ -34,6 +35,8 @@ CFG = json.load(open(os.path.join(DIR, "sala.json")))
 SKP = json.load(open(os.path.join(DIR, "skp-materials.json")))
 OUT = os.path.join(DIR, "build")
 os.makedirs(os.path.join(OUT, "lightmaps"), exist_ok=True)
+# lightmaps novos: a cópia sem filtro do bake anterior (denoise_lightmaps.py) deixa de valer
+shutil.rmtree(os.path.join(OUT, "lightmaps-raw"), ignore_errors=True)
 
 OFF = CFG["offset"]  # three: x += OFF[0], z += OFF[1]
 SMALL_PIECE = 0.05  # m²: peças menores usam a luz média do objeto
