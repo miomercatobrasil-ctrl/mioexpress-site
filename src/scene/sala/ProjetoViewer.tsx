@@ -25,7 +25,32 @@ export type ProjetoPlan = {
   freezer?: { x: [number, number]; z: [number, number]; y: number; rows: number; cols: number };
   /** bebidas do site nas geladeiras (no lugar das garrafas ocas do projeto, escondidas por nome de material) */
   fridges?: { hide: RegExp; list: Parameters<typeof fridgeRows>[0] };
+  /** sacos (ex.: carvão) deitados nas prateleiras de baixo, no lugar dos sacos amassados do projeto */
+  sacks?: { hide: RegExp; image: string; size: V3; at: V3[] };
 };
+
+/** Saco cheio deitado: caixa estufada (pontas achatadas), foto da embalagem em cima e papel kraft nos lados. */
+async function addSacks(scene: THREE.Scene, k: NonNullable<ProjetoPlan["sacks"]>) {
+  const tex = await new THREE.TextureLoader().loadAsync(k.image);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const [w, h, d] = k.size;
+  const g = new THREE.BoxGeometry(w, h, d, 16, 2, 12);
+  const p = g.attributes.position as THREE.BufferAttribute;
+  for (let i = 0; i < p.count; i++) {
+    const fx = 1 - Math.pow((2 * p.getX(i)) / w, 6), fz = 1 - Math.pow((2 * p.getZ(i)) / d, 6);
+    p.setY(i, p.getY(i) * Math.max(0.25, Math.sqrt(Math.max(0, fx * fz))));
+  }
+  g.computeVertexNormals();
+  g.translate(0, h / 2, 0);
+  const kraft = new THREE.MeshStandardMaterial({ color: "#b48a5e", roughness: 0.85 });
+  const top = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.75 });
+  for (const at of k.at) {
+    const m = new THREE.Mesh(g, [kraft, kraft, top, kraft, kraft, kraft]);
+    m.position.set(...at);
+    m.rotation.y = (Math.sin(at[0] * 12.9 + at[1] * 7.1) * 0.06);
+    scene.add(m);
+  }
+}
 
 /** Fitas de LED acesas: barra fina brilhante + halo suave (soma de luz), como numa foto de loja à noite. */
 function addLeds(scene: THREE.Scene, leds: NonNullable<ProjetoPlan["leds"]>) {
@@ -235,16 +260,18 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
 
     (async () => {
       await MeshoptDecoder.ready;
-      const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(plan.base + "sala.glb");
+      // manifesto sempre fresco; o resto vai com ?v=<versão> (o navegador não reaproveita luz de uma versão antiga)
+      const manifest = (await fetch(plan.base + "lightmaps.json", { cache: "no-store" }).then((r) => r.json())) as { objects: string[]; version?: string };
+      const v = manifest.version ? `?v=${manifest.version}` : "";
+      const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(plan.base + "sala.glb" + v);
       if (disposed) return;
       const root = gltf.scene;
-      const manifest = (await fetch(plan.base + "lightmaps.json").then((r) => r.json())) as { objects: string[] };
       const half = mobile ? "m/" : "";
       await Promise.all(
         manifest.objects.map(async (name) => {
           const obj = root.getObjectByName(name);
           if (!obj) return;
-          const lm = await loadLightmap(`${plan.base}lightmaps/${half}${name}.webp`).catch(() => null);
+          const lm = await loadLightmap(`${plan.base}lightmaps/${half}${name}.webp${v}`).catch(() => null);
           if (!lm) return;
           // o mesmo material aparece em vários objetos (MDF no armário, na gôndola…) e cada objeto tem o seu
           // lightmap: cada objeto recebe a sua cópia do material
@@ -303,16 +330,6 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
                 continue;
               }
               if (s.emissive && s.emissive.getHex() !== 0) continue;
-              // peças muito amassadas (sacos de carvão) se partem em centenas de pedacinhos no lightmap e saíam
-              // riscadas: usam só a luz ambiente da própria loja
-              if (/carv/i.test(s.name)) {
-                // a foto do saco não se encaixa no modelo amassado (ficava picotada): papel kraft liso
-                s.map = null;
-                s.color.set("#a8825a");
-                s.roughness = 0.85;
-                s.envMapIntensity = 1.1;
-                continue;
-              }
               bakeMaterial(s, lm);
               // dentro das geladeiras: as bebidas ficam iluminadas pelo LED interno (luz fria por cima do bake)
               if (inFridge && !/270920128|skol|A06|M08|METAL|Grate|Gray|Branco|Color_00[18]/i.test(s.name)) {
@@ -328,6 +345,14 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
       scene.add(root);
 
       if (plan.leds) addLeds(scene, plan.leds);
+      if (plan.sacks) {
+        const hide = plan.sacks.hide;
+        root.traverse((o) => {
+          const m = o as THREE.Mesh;
+          if (m.isMesh && ([] as THREE.Material[]).concat(m.material).every((x) => hide.test(x.name))) m.visible = false;
+        });
+        await addSacks(scene, plan.sacks).catch(() => {});
+      }
       if (plan.fridges) {
         const hide = plan.fridges.hide;
         root.traverse((o) => {
