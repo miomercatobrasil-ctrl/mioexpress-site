@@ -18,7 +18,34 @@ export type ProjetoPlan = {
   views: { label: string; position: V3; target: V3 }[];
   /** imagem vista pelas janelas (panorama em volta da loja; horizonte a 30% da altura) */
   backdrop?: string;
+  /** fitas de LED visíveis (a luz que elas jogam já está no bake): segmento de a até b, cor quente ou fria */
+  leds?: { a: V3; b: V3; cool?: boolean }[];
 };
+
+/** Fitas de LED acesas: barra fina brilhante + halo suave (soma de luz), como numa foto de loja à noite. */
+function addLeds(scene: THREE.Scene, leds: NonNullable<ProjetoPlan["leds"]>) {
+  const warm = new THREE.Color(1.0, 0.86, 0.66).multiplyScalar(2.2);
+  const cool = new THREE.Color(0.9, 0.96, 1.0).multiplyScalar(2.2);
+  const core = { warm: new THREE.MeshBasicMaterial({ color: warm, toneMapped: false }), cool: new THREE.MeshBasicMaterial({ color: cool, toneMapped: false }) };
+  const halo = (c: THREE.Color) =>
+    new THREE.MeshBasicMaterial({ color: c.clone().multiplyScalar(0.08), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+  const haloMat = { warm: halo(warm), cool: halo(cool) };
+  const up = new THREE.Vector3(0, 1, 0);
+  for (const l of leds) {
+    const a = new THREE.Vector3(...l.a), b = new THREE.Vector3(...l.b);
+    const len = a.distanceTo(b);
+    const q = new THREE.Quaternion().setFromUnitVectors(up, b.clone().sub(a).normalize());
+    const mid = a.clone().add(b).multiplyScalar(0.5);
+    const k = l.cool ? "cool" : "warm";
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(0.012, len, 0.006), core[k]);
+    const glow = new THREE.Mesh(new THREE.BoxGeometry(0.03, len + 0.02, 0.03), haloMat[k]);
+    for (const m of [bar, glow]) {
+      m.position.copy(mid);
+      m.quaternion.copy(q);
+      scene.add(m);
+    }
+  }
+}
 
 // luz assada: o PNG/WebP guarda a luz em gama 2.2; o shader volta para linear (decodificação da GPU varia entre aparelhos)
 const LM_EXPOSURE = 1.5;
@@ -223,12 +250,13 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
                 s.opacity = Math.min(s.opacity, 0.12);
               }
               if (s.transparent && s.opacity < 0.6) {
-                // vidro: quase invisível, só o reflexo
+                // vidro: escuro e liso, mostra o reflexo da loja (mais forte de lado, como vidro de verdade)
                 s.depthWrite = false;
                 s.roughness = 0.03;
                 s.metalness = 0;
-                s.opacity = Math.min(s.opacity, 0.15);
-                s.envMapIntensity = 0.7;
+                s.color.multiplyScalar(0.4);
+                s.opacity = Math.min(s.opacity, 0.18);
+                s.envMapIntensity = 3.2;
                 continue;
               }
               if (s.emissive && s.emissive.getHex() !== 0) continue;
@@ -239,6 +267,8 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
       );
       if (disposed) return;
       scene.add(root);
+
+      if (plan.leds) addLeds(scene, plan.leds);
 
       if (plan.backdrop) {
         // lá fora: cilindro em volta da loja com a paisagem desfocada (como numa foto de interior)
@@ -323,6 +353,7 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
         <button type="button" className="sala3d__close" onClick={leave}>Concluir</button>
       )}
       {loading && <div className="sala3d__loading">Montando a sua loja…</div>}
+      {on && (
       <div className="sala3d__views" role="group" aria-label="Vistas da loja">
         {plan.views.map((v, i) => (
           <button
@@ -338,6 +369,7 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
           </button>
         ))}
       </div>
+      )}
       {on && <p className="sala3d__hint">Arraste para olhar em volta · pinça para aproximar</p>}
     </div>
   );

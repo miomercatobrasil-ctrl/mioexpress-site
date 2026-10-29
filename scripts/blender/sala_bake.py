@@ -488,12 +488,17 @@ def fill_fridges(fill):
     log(f"geladeiras preenchidas: {n} peças copiadas")
 
 
-# simplifica peças pesadas (latas, sacolas) antes de juntar
+# simplifica antes de juntar. Só as latas e garrafas da geladeira de referência (milhares, copiadas para as
+# outras geladeiras) viram peças bem leves; nas demais embalagens a simplificação forte desmanchava a forma e a
+# textura (pareciam transparentes), então só peças muito pesadas são reduzidas
+heavy = {m.name for n in CFG.get("heavy", []) if bpy.data.objects.get(n) for m in mesh_desc(bpy.data.objects[n])}
 for o in [o for o in bpy.data.objects if o.type == "MESH"]:
     n = len(o.data.polygons)
-    if n > 120:
+    if o.name in heavy and n > 120:
         d = diag(o)
         decimate(o, 48 if d < 0.35 else 1500 if d < 1.2 else 20000)
+    elif n > 4000:
+        decimate(o, 4000)
 
 # depois de simplificar: as cópias usam as peças leves
 if CFG.get("fill"):

@@ -8,10 +8,23 @@ const ProjetoViewer = dynamic(() => import("@/scene/sala/ProjetoViewer"), {
   loading: () => <div className="sala3d"><div className="sala3d__loading">Montando a sua loja…</div></div>,
 });
 
+type V3 = [number, number, number];
+// fitas de LED: embaixo de cada prateleira do armário (4 módulos) e nas laterais internas das geladeiras
+const ARMARIO: [number, number][] = [[1.95, 2.7], [2.78, 3.53], [3.61, 4.37], [4.45, 5.21]];
+const LEDS: { a: V3; b: V3; cool?: boolean }[] = [
+  ...[0.52, 0.82, 1.06, 1.33, 1.6, 1.95].flatMap((y) => ARMARIO.map(([x0, x1]) => ({ a: [x0, y, 0.43] as V3, b: [x1, y, 0.43] as V3 }))),
+  // parede esquerda (frente para +x) e geladeira ao lado do totem (frente para −x)
+  ...[0.99, 1.53, 1.77, 2.3].map((z) => ({ a: [0.85, 0.38, z] as V3, b: [0.85, 1.94, z] as V3, cool: true })),
+  ...[3.24, 3.66].map((z) => ({ a: [3.845, 0.38, z] as V3, b: [3.845, 1.94, z] as V3, cool: true })),
+  // parede da entrada (frente para −z)
+  ...[0.15, 0.71, 0.86, 1.42, 1.57, 2.13, 2.28, 2.84].map((x) => ({ a: [x, 0.38, 5.07] as V3, b: [x, 1.94, 5.07] as V3, cool: true })),
+];
+
 // projeto da arquiteta (modelo SketchUp convertido e com luz assada: scripts/blender/sala_bake.py)
 const PLAN_V8K3: ProjetoPlan = {
   base: "/models/p/v8k3/",
   backdrop: "/images/p/janela.jpg",
+  leds: LEDS,
   bounds: { x: [0.35, 5.0], z: [0.6, 5.35], h: 2.9 },
   floor: [[0, 0], [5.45, 0], [5.45, 5.7], [0, 5.7]],
   views: [
