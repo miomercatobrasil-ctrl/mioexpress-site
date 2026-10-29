@@ -5,13 +5,14 @@ import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import sharp from "sharp";
 
 const [src, out] = process.argv.slice(2);
+const MAX = Number(process.env.TEX_MAX || 1024);
 const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
 const doc = await io.read(src);
 let jpg = 0, png = 0;
 for (const tex of doc.getRoot().listTextures()) {
   const img = tex.getImage();
   if (!img) continue;
-  const s = sharp(Buffer.from(img)).resize({ width: 1024, height: 1024, fit: "inside", withoutEnlargement: true });
+  const s = sharp(Buffer.from(img)).resize({ width: MAX, height: MAX, fit: "inside", withoutEnlargement: true });
   const { channels, isOpaque } = await sharp(Buffer.from(img)).stats();
   if (channels < 4 || isOpaque) {
     tex.setImage(new Uint8Array(await s.flatten({ background: "#ffffff" }).jpeg({ quality: 82, mozjpeg: true }).toBuffer())).setMimeType("image/jpeg");
