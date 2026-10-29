@@ -61,6 +61,8 @@ const PLAN_V8K3: ProjetoPlan = {
   leds: LEDS,
   fridges: FRIDGES,
   sacks: SACKS,
+  // chegada: do corredor, olhando pela porta de vidro (x 3,5–4,3; z 5,75); a porta abre para dentro
+  entry: { position: [3.95, 1.6, 6.25], target: [3.5, 1.25, 3.0], door: "porta", hinge: [4.3, 5.75], angle: -1.75 },
   freezer: { x: [0.12, 0.6], z: [2.62, 3.72], y: 0.62, rows: 2, cols: 7 },
   bounds: { x: [0.35, 5.0], z: [0.6, 5.35], h: 2.9, door: { x: [3.6, 4.2], z: 5.66 } },
   floor: [[0, 0], [5.45, 0], [5.45, 5.7], [0, 5.7]],

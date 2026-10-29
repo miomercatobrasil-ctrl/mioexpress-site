@@ -21,6 +21,8 @@ export type ProjetoPlan = {
   backdrop?: string;
   /** fitas de LED visíveis (a luz que elas jogam já está no bake): segmento de a até b, cor quente ou fria */
   leds?: { a: V3; b: V3; cool?: boolean }[];
+  /** chegada: começa do lado de fora, olhando pela porta de vidro; ao explorar, a porta abre e a câmera entra */
+  entry?: { position: V3; target: V3; door: string; hinge: [number, number]; angle: number };
   /** freezer horizontal para encher com os picolés Los Los do site */
   freezer?: { x: [number, number]; z: [number, number]; y: number; rows: number; cols: number };
   /** bebidas do site nas geladeiras (no lugar das garrafas ocas do projeto, escondidas por nome de material) */
@@ -164,6 +166,7 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
   const box = useRef<HTMLDivElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const goRef = useRef<(i: number) => void>(() => {});
+  const enterRef = useRef<() => void>(() => {});
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState(0);
   // no celular, o 3D só captura o toque depois de "Explorar" (senão trava a rolagem da página)
@@ -172,6 +175,7 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
   // explorar = tela cheia (API do navegador; no iPhone, que não tem a API para elementos, ocupa a tela via CSS)
   const enter = () => {
     setOn(true);
+    enterRef.current();
     const el = wrap.current;
     if (el?.requestFullscreen) el.requestFullscreen().catch(() => {});
   };
@@ -221,17 +225,12 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
     controls.addEventListener("change", request);
     let disposed = false;
 
-    const setView = (i: number, animate: boolean) => {
-      const v = plan.views[i];
-      if (!animate) {
-        camera.position.set(...v.position);
-        controls.target.set(...v.target);
-        controls.update();
-        return request();
-      }
+    // lá fora (antes de entrar) e durante as animações a câmera não fica presa dentro da sala
+    let free = !!plan.entry;
+    const fly = (pos: V3, tgt: V3, dur: number, done?: () => void) => {
       const p0 = camera.position.clone(), t0 = controls.target.clone();
-      const p1 = new THREE.Vector3(...v.position), t1 = new THREE.Vector3(...v.target);
-      const start = performance.now(), dur = 1100;
+      const p1 = new THREE.Vector3(...pos), t1 = new THREE.Vector3(...tgt);
+      const start = performance.now();
       const step = (now: number) => {
         if (disposed) return;
         const k = Math.min(1, (now - start) / dur), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
@@ -240,11 +239,47 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
         controls.update();
         request();
         if (k < 1) requestAnimationFrame(step);
+        else done?.();
       };
       requestAnimationFrame(step);
     };
-    goRef.current = (i) => setView(i, true);
-    setView(0, false);
+    const setView = (i: number, animate: boolean) => {
+      const v = plan.views[i];
+      if (!animate) {
+        camera.position.set(...v.position);
+        controls.target.set(...v.target);
+        controls.update();
+        return request();
+      }
+      fly(v.position, v.target, 1100);
+    };
+    goRef.current = (i) => {
+      free = false;
+      setView(i, true);
+    };
+    // porta: gira em torno da dobradiça (o objeto é preso a um pivô quando o modelo carrega)
+    let doorPivot: THREE.Object3D | null = null;
+    let entered = !plan.entry;
+    enterRef.current = () => {
+      if (entered || !plan.entry) return;
+      entered = true;
+      const a1 = plan.entry.angle, start = performance.now(), dur = 900;
+      const swing = (now: number) => {
+        if (disposed || !doorPivot) return;
+        const k = Math.min(1, (now - start) / dur);
+        doorPivot.rotation.y = a1 * (1 - Math.pow(1 - k, 3));
+        request();
+        if (k < 1) requestAnimationFrame(swing);
+      };
+      requestAnimationFrame(swing);
+      const v = plan.views[0];
+      setTimeout(() => fly(v.position, v.target, 1800, () => (free = false)), 450);
+    };
+    if (plan.entry) {
+      camera.position.set(...plan.entry.position);
+      controls.target.set(...plan.entry.target);
+      controls.update();
+    } else setView(0, false);
 
     const resize = () => {
       const w = el.clientWidth, h = el.clientHeight;
@@ -343,6 +378,15 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
       );
       if (disposed) return;
       scene.add(root);
+      root.updateMatrixWorld(true);
+      const door = plan.entry && root.getObjectByName(plan.entry.door);
+      if (door && plan.entry) {
+        doorPivot = new THREE.Group();
+        doorPivot.position.set(plan.entry.hinge[0], 0, plan.entry.hinge[1]);
+        scene.add(doorPivot);
+        doorPivot.updateMatrixWorld(true);
+        doorPivot.attach(door);
+      }
 
       if (plan.leds) addLeds(scene, plan.leds);
       if (plan.sacks) {
@@ -414,6 +458,13 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
       if (controls.update()) dirty = true;
       // mantém a câmera dentro da sala
       const c = camera.position;
+      if (free) {
+        if (dirty) {
+          renderer.render(scene, camera);
+          dirty = false;
+        }
+        return;
+      }
       c.x = THREE.MathUtils.clamp(c.x, b.x[0], b.x[1]);
       c.y = THREE.MathUtils.clamp(c.y, 0.5, b.h - 0.25);
       // no vão da porta a câmera pode ir até a soleira (para a vista de quem está entrando)
