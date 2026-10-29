@@ -1,5 +1,5 @@
 {
- "gain": 0.39956602454185486,
+ "gain": 0.39814111590385437,
  "objects": [
   "porta",
   "gondola",
@@ -9,6 +9,7 @@
   "freezer",
   "totens",
   "geladeiras2",
-  "geladeiras"
+  "geladeiras",
+  "teto"
  ]
 }

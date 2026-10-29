@@ -16,6 +16,8 @@ export type ProjetoPlan = {
   /** piso em L para o reflexo (pontos x, z) */
   floor: [number, number][];
   views: { label: string; position: V3; target: V3 }[];
+  /** imagem vista pelas janelas (panorama em volta da loja; horizonte a 30% da altura) */
+  backdrop?: string;
 };
 
 // luz assada: o PNG/WebP guarda a luz em gama 2.2; o shader volta para linear (decodificação da GPU varia entre aparelhos)
@@ -80,11 +82,36 @@ function bakeMaterial(mat: THREE.MeshStandardMaterial, lm: THREE.Texture) {
 /** Loja do projeto da arquiteta, com luz assada, navegável (girar, aproximar e vistas prontas). */
 export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
   const box = useRef<HTMLDivElement>(null);
+  const wrap = useRef<HTMLDivElement>(null);
   const goRef = useRef<(i: number) => void>(() => {});
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState(0);
   // no celular, o 3D só captura o toque depois de "Explorar" (senão trava a rolagem da página)
   const [on, setOn] = useState(false);
+
+  // explorar = tela cheia (API do navegador; no iPhone, que não tem a API para elementos, ocupa a tela via CSS)
+  const enter = () => {
+    setOn(true);
+    const el = wrap.current;
+    if (el?.requestFullscreen) el.requestFullscreen().catch(() => {});
+  };
+  const leave = () => {
+    setOn(false);
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  };
+  useEffect(() => {
+    // Esc ou o botão de voltar do sistema saem da tela cheia: volta ao modo normal
+    const onChange = () => {
+      if (!document.fullscreenElement) setOn(false);
+    };
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+  useEffect(() => {
+    // tela cheia via CSS (iPhone): trava a rolagem da página por baixo
+    document.documentElement.classList.toggle("sala3d-lock", on);
+    return () => document.documentElement.classList.remove("sala3d-lock");
+  }, [on]);
 
   useEffect(() => {
     const el = box.current!;
@@ -213,6 +240,20 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
       if (disposed) return;
       scene.add(root);
 
+      if (plan.backdrop) {
+        // lá fora: cilindro em volta da loja com a paisagem desfocada (como numa foto de interior)
+        const tex = await new THREE.TextureLoader().loadAsync(plan.backdrop);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.repeat.x = 2;
+        const cyl = new THREE.Mesh(
+          new THREE.CylinderGeometry(14, 14, 10, 48, 1, true),
+          new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide, toneMapped: false }),
+        );
+        cyl.position.set((plan.bounds.x[0] + plan.bounds.x[1]) / 2, 2.5, (plan.bounds.z[0] + plan.bounds.z[1]) / 2);
+        scene.add(cyl);
+      }
+
       // piso: reflexo real (espelho fraco e desfocado pela rugosidade da madeira)
       const shape = new THREE.Shape(plan.floor.map(([x, z]) => new THREE.Vector2(x, -z)));
       const mirror = new Reflector(new THREE.ShapeGeometry(shape), {
@@ -273,13 +314,13 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
   }, [plan]);
 
   return (
-    <div className={`sala3d${on ? " is-on" : ""}`}>
+    <div ref={wrap} className={`sala3d${on ? " is-on" : ""}`}>
       <div ref={box} className="sala3d__canvas" />
       {!loading && !on && (
-        <button type="button" className="sala3d__start" onClick={() => setOn(true)}>Explorar a loja</button>
+        <button type="button" className="sala3d__start" onClick={enter}>Explorar a loja</button>
       )}
       {on && (
-        <button type="button" className="sala3d__close" onClick={() => setOn(false)}>Concluir</button>
+        <button type="button" className="sala3d__close" onClick={leave}>Concluir</button>
       )}
       {loading && <div className="sala3d__loading">Montando a sua loja…</div>}
       <div className="sala3d__views" role="group" aria-label="Vistas da loja">

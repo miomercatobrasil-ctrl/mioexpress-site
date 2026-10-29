@@ -223,6 +223,9 @@ def tune_material(m):
         b.inputs["Roughness"].default_value = 0.03
         b.inputs["Metallic"].default_value = 0.0
         m["mio_glass"] = 1
+        # vidro deixa passar o sol no bake (o export do SketchUp trazia alguns vidros opacos)
+        b.inputs["Alpha"].default_value = min(b.inputs["Alpha"].default_value, 0.12)
+        m.surface_render_method = "BLENDED"
     if en.get("Type") == "SELF_ILLUMINATED":
         col = hexrgb(en.get("EmissiveColor", "#FFFFFF"))
         warm = [1.0, 0.86, 0.68]
@@ -537,6 +540,32 @@ for m in {s.material for o in objs for s in o.material_slots if s.material}:
     tune_material(m)
     m.use_backface_culling = False
 log("emissivos:", EMISSIVE)
+
+def add_ceiling(c):
+    """Teto liso (o modelo do SketchUp não tem laje sobre a loja; aparecia o fundo da cena)."""
+    x0, x1, z0, z1, y = c["x"][0], c["x"][1], c["z"][0], c["z"][1], c["y"]
+    me = bpy.data.meshes.new("teto")
+    verts = [S(x0, y, z0), S(x1, y, z0), S(x1, y, z1), S(x0, y, z1)]
+    me.from_pydata([tuple(v) for v in verts], [], [(0, 1, 2, 3)])  # normal para baixo (para dentro da loja)
+    me.update()
+    uv = me.uv_layers.new(name="UVMap")
+    for loop in me.loops:
+        co = verts[loop.vertex_index]
+        uv.data[loop.index].uv = ((co.x - x0) / 2, (-co.y - z0) / 2)
+    mat = bpy.data.materials.new("teto_branco")
+    mat.use_nodes = True
+    b = bsdf(mat)
+    b.inputs["Base Color"].default_value = (0.86, 0.84, 0.8, 1)
+    b.inputs["Roughness"].default_value = 0.9
+    me.materials.append(mat)
+    o = bpy.data.objects.new("teto", me)
+    bpy.context.scene.collection.objects.link(o)
+    return o
+
+
+if CFG.get("ceiling"):
+    objs.append(add_ceiling(CFG["ceiling"]))
+    CFG["sizes"].setdefault("teto", 1024)
 
 for o in objs:
     nsmall = lightmap_uv(o)

@@ -3187,6 +3187,10 @@ body:has(.ambiente.is-explore) .wa-float {
 .sala3d { position: relative; margin-top: 24px; height: min(72vh, 640px); min-height: 420px; border-radius: var(--radius-lg); overflow: hidden; background: #e6e9ea; }
 .sala3d:not(.is-on) .sala3d__canvas { pointer-events: none; }
 .sala3d.is-on .sala3d__canvas { touch-action: none; }
+/* explorar: tela cheia (fallback por CSS quando o navegador não tem a API, como no iPhone) */
+.sala3d.is-on { position: fixed; inset: 0; z-index: 1000; height: auto; min-height: 0; margin: 0; border-radius: 0; }
+.sala3d.is-on:fullscreen { position: relative; }
+html.sala3d-lock, html.sala3d-lock body { overflow: hidden; }
 .sala3d__start { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); border: 0; border-radius: 99px; padding: 16px 26px; font: inherit; font-weight: 700; background: var(--vinho); color: var(--white); cursor: pointer; box-shadow: 0 10px 30px rgba(59, 13, 20, 0.35); }
 .sala3d__close { position: absolute; top: 12px; right: 12px; border: 0; border-radius: 99px; padding: 8px 14px; font: inherit; font-weight: 600; font-size: 13px; background: var(--white); color: var(--ink); cursor: pointer; }
 .sala3d__canvas { position: absolute; inset: 0; }
