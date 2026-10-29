@@ -597,3 +597,52 @@ export async function freezerPicoles(f: { x: [number, number]; z: [number, numbe
   mesh.computeBoundingSphere();
   return mesh;
 }
+
+/** Fileiras de bebidas do site (mesmos rótulos) dentro de geladeiras quaisquer. Usado na loja projetada das
+ *  propostas, onde as garrafas do projeto SketchUp ficavam ocas. front: centro da borda da prateleira (x, z);
+ *  inward: para dentro da geladeira; rows: altura da prateleira e produto. */
+export async function fridgeRows(fridges: { front: [number, number]; inward: [number, number]; width: number; rows: { y: number; product: string }[] }[]) {
+  const json = (await (await fetch(BASE + "produtos.json")).json()) as Record<string, number[]>;
+  const img = new Image();
+  img.decoding = "async";
+  img.src = BASE + "produtos.webp";
+  await img.decode();
+  const map = new THREE.Texture(img);
+  map.colorSpace = THREE.SRGBColorSpace;
+  map.anisotropy = 8;
+  map.needsUpdate = true;
+  const byShape = new Map<ShapeId, { m: THREE.Matrix4; uv: number[] }[]>();
+  const o = new THREE.Object3D();
+  for (const f of fridges) {
+    const [ix, iz] = f.inward;
+    const rx = -iz, rz = ix;
+    const yaw = Math.atan2(-ix, -iz);
+    for (const r of f.rows) {
+      const shape = PRODUCT[r.product];
+      const fp = footprint(SHAPES[shape]);
+      const n = Math.floor((f.width - 0.04) / (fp.w + 0.004));
+      for (let k = 0; k < n; k++)
+        for (let d = 0; d < 2; d++) {
+          const across = (k - (n - 1) / 2) * (fp.w + 0.004);
+          const inward = 0.03 + fp.d / 2 + d * (fp.d + 0.004);
+          o.position.set(f.front[0] + rx * across + ix * inward, r.y, f.front[1] + rz * across + iz * inward);
+          o.rotation.set(0, yaw, 0);
+          o.updateMatrix();
+          const list = byShape.get(shape) ?? [];
+          list.push({ m: o.matrix.clone(), uv: json[r.product] });
+          byShape.set(shape, list);
+        }
+    }
+  }
+  const mat = makeMaterial(map, true, true);
+  return [...byShape].map(([shape, list]) => {
+    const g = buildGeometry(SHAPES[shape]);
+    g.setAttribute("aTile", new THREE.InstancedBufferAttribute(new Float32Array(list.flatMap((i) => i.uv)), 4));
+    g.setAttribute("aLit", new THREE.InstancedBufferAttribute(new Float32Array(list.flatMap(() => [1, 1])), 2));
+    const mesh = new THREE.InstancedMesh(g, mat, list.length);
+    list.forEach((i, k) => mesh.setMatrixAt(k, i.m));
+    mesh.instanceMatrix.needsUpdate = true;
+    mesh.computeBoundingSphere();
+    return mesh;
+  });
+}
