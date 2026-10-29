@@ -20,11 +20,23 @@ const LEDS: { a: V3; b: V3; cool?: boolean }[] = [
   ...[0.15, 0.71, 0.86, 1.42, 1.57, 2.13, 2.28, 2.84].map((x) => ({ a: [x, 0.38, 5.07] as V3, b: [x, 1.94, 5.07] as V3, cool: true })),
 ];
 
+// geladeiras do projeto: as garrafas (copiadas no bake) ficavam ocas; viram as garrafas de água do site
+const AGUA = [0.567, 0.877].map((y) => ({ y, product: "crystal" }));
+const FRIDGES = {
+  hide: /acrylic|^__auto_\d*$/i,
+  list: [
+    ...[1.259, 2.035].map((z) => ({ front: [0.82, z] as [number, number], inward: [-1, 0] as [number, number], width: 0.5, rows: AGUA })),
+    { front: [3.87, 3.447] as [number, number], inward: [1, 0] as [number, number], width: 0.42, rows: AGUA },
+    ...[0.43, 1.14, 1.85, 2.56].map((x) => ({ front: [x, 5.1] as [number, number], inward: [0, 1] as [number, number], width: 0.5, rows: AGUA })),
+  ],
+};
+
 // projeto da arquiteta (modelo SketchUp convertido e com luz assada: scripts/blender/sala_bake.py)
 const PLAN_V8K3: ProjetoPlan = {
   base: "/models/p/v8k3/",
   backdrop: "/images/p/janela.jpg",
   leds: LEDS,
+  fridges: FRIDGES,
   freezer: { x: [0.12, 0.6], z: [2.62, 3.72], y: 0.62, rows: 2, cols: 7 },
   bounds: { x: [0.35, 5.0], z: [0.6, 5.35], h: 2.9 },
   floor: [[0, 0], [5.45, 0], [5.45, 5.7], [0, 5.7]],

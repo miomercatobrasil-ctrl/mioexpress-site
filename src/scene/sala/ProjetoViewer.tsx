@@ -6,7 +6,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { Reflector } from "three/examples/jsm/objects/Reflector.js";
-import { freezerPicoles } from "../Products";
+import { freezerPicoles, fridgeRows } from "../Products";
 
 type V3 = [number, number, number];
 export type ProjetoPlan = {
@@ -23,6 +23,8 @@ export type ProjetoPlan = {
   leds?: { a: V3; b: V3; cool?: boolean }[];
   /** freezer horizontal para encher com os picolés Los Los do site */
   freezer?: { x: [number, number]; z: [number, number]; y: number; rows: number; cols: number };
+  /** bebidas do site nas geladeiras (no lugar das garrafas ocas do projeto, escondidas por nome de material) */
+  fridges?: { hide: RegExp; list: Parameters<typeof fridgeRows>[0] };
 };
 
 /** Fitas de LED acesas: barra fina brilhante + halo suave (soma de luz), como numa foto de loja à noite. */
@@ -98,14 +100,15 @@ function bakeMaterial(mat: THREE.MeshStandardMaterial, lm: THREE.Texture) {
         #endif
         #include <lights_fragment_maps>
         #ifdef USE_LIGHTMAP
-          // reflexo do ambiente (a própria sala) por cima do bake, sem somar luz difusa extra
+          // reflexo do ambiente (a própria sala) por cima do bake, só em superfícies lisas: em paredes e teto
+          // foscos o mapa de reflexo, de baixa resolução, aparecia como manchas (placas de vídeo de verdade)
           iblIrradiance = vec3( 0.0 );
-          radiance *= 0.6;
+          radiance *= 0.6 * pow( clamp( 1.0 - roughnessFactor, 0.0, 1.0 ), 3.0 );
         #endif`,
       )
       .replace("vec4 lightMapTexel = texture2D( lightMap, vLightMapUv );", "vec4 lightMapTexel = vec4( 0.0 );");
   };
-  mat.customProgramCacheKey = () => "mio-sala-lm1";
+  mat.customProgramCacheKey = () => "mio-sala-lm2";
   mat.needsUpdate = true;
 }
 
@@ -267,8 +270,10 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
                 s.alphaTest = 0.5;
                 s.depthWrite = true;
               }
-              // plástico das garrafas (água): quase opaco, levemente azulado, com brilho
-              if (/acrylic|^__auto_$/i.test(s.name)) {
+              // plástico das garrafas (água): quase opaco, levemente azulado, com brilho. Nas geladeiras, todo
+              // material transparente que não é a porta de vidro é garrafa
+              const inFridge = name === "geladeiras" || name === "geladeiras2";
+              if (/acrylic|^__auto_$/i.test(s.name) || (inFridge && s.transparent && !/glass|vidro/i.test(s.name))) {
                 s.color.set("#dfe9ee");
                 s.transparent = true;
                 s.opacity = 0.88;
@@ -310,7 +315,7 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
               }
               bakeMaterial(s, lm);
               // dentro das geladeiras: as bebidas ficam iluminadas pelo LED interno (luz fria por cima do bake)
-              if ((name === "geladeiras" || name === "geladeiras2") && !/270920128|skol|A06|M08|METAL|Grate|Gray|Branco|Color_00[18]/i.test(s.name)) {
+              if (inFridge && !/270920128|skol|A06|M08|METAL|Grate|Gray|Branco|Color_00[18]/i.test(s.name)) {
                 s.emissive.setRGB(0.85, 0.92, 1.0);
                 s.emissiveIntensity = s.map ? 0.45 : 0.3;
                 if (s.map) s.emissiveMap = s.map;
@@ -323,6 +328,14 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
       scene.add(root);
 
       if (plan.leds) addLeds(scene, plan.leds);
+      if (plan.fridges) {
+        const hide = plan.fridges.hide;
+        root.traverse((o) => {
+          const m = o as THREE.Mesh;
+          if (m.isMesh && /geladeiras/.test(m.parent?.name ?? "") && ([] as THREE.Material[]).concat(m.material).every((x) => hide.test(x.name))) m.visible = false;
+        });
+        for (const mesh of await fridgeRows(plan.fridges.list).catch(() => [])) scene.add(mesh);
+      }
       if (plan.freezer) scene.add(await freezerPicoles(plan.freezer).catch(() => new THREE.Object3D()));
 
       if (plan.backdrop) {
