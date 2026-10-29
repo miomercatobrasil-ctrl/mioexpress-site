@@ -13,7 +13,7 @@ export type ProjetoPlan = {
   /** pasta com sala.glb, lightmaps.json e lightmaps/ (gerados por scripts/blender/sala_bake.py) */
   base: string;
   /** limites da câmera (m): x, z e o recorte em L (acima de zNotch, x máximo vira xNotch) */
-  bounds: { x: [number, number]; z: [number, number]; h: number; zNotch?: number; xNotch?: number };
+  bounds: { x: [number, number]; z: [number, number]; h: number; zNotch?: number; xNotch?: number; door?: { x: [number, number]; z: number } };
   /** piso em L para o reflexo (pontos x, z) */
   floor: [number, number][];
   views: { label: string; position: V3; target: V3 }[];
@@ -416,7 +416,9 @@ export default function ProjetoViewer({ plan }: { plan: ProjetoPlan }) {
       const c = camera.position;
       c.x = THREE.MathUtils.clamp(c.x, b.x[0], b.x[1]);
       c.y = THREE.MathUtils.clamp(c.y, 0.5, b.h - 0.25);
-      c.z = THREE.MathUtils.clamp(c.z, b.z[0], b.z[1]);
+      // no vão da porta a câmera pode ir até a soleira (para a vista de quem está entrando)
+      const atDoor = b.door && c.x >= b.door.x[0] && c.x <= b.door.x[1];
+      c.z = THREE.MathUtils.clamp(c.z, b.z[0], atDoor ? b.door!.z : b.z[1]);
       if (b.zNotch !== undefined && b.xNotch !== undefined && c.z > b.zNotch && c.x > b.xNotch) c.x = b.xNotch;
       if (dirty) {
         renderer.render(scene, camera);

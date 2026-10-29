@@ -62,10 +62,11 @@ const PLAN_V8K3: ProjetoPlan = {
   fridges: FRIDGES,
   sacks: SACKS,
   freezer: { x: [0.12, 0.6], z: [2.62, 3.72], y: 0.62, rows: 2, cols: 7 },
-  bounds: { x: [0.35, 5.0], z: [0.6, 5.35], h: 2.9 },
+  bounds: { x: [0.35, 5.0], z: [0.6, 5.35], h: 2.9, door: { x: [3.6, 4.2], z: 5.66 } },
   floor: [[0, 0], [5.45, 0], [5.45, 5.7], [0, 5.7]],
   views: [
-    { label: "Entrada", position: [3.3, 1.6, 5.3], target: [3.1, 1.1, 0.5] },
+    // na porta (x 3,5–4,3; z 5,75), como quem acaba de entrar
+    { label: "Entrada", position: [3.9, 1.62, 5.62], target: [2.6, 1.1, 1.4] },
     { label: "Armário", position: [3.6, 1.55, 2.3], target: [3.6, 1.2, 0] },
     { label: "Geladeiras", position: [3.0, 1.55, 2.4], target: [0, 1.1, 1.5] },
     { label: "Gôndola", position: [1.3, 1.6, 4.6], target: [2.5, 0.8, 2.3] },
