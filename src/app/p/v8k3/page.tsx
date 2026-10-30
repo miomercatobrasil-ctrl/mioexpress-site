@@ -13,6 +13,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+const RENDERS = [
+  ["projeto-1", "Projeto da loja Mio: entrada com gôndola, armário iluminado e geladeiras"],
+  ["projeto-2", "Projeto da loja Mio: geladeiras de bebidas e freezer Los Los"],
+  ["projeto-3", "Projeto da loja Mio: armário Mio, gôndola e janelas com vista para o jardim"],
+];
+
 const FOTOS = [
   ["loja3-frente-b", "Armário Mio com iluminação"],
   ["loja3-geladeiras", "Geladeiras de bebidas"],
@@ -43,9 +49,13 @@ export default function Proposta() {
           <p className="eyebrow">O projeto</p>
           <h2 className="h2">A Mio pensada <span className="is-accent">para o seu espaço.</span></h2>
           <figure className="proposta__render">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/p/projeto.jpg" alt="Projeto da loja Mio para o condomínio: armário iluminado, geladeiras, gôndola e totem" width={1800} height={955} loading="lazy" />
-            <figcaption>Projeto: Daniele Faustino Arquitetura &amp; Interiores · imagem ilustrativa</figcaption>
+            <div className="proposta__renders">
+              {RENDERS.map(([f, alt]) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img key={f} src={`/images/p/${f}.jpg`} alt={alt} width={1600} height={900} loading="lazy" />
+              ))}
+            </div>
+            <figcaption>Projeto: Daniele Faustino Arquitetura &amp; Interiores · imagens ilustrativas</figcaption>
           </figure>
         </section>
 

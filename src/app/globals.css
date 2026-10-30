@@ -3218,4 +3218,7 @@ html.sala3d-lock, html.sala3d-lock body { overflow: hidden; }
 }
 .proposta__render { margin: 24px 0 0; }
 .proposta__render img { display: block; width: 100%; height: auto; border-radius: var(--radius-lg); box-shadow: 0 24px 60px rgba(43, 29, 26, 0.18); }
+.proposta__renders { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.proposta__renders img:first-child { grid-column: 1 / -1; }
+@media (max-width: 640px) { .proposta__renders { grid-template-columns: 1fr; gap: 12px; } }
 .proposta__render figcaption { margin-top: 10px; font-size: 13px; color: var(--muted); }
