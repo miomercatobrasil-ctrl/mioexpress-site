@@ -21,6 +21,8 @@ const KIT = f("marketing/posts/12-concurso-churrasco/kit.jpg");
 // vencedor do concurso: VENCEDOR="@perfil" FRASE="trecho do comentário" node marketing/gerador/posts.mjs 13
 const VENCEDOR = process.env.VENCEDOR || "@vencedor";
 const FRASE = process.env.FRASE || "Trecho do comentário vencedor aqui.";
+const BF_PCT = process.env.BF_PCT || "10";
+const BF_CUPOM = process.env.BF_CUPOM || "MIOBLACK10";
 const LOGO = f("public/brand/logo.svg");
 const LOGO_W = f("public/brand/logo-white.svg");
 
@@ -385,20 +387,35 @@ Obrigado a todo mundo que participou! Teve muita resposta boa, e vem mais ação
 #concursocultural #churrasco #churrascocomosvizinhos #saojosedoscampos #jacarei #condominio #mioexpress`,
   },
   {
-    id: "14-black-friday-fila",
+    id: "14-black-friday",
+    // percentual e cupom da Black Friday (o código no totem precisa ter 8+ caracteres, maiúsculas e números)
     slides: () => [
-      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja4-morador")});background-position:50% 40%"></div>
-        <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">Black Friday</p>
-        <h1 class="mt1" style="font-size:96px">Fila? Trânsito?<br><em>Aqui não.</em></h1>
-        <p class="lead mt1">Desce de chinelo, pega o que precisa<br>e paga no totem em 1 minuto. 24h.</p></div>${rodape()}</div>`,
+      `<div class="s" style="color:#fffdf9;background:#120709;align-items:center;text-align:center">
+        <div style="position:absolute;inset:0;background:url(${FOTO("loja3-letreiro")}) 50% 40%/cover;opacity:.55"></div>
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse 90% 70% at 50% 55%, rgba(18,7,9,.55) 0%, rgba(18,7,9,.92) 60%, #120709 100%)"></div>
+        <div class="z" style="margin-top:20px"><p class="eyebrow" style="color:#e2c48f;letter-spacing:.32em">Mio Express apresenta</p>
+        <p style="font-size:120px;font-weight:800;letter-spacing:-.02em;line-height:1;margin-top:22px">BLACK<br>FRIDAY</p></div>
+        <div class="z" style="margin-top:46px;display:flex;align-items:flex-start;gap:6px;color:#e2c48f">
+          <span style="font-size:300px;font-weight:800;line-height:.82;letter-spacing:-.06em;background:linear-gradient(180deg,#f3dcaa 0%,#b08d57 60%,#8a6a3a 100%);-webkit-background-clip:text;color:transparent">${BF_PCT}</span>
+          <span style="font-size:120px;font-weight:800;line-height:1;margin-top:10px">%</span></div>
+        <p class="z" style="font-size:58px;font-weight:700;margin-top:6px;letter-spacing:.06em">OFF EM TUDO</p>
+        <p class="z" style="font-size:34px;font-weight:600;margin-top:18px;opacity:.85">Só nesta sexta, 27/11 · 24h na sua Mio</p>
+        <div class="z" style="margin-top:40px;border:2px dashed #e2c48f;border-radius:28px;padding:22px 52px">
+          <p style="font-size:22px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#e2c48f">Cupom no totem</p>
+          <p style="font-size:64px;font-weight:800;letter-spacing:.06em;margin-top:4px">${BF_CUPOM}</p></div>
+        <div style="position:absolute;left:0;right:0;bottom:64px;display:flex;justify-content:center;z-index:2"><img src="${LOGO_W}" style="height:58px"></div></div>`,
     ],
-    legenda: `Black Friday chegando e você já sabe: shopping lotado, estacionamento cheio, fila em tudo. 😵‍💫
+    legenda: `🖤 BLACK FRIDAY NA MIO 🖤
 
-Na Mio é o contrário. Desce de chinelo, pega o que precisa, passa no totem e paga com Pix ou cartão. Menos de 1 minuto, 24h por dia, dentro do seu condomínio.
+Nesta sexta, 27/11, é ${BF_PCT}% de desconto em TUDO na sua Mio. Bebidas, snacks, congelados, sorvetes, limpeza… tudo mesmo.
 
-Marca aqui quem vai encarar a fila da Black Friday 👇
+É só digitar o cupom ${BF_CUPOM} no totem na hora de pagar. Vale o dia inteiro, da meia-noite às 23h59.
 
-#blackfriday #mioexpress #mercado24h #condominio #saojosedoscampos #jacarei`,
+Sem fila, sem trânsito, sem estacionamento lotado: só descer de chinelo. 😉
+
+Marca aqui quem precisa saber disso 👇
+
+#blackfriday #mioexpress #condominio #saojosedoscampos #jacarei #mercado24h`,
   },
   {
     id: "15-dia-do-sindico",

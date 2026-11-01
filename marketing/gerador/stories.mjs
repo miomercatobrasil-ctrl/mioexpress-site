@@ -12,6 +12,8 @@ const OUT = join(ROOT, "marketing", "stories");
 const f = (p) => "file://" + join(ROOT, p);
 const HW = (n) => f(`assets/source/halloween/${n}.webp`);
 const FOTO = (n) => f(`assets/source/fotos/${n}.jpg`);
+const BF_PCT = process.env.BF_PCT || "10";
+const BF_CUPOM = process.env.BF_CUPOM || "MIOBLACK10";
 const LOGO_W = f("public/brand/logo-white.svg");
 
 const CSS = `
@@ -47,7 +49,7 @@ const STORIES = [
   { id: "nov-17-sindico", real: "loja3-totem", pos: "50% 40%", eyebrow: "Síndico, post novo", titulo: "5 dúvidas<br>respondidas.", rodape: "Custo, furto, câmera, instalação…<br>Tá tudo no nosso perfil. 📲" },
   { id: "nov-19-leite", real: "loja3-prateleiras", pos: "50% 60%", eyebrow: "23h47", titulo: "Acabou o leite?<br>Desce ali.", rodape: "Sem fila, sem trânsito,<br>sem sair de chinelo. 🌙" },
   { id: "nov-24-custo-zero", real: "loja4-frente", pos: "50% 45%", eyebrow: "Para síndicos", titulo: "Mercado 24h.<br>Custo zero.", rodape: "A Mio instala, abastece<br>e cuida de tudo.<br>Fale com a gente: link na bio." },
-  { id: "nov-26-black-friday", real: "loja2-totem", pos: "50% 55%", eyebrow: "Black Friday", titulo: "Aqui a fila<br>é zero.", rodape: "Pegou, passou no totem, pagou.<br>Menos de 1 minuto. 🛒" },
+  { id: "nov-27-black-friday", bf: true },
   { id: "nov-30-sindico", real: "loja3-perfil", pos: "50% 50%", eyebrow: "30 de novembro", titulo: "Feliz Dia<br>do Síndico!", rodape: "Obrigado a quem cuida<br>de onde a gente mora. 💛" },
 ];
 
@@ -64,6 +66,17 @@ for (const s of STORIES.filter((x) => !process.argv[2] || x.id.startsWith(proces
       : s.cupom === false
       ? `<div class="cupom" style="border-style:solid;border-color:rgba(226,196,143,.5)"><p class="d" style="font-size:40px;line-height:1.35">${s.rodape}</p></div>`
       : `<div class="cupom"><p class="l">Cupom no totem</p><p class="c">MIOWEEN10</p><p class="d">${s.dias}</p></div>`}
+    <div class="logo"><img src="${LOGO_W}"></div></body>`);
+  if (s.bf) writeFileSync(html, `<!doctype html><meta charset="utf-8"><style>${CSS}</style><body style="background:#120709">
+    <div class="bg" style="background-image:url(${FOTO("loja3-letreiro")});background-position:50% 40%;opacity:.5"></div>
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 95% 70% at 50% 52%, rgba(18,7,9,.5) 0%, rgba(18,7,9,.92) 62%, #120709 100%)"></div>
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:260px;z-index:2">
+      <p class="eyebrow" style="letter-spacing:.32em">É hoje!</p>
+      <p style="font-size:150px;font-weight:800;line-height:1;margin-top:24px;letter-spacing:-.02em">BLACK<br>FRIDAY</p>
+      <div style="display:flex;align-items:flex-start;margin-top:50px"><span style="font-size:340px;font-weight:800;line-height:.82;letter-spacing:-.06em;background:linear-gradient(180deg,#f3dcaa 0%,#b08d57 60%,#8a6a3a 100%);-webkit-background-clip:text;color:transparent">${BF_PCT}</span><span style="font-size:140px;font-weight:800;color:#e2c48f;margin-top:10px">%</span></div>
+      <p style="font-size:66px;font-weight:700;letter-spacing:.06em">OFF EM TUDO</p>
+      <p style="font-size:38px;font-weight:600;opacity:.85;margin-top:16px">Só hoje, até 23h59</p></div>
+    <div class="cupom"><p class="l">Cupom no totem</p><p class="c" style="font-size:96px">${BF_CUPOM}</p></div>
     <div class="logo"><img src="${LOGO_W}"></div></body>`);
   await page.goto("file://" + html);
   await page.evaluate(() => document.fonts.ready);
