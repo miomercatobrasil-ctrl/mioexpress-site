@@ -42,7 +42,7 @@ const STORIES = [
   { id: "halloween-sexta", foto: "carrinho-fantasma", eyebrow: "Halloween na Mio", titulo: "Começou!", dias: "10% off em doces · hoje e amanhã" },
   { id: "halloween-sabado", foto: "lata-abobora", eyebrow: "Halloween na Mio", titulo: "Último dia!", dias: "10% off em doces · só hoje" },
   // novembro (fotos reais): chamada para o post do dia e lembretes do 24h
-  { id: "nov-05-jogo", real: "loja3-geladeiras", pos: "50% 55%", eyebrow: "Hoje tem jogo?", titulo: "A geladeira<br>tá logo ali.", rodape: "Cerveja gelada, refri e snacks 24h,<br>dentro do condomínio. ⚽<br><small>Beba com moderação. Proibido para menores de 18 anos.</small>" },
+  { id: "nov-05-jogo", real: "life:jogo-heineken", pos: "50% 50%", eyebrow: "Hoje tem jogo?", titulo: "A geladeira<br>tá logo ali.", rodape: "Cerveja gelada, refri e snacks 24h,<br>dentro do condomínio. ⚽<br><small>Beba com moderação. Proibido para menores de 18 anos.</small>" },
   { id: "nov-10-franquia", real: "loja3-frente-b", pos: "50% 60%", eyebrow: "Post novo no feed", titulo: "A Mio não<br>é franquia.", rodape: "E por isso o preço é mais justo.<br>Vem ver no nosso perfil 👀" },
   { id: "nov-12-picole", real: "loslos-picoles", pos: "50% 50%", eyebrow: "Calor?", titulo: "Picolé Los Los<br>a poucos passos.", rodape: "Pistache, choco dubai, ovomaltine…<br>Qual é o seu? 🍦" },
   { id: "nov-15-feriado", real: "loja4-ambiente", pos: "50% 50%", eyebrow: "Feriado", titulo: "A Mio<br>não fecha.", rodape: "Esqueceu algo? Desce ali.<br>Aberto 24h, todos os dias." },
