@@ -11,7 +11,7 @@ const ROOT = join(HERE, "..", "..");
 const OUT = join(ROOT, "marketing", "stories");
 const f = (p) => "file://" + join(ROOT, p);
 const HW = (n) => f(`assets/source/halloween/${n}.webp`);
-const FOTO = (n) => f(`assets/source/fotos/${n}.jpg`);
+const FOTO = (n) => (n.startsWith("life:") ? f(`assets/source/lifestyle/${n.slice(5)}.png`) : f(`assets/source/fotos/${n}.jpg`));
 const BF_PCT = process.env.BF_PCT || "10";
 const BF_CUPOM = process.env.BF_CUPOM || "MIOBLACK10";
 const LOGO_W = f("public/brand/logo-white.svg");
@@ -47,7 +47,7 @@ const STORIES = [
   { id: "nov-12-picole", real: "loslos-picoles", pos: "50% 50%", eyebrow: "Calor?", titulo: "Picolé Los Los<br>a poucos passos.", rodape: "Pistache, choco dubai, ovomaltine…<br>Qual é o seu? 🍦" },
   { id: "nov-15-feriado", real: "loja4-ambiente", pos: "50% 50%", eyebrow: "Feriado", titulo: "A Mio<br>não fecha.", rodape: "Esqueceu algo? Desce ali.<br>Aberto 24h, todos os dias." },
   { id: "nov-17-sindico", real: "loja3-totem", pos: "50% 40%", eyebrow: "Síndico, post novo", titulo: "5 dúvidas<br>respondidas.", rodape: "Custo, furto, câmera, instalação…<br>Tá tudo no nosso perfil. 📲" },
-  { id: "nov-19-leite", real: "loja3-prateleiras", pos: "50% 60%", eyebrow: "23h47", titulo: "Acabou o leite?<br>Desce ali.", rodape: "Sem fila, sem trânsito,<br>sem sair de chinelo. 🌙" },
+  { id: "nov-19-leite", real: "life:leite-italac", pos: "50% 50%", eyebrow: "23h47", titulo: "Acabou o leite?<br>Desce ali.", rodape: "Sem fila, sem trânsito,<br>sem sair de chinelo. 🌙" },
   { id: "nov-24-custo-zero", real: "loja4-frente", pos: "50% 45%", eyebrow: "Para síndicos", titulo: "Mercado 24h.<br>Custo zero.", rodape: "A Mio instala, abastece<br>e cuida de tudo.<br>Fale com a gente: link na bio." },
   { id: "nov-27-black-friday", bf: true },
   { id: "nov-30-sindico", real: "loja4-frente", pos: "50% 62%", eyebrow: "30 de novembro", titulo: "Feliz Dia<br>do Síndico!", rodape: "Obrigado a quem cuida<br>de onde a gente mora. 💛" },

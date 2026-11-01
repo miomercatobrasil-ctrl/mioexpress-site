@@ -17,6 +17,7 @@ const FOTO = (n) => f(`assets/source/fotos/${n}.jpg`);
 const R3D = (n) => f(`marketing/fotos-3d/${n}.png`);
 const PROD = (n) => f(`assets/source/produtos/crop_${n}.png`);
 const HW = (n) => f(`assets/source/halloween/${n}.webp`);
+const LIFE = (n) => f(`assets/source/lifestyle/${n}.png`);
 const KIT = f("marketing/posts/12-concurso-churrasco/kit.jpg");
 // vencedor do concurso: VENCEDOR="@perfil" FRASE="trecho do comentário" node marketing/gerador/posts.mjs 13
 const VENCEDOR = process.env.VENCEDOR || "@vencedor";
@@ -120,10 +121,9 @@ Já são 21 condomínios com uma Mio em São José dos Campos e Jacareí. E não
   {
     id: "02-morador-23h",
     slides: () => [
-      `<div class="s" style="color:#fffdf9;background:#3b0d14"><div class="ft2" style="background-image:url(${FOTO("loja3-prateleiras")});background-position:50% 62%"></div>
-        <div class="z"><p class="eyebrow">23h47</p>
-        <h1 class="mt1">Acabou o leite?<br><em>Desce ali.</em></h1>
-        <p class="lead mt1">Sua Mio fica aberta 24h, dentro do condomínio. Sem fila, sem trânsito,<br>sem sair de chinelo.</p></div>${rodape()}</div>`,
+      `<div class="s" style="color:#fffdf9;background:#3b0d14"><div class="ft" style="background-image:url(${LIFE("leite-italac")});background-position:50% 64%"></div>
+        <div class="z"><p class="eyebrow" style="color:#e2c48f">23h47</p>
+        <h1 class="mt1" style="font-size:92px">Acabou o leite?<br><em>Desce ali.</em></h1></div>${rodape()}</div>`,
     ],
     legenda: `Aquela hora em que bate a vontade (ou a emergência) e o mercado mais perto já fechou… 🌙
 
