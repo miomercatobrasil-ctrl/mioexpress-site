@@ -63,7 +63,9 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
     - Ter 17/11 10h: 04 dúvidas de síndico (carrossel)
     - Qui 19/11 18h: 02 acabou o leite
     - Ter 24/11 10h: 01 síndico custo zero (carrossel)
-  - A fazer: arte do resultado do concurso (03/11) e Dia do Síndico (30/11). O 03 como comprar saiu (repetia post antigo).
+  - Agendados em 01/11 (aprovados): qui 26/11 18h Black Friday (10% em tudo só em 27/11, cupom MIOBLACK10; `public/ig/14-black-friday-v2/`), seg 30/11 10h Dia do Síndico (`15-dia-do-sindico-v2`). Stories (`public/ig/stories-nov/`): 05/11 18h10, 10/11 10h10, 12/11 18h10, 15/11 11h, 17/11 10h10, 24/11 10h10, 27/11 10h (BF), 30/11 10h10.
+  - Pendentes: resultado do concurso (arte `13-resultado-concurso`, gerar com `VENCEDOR="@perfil" FRASE="..."`) e story do leite 19/11 (esperando foto realista do GPT com Italac). O João viaja de 04 a 16/11.
+  - Direção (João, 01/11): variar as imagens, não usar sempre o armário; fotos de produto na mão, bem realistas (geradas no GPT). Black Friday com mais bordô.
 - **Imagens criativas:** o João gera no GPT a partir dos prompts que eu escrevo (produto vira personagem, fundo bordô, uma luz só, sem marcas, estilo das campanhas do McDonald's). Eu monto com o logo e o texto. As imagens ficam em `assets/source/<campanha>/`. Marque `isAiGenerated: true`.
 - **Datas comemorativas:** vale fazer post temático (Halloween, Dia do Síndico 30/11, Black Friday, Natal e Ano Novo, verão, Carnaval). O totem aceita cupom: porcentagem ou valor, por categoria, fabricante ou produto, com validade e limite de uso; o código precisa ter no mínimo 8 caracteres. Promoções vão para os stories; no feed, no máximo 1 por mês.
 - **Melhor horário segundo o Metricool:** 10h e 18h nos dias de semana. Posts de síndico às 10h, de morador às 18h.
