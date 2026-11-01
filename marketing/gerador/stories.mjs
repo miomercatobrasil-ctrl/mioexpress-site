@@ -69,11 +69,11 @@ for (const s of STORIES.filter((x) => !process.argv[2] || x.id.startsWith(proces
     <div class="logo"><img src="${LOGO_W}"></div></body>`);
   if (s.bf) writeFileSync(html, `<!doctype html><meta charset="utf-8"><style>${CSS}</style><body style="background:#120709">
     <div class="bg" style="background-image:url(${FOTO("loja3-letreiro")});background-position:50% 40%;opacity:.5"></div>
-    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 95% 70% at 50% 50%, rgba(122,31,43,.62) 0%, rgba(59,13,20,.9) 57%, #160809 100%)"></div>
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 95% 70% at 50% 50%, rgba(122,31,43,.5) 0%, rgba(59,13,20,.93) 57%, #120608 100%)"></div>
     <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:260px;z-index:2">
       <p class="eyebrow" style="letter-spacing:.32em">É hoje!</p>
       <p style="font-size:150px;font-weight:800;line-height:1;margin-top:24px;letter-spacing:-.02em">BLACK<br>FRIDAY</p>
-      <div style="display:flex;align-items:flex-start;margin-top:50px"><span style="font-size:340px;font-weight:800;line-height:.82;letter-spacing:-.06em;background:linear-gradient(180deg,#f3dcaa 0%,#b08d57 60%,#8a6a3a 100%);-webkit-background-clip:text;color:transparent">${BF_PCT}</span><span style="font-size:140px;font-weight:800;color:#e2c48f;margin-top:10px">%</span></div>
+      <div style="display:flex;align-items:flex-start;margin-top:50px"><span style="font-size:340px;font-weight:800;line-height:1.02;padding-bottom:.04em;letter-spacing:-.06em;background:linear-gradient(180deg,#f3dcaa 0%,#b08d57 60%,#8a6a3a 100%);-webkit-background-clip:text;color:transparent">${BF_PCT}</span><span style="font-size:140px;font-weight:800;color:#e2c48f;margin-top:10px">%</span></div>
       <p style="font-size:66px;font-weight:700;letter-spacing:.06em">OFF EM TUDO</p>
       <p style="font-size:38px;font-weight:600;opacity:.85;margin-top:16px">Só hoje, até 23h59</p></div>
     <div class="cupom"><p class="l">Cupom no totem</p><p class="c" style="font-size:96px">${BF_CUPOM}</p></div>

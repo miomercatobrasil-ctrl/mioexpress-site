@@ -392,11 +392,11 @@ Obrigado a todo mundo que participou! Teve muita resposta boa, e vem mais ação
     slides: () => [
       `<div class="s" style="color:#fffdf9;background:#120709;align-items:center;text-align:center">
         <div style="position:absolute;inset:0;background:url(${FOTO("loja3-letreiro")}) 50% 40%/cover;opacity:.55"></div>
-        <div style="position:absolute;inset:0;background:radial-gradient(ellipse 90% 70% at 50% 52%, rgba(122,31,43,.62) 0%, rgba(59,13,20,.9) 55%, #160809 100%)"></div>
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse 90% 70% at 50% 52%, rgba(122,31,43,.5) 0%, rgba(59,13,20,.93) 55%, #120608 100%)"></div>
         <div class="z" style="margin-top:20px"><p class="eyebrow" style="color:#e2c48f;letter-spacing:.32em">Mio Express apresenta</p>
         <p style="font-size:120px;font-weight:800;letter-spacing:-.02em;line-height:1;margin-top:22px">BLACK<br>FRIDAY</p></div>
         <div class="z" style="margin-top:46px;display:flex;align-items:flex-start;gap:6px;color:#e2c48f">
-          <span style="font-size:300px;font-weight:800;line-height:.82;letter-spacing:-.06em;background:linear-gradient(180deg,#f3dcaa 0%,#b08d57 60%,#8a6a3a 100%);-webkit-background-clip:text;color:transparent">${BF_PCT}</span>
+          <span style="font-size:300px;font-weight:800;line-height:1.02;padding-bottom:.04em;letter-spacing:-.06em;background:linear-gradient(180deg,#f3dcaa 0%,#b08d57 60%,#8a6a3a 100%);-webkit-background-clip:text;color:transparent">${BF_PCT}</span>
           <span style="font-size:120px;font-weight:800;line-height:1;margin-top:10px">%</span></div>
         <p class="z" style="font-size:58px;font-weight:700;margin-top:6px;letter-spacing:.06em">OFF EM TUDO</p>
         <p class="z" style="font-size:34px;font-weight:600;margin-top:18px;opacity:.85">Só nesta sexta, 27/11 · 24h na sua Mio</p>
