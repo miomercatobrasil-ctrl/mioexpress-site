@@ -44,8 +44,8 @@ const STORIES = [
   // novembro (fotos reais): chamada para o post do dia e lembretes do 24h
   { id: "nov-05-jogo", real: "life:jogo-heineken", pos: "50% 50%", eyebrow: "Hoje tem jogo?", titulo: "A geladeira<br>tá logo ali.", rodape: "Cerveja gelada, refri e snacks 24h,<br>dentro do condomínio. ⚽<br><small>Beba com moderação. Proibido para menores de 18 anos.</small>" },
   { id: "nov-10-franquia", real: "loja3-frente-b", pos: "50% 60%", eyebrow: "Post novo no feed", titulo: "A Mio não<br>é franquia.", rodape: "E por isso o preço é mais justo.<br>Vem ver no nosso perfil 👀" },
-  { id: "nov-12-picole", real: "loslos-picoles", pos: "50% 50%", eyebrow: "Calor?", titulo: "Picolé Los Los<br>a poucos passos.", rodape: "Pistache, choco dubai, ovomaltine…<br>Qual é o seu? 🍦" },
-  { id: "nov-15-feriado", real: "loja4-ambiente", pos: "50% 50%", eyebrow: "Feriado", titulo: "A Mio<br>não fecha.", rodape: "Esqueceu algo? Desce ali.<br>Aberto 24h, todos os dias." },
+  { id: "nov-12-picole", real: "life:sorvete-2", pos: "50% 50%", eyebrow: "Calor?", titulo: "Picolé Los Los<br>a poucos passos.", rodape: "" },
+  { id: "nov-15-feriado", real: "life:feriado", pos: "50% 50%", eyebrow: "Feriado", titulo: "A Mio<br>não fecha.", rodape: "Esqueceu algo? Desce ali.<br>Aberto 24h, todos os dias." },
   { id: "nov-17-sindico", real: "loja3-totem", pos: "50% 40%", eyebrow: "Síndico, post novo", titulo: "5 dúvidas<br>respondidas.", rodape: "Custo, furto, câmera, instalação…<br>Tá tudo no nosso perfil. 📲" },
   { id: "nov-19-leite", real: "life:leite-italac", pos: "50% 50%", eyebrow: "23h47", titulo: "Acabou o leite?<br>Desce ali.", rodape: "Sem fila, sem trânsito,<br>sem sair de chinelo. 🌙" },
   { id: "nov-24-custo-zero", real: "loja4-frente", pos: "50% 45%", eyebrow: "Para síndicos", titulo: "Mercado 24h.<br>Custo zero.", rodape: "A Mio instala, abastece<br>e cuida de tudo.<br>Fale com a gente: link na bio." },
