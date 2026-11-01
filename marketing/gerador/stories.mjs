@@ -50,7 +50,7 @@ const STORIES = [
   { id: "nov-19-leite", real: "loja3-prateleiras", pos: "50% 60%", eyebrow: "23h47", titulo: "Acabou o leite?<br>Desce ali.", rodape: "Sem fila, sem trânsito,<br>sem sair de chinelo. 🌙" },
   { id: "nov-24-custo-zero", real: "loja4-frente", pos: "50% 45%", eyebrow: "Para síndicos", titulo: "Mercado 24h.<br>Custo zero.", rodape: "A Mio instala, abastece<br>e cuida de tudo.<br>Fale com a gente: link na bio." },
   { id: "nov-27-black-friday", bf: true },
-  { id: "nov-30-sindico", real: "loja3-perfil", pos: "50% 50%", eyebrow: "30 de novembro", titulo: "Feliz Dia<br>do Síndico!", rodape: "Obrigado a quem cuida<br>de onde a gente mora. 💛" },
+  { id: "nov-30-sindico", real: "loja4-frente", pos: "50% 62%", eyebrow: "30 de novembro", titulo: "Feliz Dia<br>do Síndico!", rodape: "Obrigado a quem cuida<br>de onde a gente mora. 💛" },
 ];
 
 mkdirSync(OUT, { recursive: true });

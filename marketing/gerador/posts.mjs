@@ -420,7 +420,7 @@ Marca aqui quem precisa saber disso 👇
   {
     id: "15-dia-do-sindico",
     slides: () => [
-      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja4-frente")});background-position:50% 35%"></div>
+      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja4-frente")});background-position:50% 78%;background-size:auto 1500px"></div>
         <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">30 de novembro</p>
         <h1 class="mt1" style="font-size:92px">Feliz Dia<br>do <em>Síndico!</em></h1>
         <p class="lead mt1">Obrigado a quem cuida do lugar<br>onde a gente mora, todos os dias.</p></div>${rodape()}</div>`,
