@@ -392,7 +392,7 @@ Obrigado a todo mundo que participou! Teve muita resposta boa, e vem mais ação
     slides: () => [
       `<div class="s" style="color:#fffdf9;background:#120709;align-items:center;text-align:center">
         <div style="position:absolute;inset:0;background:url(${FOTO("loja3-letreiro")}) 50% 40%/cover;opacity:.55"></div>
-        <div style="position:absolute;inset:0;background:radial-gradient(ellipse 90% 70% at 50% 55%, rgba(18,7,9,.55) 0%, rgba(18,7,9,.92) 60%, #120709 100%)"></div>
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse 90% 70% at 50% 52%, rgba(122,31,43,.62) 0%, rgba(59,13,20,.9) 55%, #160809 100%)"></div>
         <div class="z" style="margin-top:20px"><p class="eyebrow" style="color:#e2c48f;letter-spacing:.32em">Mio Express apresenta</p>
         <p style="font-size:120px;font-weight:800;letter-spacing:-.02em;line-height:1;margin-top:22px">BLACK<br>FRIDAY</p></div>
         <div class="z" style="margin-top:46px;display:flex;align-items:flex-start;gap:6px;color:#e2c48f">
@@ -420,7 +420,7 @@ Marca aqui quem precisa saber disso 👇
   {
     id: "15-dia-do-sindico",
     slides: () => [
-      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja4-frente")});background-position:50% 78%;background-size:auto 1500px"></div>
+      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja4-frente")});background-position:50% 92%;background-size:auto 1650px"></div>
         <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">30 de novembro</p>
         <h1 class="mt1" style="font-size:92px">Feliz Dia<br>do <em>Síndico!</em></h1>
         <p class="lead mt1">Obrigado a quem cuida do lugar<br>onde a gente mora, todos os dias.</p></div>${rodape()}</div>`,

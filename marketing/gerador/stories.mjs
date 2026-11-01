@@ -69,7 +69,7 @@ for (const s of STORIES.filter((x) => !process.argv[2] || x.id.startsWith(proces
     <div class="logo"><img src="${LOGO_W}"></div></body>`);
   if (s.bf) writeFileSync(html, `<!doctype html><meta charset="utf-8"><style>${CSS}</style><body style="background:#120709">
     <div class="bg" style="background-image:url(${FOTO("loja3-letreiro")});background-position:50% 40%;opacity:.5"></div>
-    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 95% 70% at 50% 52%, rgba(18,7,9,.5) 0%, rgba(18,7,9,.92) 62%, #120709 100%)"></div>
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 95% 70% at 50% 50%, rgba(122,31,43,.62) 0%, rgba(59,13,20,.9) 57%, #160809 100%)"></div>
     <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:260px;z-index:2">
       <p class="eyebrow" style="letter-spacing:.32em">É hoje!</p>
       <p style="font-size:150px;font-weight:800;line-height:1;margin-top:24px;letter-spacing:-.02em">BLACK<br>FRIDAY</p>
