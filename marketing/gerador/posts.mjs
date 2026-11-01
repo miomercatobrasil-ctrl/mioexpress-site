@@ -17,6 +17,10 @@ const FOTO = (n) => f(`assets/source/fotos/${n}.jpg`);
 const R3D = (n) => f(`marketing/fotos-3d/${n}.png`);
 const PROD = (n) => f(`assets/source/produtos/crop_${n}.png`);
 const HW = (n) => f(`assets/source/halloween/${n}.webp`);
+const KIT = f("marketing/posts/12-concurso-churrasco/kit.jpg");
+// vencedor do concurso: VENCEDOR="@perfil" FRASE="trecho do comentário" node marketing/gerador/posts.mjs 13
+const VENCEDOR = process.env.VENCEDOR || "@vencedor";
+const FRASE = process.env.FRASE || "Trecho do comentário vencedor aqui.";
 const LOGO = f("public/brand/logo.svg");
 const LOGO_W = f("public/brand/logo-white.svg");
 
@@ -360,6 +364,59 @@ Qual fantasia ficou melhor? Comenta aqui 👇
         <h1 class="mt1">Picolé <em>Los Los</em><br>a poucos passos<br>de casa.</h1></div>${rodape()}</div>`,
     ],
     legenda: `teste de layout`,
+  },
+  {
+    id: "13-resultado-concurso",
+    slides: () => [
+      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${KIT});background-position:50% 20%"></div>
+        <div class="z mt-a" style="margin-bottom:110px"><span class="pill">Resultado do concurso</span>
+        <h1 class="mt1" style="font-size:92px">Temos um<br><em>vencedor!</em> 🔥</h1>
+        <p class="mt1" style="font-size:58px;font-weight:700;letter-spacing:-.01em">${VENCEDOR}</p>
+        <p class="lead mt1" style="font-style:italic">“${FRASE}”</p></div>${rodape()}</div>`,
+    ],
+    legenda: `🔥 Resultado do concurso cultural Churrasco com os Vizinhos!
+
+Parabéns, ${VENCEDOR}! A sua resposta foi a mais criativa e o churrasco completo da Mio vai pro seu condomínio. 🥩🍻
+
+Já mandamos uma mensagem no direct pra combinar a entrega. Lembrando: a Mio nunca pede senha, pagamento ou dados bancários.
+
+Obrigado a todo mundo que participou! Teve muita resposta boa, e vem mais ação por aí. 💛
+
+#concursocultural #churrasco #churrascocomosvizinhos #saojosedoscampos #jacarei #condominio #mioexpress`,
+  },
+  {
+    id: "14-black-friday-fila",
+    slides: () => [
+      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja4-morador")});background-position:50% 40%"></div>
+        <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">Black Friday</p>
+        <h1 class="mt1" style="font-size:96px">Fila? Trânsito?<br><em>Aqui não.</em></h1>
+        <p class="lead mt1">Desce de chinelo, pega o que precisa<br>e paga no totem em 1 minuto. 24h.</p></div>${rodape()}</div>`,
+    ],
+    legenda: `Black Friday chegando e você já sabe: shopping lotado, estacionamento cheio, fila em tudo. 😵‍💫
+
+Na Mio é o contrário. Desce de chinelo, pega o que precisa, passa no totem e paga com Pix ou cartão. Menos de 1 minuto, 24h por dia, dentro do seu condomínio.
+
+Marca aqui quem vai encarar a fila da Black Friday 👇
+
+#blackfriday #mioexpress #mercado24h #condominio #saojosedoscampos #jacarei`,
+  },
+  {
+    id: "15-dia-do-sindico",
+    slides: () => [
+      `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${FOTO("loja4-frente")});background-position:50% 35%"></div>
+        <div class="z mt-a" style="margin-bottom:110px"><p class="eyebrow" style="color:#e2c48f">30 de novembro</p>
+        <h1 class="mt1" style="font-size:92px">Feliz Dia<br>do <em>Síndico!</em></h1>
+        <p class="lead mt1">Obrigado a quem cuida do lugar<br>onde a gente mora, todos os dias.</p></div>${rodape()}</div>`,
+    ],
+    legenda: `Hoje é o Dia do Síndico! 💛
+
+Resolver vazamento, mediar a reunião, cuidar da segurança, da limpeza e ainda responder o grupo do prédio no domingo à noite. Não é pouca coisa.
+
+A todos os síndicos e síndicas que cuidam dos condomínios do Vale: obrigado! Foi graças à confiança de vocês que a Mio chegou a 21 condomínios em São José dos Campos e Jacareí.
+
+Marca aqui o síndico ou a síndica do seu prédio 👇
+
+#diadosindico #sindico #sindicoprofissional #condominio #saojosedoscampos #jacarei #mioexpress`,
   },
 ];
 
