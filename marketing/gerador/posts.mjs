@@ -68,6 +68,8 @@ p.lead { font-size: 38px; line-height: 1.35; font-weight: 500; opacity: .88; }
 .ft::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(59,13,20,.97) 0%, rgba(59,13,20,.9) 30%, rgba(59,13,20,.25) 52%, rgba(59,13,20,0) 66%, rgba(59,13,20,.75) 100%); }
 .ft2 { position: absolute; left: 0; right: 0; bottom: 0; height: 760px; background-size: cover; }
 .ft2::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, #3b0d14 0%, rgba(59,13,20,0) 28%, rgba(59,13,20,0) 70%, rgba(59,13,20,.85) 100%); }
+.ft.life::after { background: linear-gradient(180deg, rgba(59,13,20,.85) 0%, rgba(59,13,20,.55) 22%, rgba(59,13,20,0) 38%, rgba(59,13,20,0) 78%, rgba(59,13,20,.7) 100%); }
+.ft.life ~ .z h1, .ft.life ~ .z .eyebrow { text-shadow: 0 2px 18px rgba(30,6,10,.85), 0 0 4px rgba(30,6,10,.5); }
 .ft.baixo::after { background: linear-gradient(180deg, rgba(59,13,20,.5) 0%, rgba(59,13,20,0) 18%, rgba(59,13,20,0) 32%, rgba(59,13,20,.88) 52%, rgba(59,13,20,.97) 70%, #3b0d14 100%); }
 `;
 
@@ -121,7 +123,7 @@ Já são 21 condomínios com uma Mio em São José dos Campos e Jacareí. E não
   {
     id: "02-morador-23h",
     slides: () => [
-      `<div class="s" style="color:#fffdf9;background:#3b0d14"><div class="ft" style="background-image:url(${LIFE("leite-italac")});background-position:50% 64%"></div>
+      `<div class="s" style="color:#fffdf9;background:#3b0d14"><div class="ft life" style="background-image:url(${LIFE("leite-italac")});background-position:50% 64%"></div>
         <div class="z"><p class="eyebrow" style="color:#e2c48f">23h47</p>
         <h1 class="mt1" style="font-size:92px">Acabou o leite?<br><em>Desce ali.</em></h1></div>${rodape()}</div>`,
     ],

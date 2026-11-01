@@ -33,6 +33,9 @@ h1 { font-size: 104px; line-height: 1; font-weight: 800; letter-spacing: -.03em;
 .logo img { height: 70px; }
 /* fotos reais: topo bordô quase sólido sob o título (igual ao feed) e base escura sob o texto */
 .bg.real::after { background: linear-gradient(180deg, rgba(59,13,20,.97) 0%, rgba(59,13,20,.92) 24%, rgba(59,13,20,.3) 40%, rgba(59,13,20,0) 52%, rgba(59,13,20,.2) 62%, rgba(59,13,20,.9) 76%, #3b0d14 88%); }
+/* fotos lifestyle (GPT): menos bordô, a foto aparece mais; só uma faixa atrás do título e da base */
+.bg.life::after { background: linear-gradient(180deg, rgba(59,13,20,.82) 0%, rgba(59,13,20,.55) 15%, rgba(59,13,20,0) 28%, rgba(59,13,20,0) 66%, rgba(59,13,20,.6) 80%, rgba(59,13,20,.9) 92%); }
+.life ~ .top h1, .life ~ .top .eyebrow, .life ~ .cupom .d { text-shadow: 0 2px 18px rgba(30,6,10,.85), 0 0 4px rgba(30,6,10,.5); }
 .cupom small { display: block; font-size: 24px; font-weight: 500; opacity: .7; margin-top: 18px; }
 `;
 
@@ -59,7 +62,7 @@ const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
 for (const s of STORIES.filter((x) => !process.argv[2] || x.id.startsWith(process.argv[2]))) {
   const html = join(OUT, ".s.html");
   writeFileSync(html, `<!doctype html><meta charset="utf-8"><style>${CSS}</style><body>
-    <div class="bg${s.real ? " real" : ""}" style="background-image:url(${s.real ? FOTO(s.real) : HW(s.foto)});${s.pos ? `background-position:${s.pos}` : ""}"></div>
+    <div class="bg${s.real ? (s.real.startsWith("life:") ? " real life" : " real") : ""}" style="background-image:url(${s.real ? FOTO(s.real) : HW(s.foto)});${s.pos ? `background-position:${s.pos}` : ""}"></div>
     <div class="top"><p class="eyebrow">${s.eyebrow}</p><h1>${s.titulo}</h1></div>
     ${s.real
       ? `<div class="cupom" style="border:0;background:none;bottom:300px"><p class="d" style="font-size:44px;line-height:1.35">${s.rodape}</p></div>`
