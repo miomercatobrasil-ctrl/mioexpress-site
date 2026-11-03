@@ -374,13 +374,13 @@ Qual fantasia ficou melhor? Comenta aqui 👇
     slides: () => [
       `<div class="s" style="color:#fffdf9"><div class="ft baixo" style="background-image:url(${KIT});background-position:50% 20%"></div>
         <div class="z mt-a" style="margin-bottom:110px"><span class="pill">Resultado do concurso</span>
-        <h1 class="mt1" style="font-size:92px">Temos um<br><em>vencedor!</em> 🔥</h1>
+        <h1 class="mt1" style="font-size:92px">E o churrasco<br><em>vai para…</em> 🔥</h1>
         <p class="mt1" style="font-size:58px;font-weight:700;letter-spacing:-.01em">${VENCEDOR}</p>
-        <p class="lead mt1" style="font-style:italic">“${FRASE}”</p></div>${rodape()}</div>`,
+        <p class="lead mt1" style="font-style:italic;font-size:34px">“${FRASE}”</p></div>${rodape()}</div>`,
     ],
     legenda: `🔥 Resultado do concurso cultural Churrasco com os Vizinhos!
 
-Parabéns, ${VENCEDOR}! A sua resposta foi a mais criativa e o churrasco completo da Mio vai pro seu condomínio. 🥩🍻
+Parabéns, ${VENCEDOR}! Sua resposta emocionou a gente: comemorar a chegada da sua filha com os amigos merece um churrasco completo da Mio! 🥩🍻👶
 
 Já mandamos uma mensagem no direct pra combinar a entrega. Lembrando: a Mio nunca pede senha, pagamento ou dados bancários.
 
