@@ -86,7 +86,7 @@ const WHEEL_ITENS = [
   ["arm_mms_chocolate", "M&M's", "power-up", 165],
   ["arm_pringles", "Pringles", "estoque infinito", 175],
 ];
-const GTA_CAPA = process.env.GTA_CAPA || "assets/source/gta/capa.png";
+const GTA_CAPA = process.env.GTA_CAPA || "assets/source/gta/capa.webp";
 function wheel(cx = 540, cy = 700, R = 380, r = 160) {
   const n = WHEEL_ITENS.length, gap = 0.035, pt = (a, rr) => [cx + rr * Math.sin(a), cy - rr * Math.cos(a)];
   let svg = "", imgs = "";
@@ -483,7 +483,7 @@ Marca aqui o síndico ou a síndica do seu prédio 👇
       `<div class="s" style="color:#fffdf9"><div style="position:absolute;inset:0;background:url(${f(GTA_CAPA)}) 50% 50%/cover"></div>
         <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(40,8,40,.8) 0%, rgba(40,8,40,.35) 22%, rgba(0,0,0,0) 34%, rgba(0,0,0,0) 80%, rgba(30,6,20,.75) 100%)"></div>
         <div class="z"><p class="eyebrow" style="color:#ffc2da;text-shadow:0 2px 12px rgba(0,0,0,.6)">Nova missão desbloqueada</p>
-        <h1 class="mt1" style="font-size:88px;text-shadow:0 4px 24px rgba(30,0,30,.7)">Maratona sem<br>sair do <em style="color:#ffc2da">condomínio.</em></h1></div>
+        <h1 class="mt1" style="font-size:78px;text-shadow:0 4px 24px rgba(30,0,30,.7)">Maratona sem<br>sair do <em style="color:#ffc2da">condomínio.</em></h1></div>
         ${rodape(true, "Arraste →")}</div>`,
       `<div class="s" style="color:#fffdf9;background:#2a0820">${NEON_BG("loja3-frente-b", "50% 45%")}${HUD}
         <img src="${LOGO_W}" style="position:absolute;right:70px;top:80px;height:56px;z-index:3">
