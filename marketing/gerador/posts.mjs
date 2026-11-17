@@ -76,6 +76,45 @@ p.lead { font-size: 38px; line-height: 1.35; font-weight: 500; opacity: .88; }
 const rodape = (claro = true, extra = "@mioexpressbrasil") => `<div class="rodape"><img src="${claro ? LOGO_W : LOGO}"><span>${extra}</span></div>`;
 const tag = (i, n) => `<div class="tag">${i}/${n}</div>`;
 
+
+// roda de itens (estilo "weapon wheel" de jogo) com os produtos reais; destaque no índice 0 (topo)
+const WHEEL_ITENS = [
+  ["pizza_calabresa", "Pizza Sadia", "+100 vida", 170],
+  ["arm_doritos", "Doritos", "munição extra", 175],
+  ["arm_cupnoodles", "Cup Noodles", "missão da madrugada", 150],
+  ["heineken_lata", "Heineken", "modo relax", 175],
+  ["arm_mms_chocolate", "M&M's", "power-up", 165],
+  ["arm_pringles", "Pringles", "estoque infinito", 175],
+];
+const GTA_CAPA = process.env.GTA_CAPA || "assets/source/gta/capa.png";
+function wheel(cx = 540, cy = 700, R = 380, r = 160) {
+  const n = WHEEL_ITENS.length, gap = 0.035, pt = (a, rr) => [cx + rr * Math.sin(a), cy - rr * Math.cos(a)];
+  let svg = "", imgs = "";
+  WHEEL_ITENS.forEach(([img], i) => {
+    const a0 = (i - 0.5) * (2 * Math.PI / n) + gap, a1 = (i + 0.5) * (2 * Math.PI / n) - gap;
+    const [x0, y0] = pt(a0, R), [x1, y1] = pt(a1, R), [x2, y2] = pt(a1, r), [x3, y3] = pt(a0, r);
+    const on = i === 0;
+    svg += `<path d="M${x0},${y0} A${R},${R} 0 0 1 ${x1},${y1} L${x2},${y2} A${r},${r} 0 0 0 ${x3},${y3} Z" fill="${on ? "rgba(214,74,120,.55)" : "rgba(255,240,250,.12)"}" stroke="${on ? "#ffd6e6" : "rgba(255,255,255,.7)"}" stroke-width="${on ? 5 : 2.5}"/>`;
+    const [px, py] = pt(i * 2 * Math.PI / n, (R + r) / 2 + 6), h = WHEEL_ITENS[i][3] * (on ? 1.12 : 1);
+    imgs += `<img src="${PROD(img)}" style="position:absolute;left:${px}px;top:${py}px;height:${h}px;max-width:200px;object-fit:contain;transform:translate(-50%,-50%)${on ? " rotate(-4deg)" : ""};filter:drop-shadow(0 14px 18px rgba(20,0,20,.55))">`;
+  });
+  const [, nome, poder] = WHEEL_ITENS[0];
+  return `<svg width="1080" height="1350" style="position:absolute;inset:0;z-index:1" viewBox="0 0 1080 1350">
+      <defs><filter id="g"><feGaussianBlur stdDeviation="10"/></filter></defs>
+      <circle cx="${cx}" cy="${cy}" r="${R + 14}" fill="none" stroke="rgba(255,120,190,.35)" stroke-width="10" filter="url(#g)"/>${svg}
+      <circle cx="${cx}" cy="${cy}" r="${r - 14}" fill="rgba(30,6,20,.72)" stroke="rgba(255,255,255,.5)" stroke-width="2"/></svg>
+    <div style="position:absolute;inset:0;z-index:2">${imgs}</div>
+    <div style="position:absolute;left:${cx - 130}px;top:${cy - 60}px;width:260px;text-align:center;z-index:3;color:#fffdf9">
+      <p style="font-size:24px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffc2da">Equipado</p>
+      <p style="font-size:38px;font-weight:800;line-height:1.05;margin-top:6px">${nome}</p>
+      <p style="font-size:26px;font-weight:600;margin-top:6px;color:#9ff5e1">${poder}</p></div>`;
+}
+const HUD = `<div style="position:absolute;left:70px;top:76px;z-index:3;display:grid;gap:14px">
+  ${[["♥", "#ff7bac", 300], ["⚡", "#5ff0d0", 250], ["★", "#e2c48f", 190]].map(([ic, c, w]) => `<div style="display:flex;align-items:center;gap:14px"><span style="width:38px;height:38px;border-radius:50%;background:rgba(20,0,15,.6);border:2px solid ${c};color:${c};display:grid;place-items:center;font-size:20px">${ic}</span><span style="width:${w}px;height:16px;border-radius:3px;background:${c};box-shadow:0 0 14px ${c}"></span></div>`).join("")}</div>`;
+const NEON_BG = (foto, pos = "50% 50%") => `<div style="position:absolute;inset:0;background:url(${FOTO(foto)}) ${pos}/cover;filter:saturate(1.1) blur(1.5px);transform:scale(1.02)"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(76,22,70,.78) 0%, rgba(122,31,43,.5) 40%, rgba(70,18,60,.6) 70%, rgba(30,6,20,.92) 100%)"></div>
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 55% at 50% 52%, rgba(255,110,170,.18), rgba(0,0,0,0) 70%)"></div>`;
+
 /** Cada post: id, legenda (texto do Instagram) e slides (HTML de cada imagem). */
 const POSTS = [
   {
@@ -436,6 +475,45 @@ A todos os síndicos e síndicas que cuidam dos condomínios do Vale: obrigado! 
 Marca aqui o síndico ou a síndica do seu prédio 👇
 
 #diadosindico #sindico #sindicoprofissional #condominio #saojosedoscampos #jacarei #mioexpress`,
+  },
+  {
+    id: "16-gta-maratona",
+    // capa: ilustração do GPT (GTA_CAPA). Nada de logo, fonte ou personagem do jogo: só o clima.
+    slides: () => [
+      `<div class="s" style="color:#fffdf9"><div style="position:absolute;inset:0;background:url(${f(GTA_CAPA)}) 50% 50%/cover"></div>
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(40,8,40,.8) 0%, rgba(40,8,40,.35) 22%, rgba(0,0,0,0) 34%, rgba(0,0,0,0) 80%, rgba(30,6,20,.75) 100%)"></div>
+        <div class="z"><p class="eyebrow" style="color:#ffc2da;text-shadow:0 2px 12px rgba(0,0,0,.6)">Nova missão desbloqueada</p>
+        <h1 class="mt1" style="font-size:88px;text-shadow:0 4px 24px rgba(30,0,30,.7)">Maratona sem<br>sair do <em style="color:#ffc2da">condomínio.</em></h1></div>
+        ${rodape(true, "Arraste →")}</div>`,
+      `<div class="s" style="color:#fffdf9;background:#2a0820">${NEON_BG("loja3-frente-b", "50% 45%")}${HUD}
+        <img src="${LOGO_W}" style="position:absolute;right:70px;top:80px;height:56px;z-index:3">
+        <div style="position:absolute;left:0;right:0;top:250px;text-align:center;z-index:3"><p class="eyebrow" style="color:#ffc2da">Escolha seus suprimentos</p></div>
+        ${wheel()}
+        <div style="position:absolute;left:70px;right:70px;bottom:150px;z-index:3;display:flex;justify-content:center;gap:18px">
+          ${[["□", "+100 vida"], ["○", "Munição extra"], ["△", "Modo relax"]].map(([b, t]) => `<span style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-radius:14px;background:rgba(20,0,15,.6);border:1.5px solid rgba(255,255,255,.35);font-size:26px;font-weight:600;white-space:nowrap"><b style="width:36px;height:36px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center;font-size:20px">${b}</b>${t}</span>`).join("")}</div>
+        <p style="position:absolute;left:0;right:0;bottom:70px;text-align:center;z-index:3;font-size:22px;font-weight:600;opacity:.75;letter-spacing:.06em">Beba com moderação · venda proibida para menores de 18 anos</p></div>`,
+      `<div class="s" style="color:#fffdf9;background:#2a0820">${NEON_BG("loja4-frente", "50% 70%")}
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(30,6,20,0) 35%, rgba(30,6,20,.8) 55%, rgba(30,6,20,.95) 100%)"></div>
+        <div class="z" style="margin-top:auto;margin-bottom:120px">
+          <p class="eyebrow" style="color:#ffc2da">Ponto de reabastecimento</p>
+          <h1 class="mt1" style="font-size:90px">A loja de<br>suprimentos fica<br><em style="color:#ffc2da">no térreo.</em></h1>
+          <p class="lead mt1">Aberta 24h. Pix ou cartão no totem,<br>sem app e sem cadastro.</p></div>${rodape()}</div>`,
+    ],
+    legenda: `🎮 MISSÃO DESBLOQUEADA: maratona sem sair do condomínio.
+
+O jogo mais esperado da década chegou e ninguém quer pausar pra ir ao mercado. Por isso a loja de suprimentos fica no térreo:
+
+🍕 Pizza Sadia: +100 de vida
+🌶️ Doritos e Pringles: munição extra
+🍜 Cup Noodles: pra missão da madrugada
+🍺 Cerveja gelada: modo relax (com moderação 😉)
+
+Aberta 24h, Pix ou cartão no totem, sem app e sem cadastro. Desce de chinelo e volta pro controle.
+
+Quem aí vai virar a noite? 👇
+
+#GTA6 #GTAVI #gamer #maratona #mioexpress #condominio #saojosedoscampos #jacarei
+Beba com moderação. Venda proibida para menores de 18 anos.`,
   },
 ];
 
