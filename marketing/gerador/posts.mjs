@@ -503,7 +503,7 @@ Marca aqui o síndico ou a síndica do seu prédio 👇
           ${[["□", "+100 vida", "#ff7bac"], ["○", "Munição extra", "#5ff0d0"], ["△", "Modo relax", "#e2c48f"]].map(([b, t, c]) => `<span style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-radius:14px;background:rgba(20,0,15,.7);border:2px solid ${c};box-shadow:0 0 16px ${c}66;font-size:26px;font-weight:600;white-space:nowrap"><b style="width:36px;height:36px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center;font-size:20px">${b}</b>${t}</span>`).join("")}</div>
         <p style="position:absolute;left:0;right:0;bottom:70px;text-align:center;z-index:3;font-size:22px;font-weight:600;opacity:.8;letter-spacing:.06em">Beba com moderação · venda proibida para menores de 18 anos</p></div>`,
       `<div class="s" style="color:#fffdf9;background:#1a0618">
-        <div style="position:absolute;inset:0;background:url(${f("assets/source/gta/sofa.png")}) 50% 50%/cover"></div>
+        <div style="position:absolute;inset:0;background:url(${f("assets/source/gta/sofa.webp")}) 50% 50%/cover"></div>
         <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(20,4,24,.92) 0%, rgba(20,4,24,.7) 22%, rgba(20,4,24,0) 40%, rgba(0,0,0,0) 82%, rgba(20,4,24,.7) 100%)"></div>
         <div class="z" style="margin-top:-6px">
           <p class="eyebrow" style="color:#5ff0d0;text-shadow:0 0 14px rgba(95,240,208,.6)">✔ Objetivo concluído</p>

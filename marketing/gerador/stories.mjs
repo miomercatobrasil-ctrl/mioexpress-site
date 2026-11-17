@@ -11,7 +11,7 @@ const ROOT = join(HERE, "..", "..");
 const OUT = join(ROOT, "marketing", "stories");
 const f = (p) => "file://" + join(ROOT, p);
 const HW = (n) => f(`assets/source/halloween/${n}.webp`);
-const FOTO = (n) => (n.startsWith("life:") ? f(`assets/source/lifestyle/${n.slice(5)}.png`) : f(`assets/source/fotos/${n}.jpg`));
+const FOTO = (n) => (n.startsWith("life:") ? f(`assets/source/lifestyle/${n.slice(5)}.png`) : n.startsWith("gta:") ? f(`assets/source/gta/${n.slice(4)}.webp`) : f(`assets/source/fotos/${n}.jpg`));
 const BF_PCT = process.env.BF_PCT || "10";
 const BF_CUPOM = process.env.BF_CUPOM || "MIOBLACK10";
 const LOGO_W = f("public/brand/logo-white.svg");
@@ -51,6 +51,7 @@ const STORIES = [
   { id: "nov-15-feriado", real: "life:feriado", pos: "50% 50%", eyebrow: "Feriado", titulo: "A Mio<br>não fecha.", rodape: "Esqueceu algo? Desce ali.<br>Aberto 24h, todos os dias." },
   { id: "nov-17-sindico", real: "loja3-totem", pos: "50% 40%", eyebrow: "Síndico, post novo", titulo: "5 dúvidas<br>respondidas.", rodape: "Custo, furto, câmera, instalação…<br>Tá tudo no nosso perfil. 📲" },
   { id: "nov-19-leite", real: "life:leite-italac", pos: "50% 50%", eyebrow: "23h47", titulo: "Acabou o leite?<br>Desce ali.", rodape: "Sem fila, sem trânsito,<br>sem sair de chinelo. 🌙" },
+  { id: "nov-19-gta", real: "gta:capa", pos: "50% 50%", topo: 120, h1: 92, eyebrow: "Noite de maratona?", titulo: "Objetivo:<br>reabastecer.", rodape: "Suprimentos 24h no térreo.<br>Desce e volta pro controle. 🎮" },
   { id: "nov-24-custo-zero", real: "loja4-frente", pos: "50% 45%", eyebrow: "Para síndicos", titulo: "Mercado 24h.<br>Custo zero.", rodape: "A Mio instala, abastece<br>e cuida de tudo.<br>Fale com a gente: link na bio." },
   { id: "nov-27-black-friday", bf: true },
   { id: "nov-30-sindico", real: "loja4-frente", pos: "50% 62%", eyebrow: "30 de novembro", titulo: "Feliz Dia<br>do Síndico!", rodape: "Obrigado a quem cuida<br>de onde a gente mora. 💛" },
@@ -62,8 +63,8 @@ const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
 for (const s of STORIES.filter((x) => !process.argv[2] || x.id.startsWith(process.argv[2]))) {
   const html = join(OUT, ".s.html");
   writeFileSync(html, `<!doctype html><meta charset="utf-8"><style>${CSS}</style><body>
-    <div class="bg${s.real ? (s.real.startsWith("life:") ? " real life" : " real") : ""}" style="background-image:url(${s.real ? FOTO(s.real) : HW(s.foto)});${s.pos ? `background-position:${s.pos}` : ""}"></div>
-    <div class="top"><p class="eyebrow">${s.eyebrow}</p><h1>${s.titulo}</h1></div>
+    <div class="bg${s.real ? (/^(life|gta):/.test(s.real) ? " real life" : " real") : ""}" style="background-image:url(${s.real ? FOTO(s.real) : HW(s.foto)});${s.pos ? `background-position:${s.pos}` : ""}"></div>
+    <div class="top"${s.topo ? ` style="top:${s.topo}px"` : ""}><p class="eyebrow">${s.eyebrow}</p><h1${s.h1 ? ` style="font-size:${s.h1}px"` : ""}>${s.titulo}</h1></div>
     ${s.real
       ? `<div class="cupom" style="border:0;background:none;bottom:300px"><p class="d" style="font-size:44px;line-height:1.35">${s.rodape}</p></div>`
       : s.cupom === false
