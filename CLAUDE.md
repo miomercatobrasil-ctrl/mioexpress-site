@@ -61,7 +61,8 @@ Leia antes de qualquer trabalho. Vale para o site e para o marketing.
     - Ter 10/11 10h: 06 não somos franquia (carrossel)
     - Qui 12/11 18h: 05 picolé Los Los (carrossel de 2, fotos do freezer)
     - Ter 17/11 10h: 04 dúvidas de síndico (carrossel)
-    - Qui 19/11 18h: 02 acabou o leite
+    - Qui 19/11 8h30: 16 GTA VI "maratona sem sair do condomínio" (carrossel ilustrado no GPT, isAiGenerated, `public/ig/16-gta-maratona/`; uuid 5755422516409550811). Story 19/11 18h10 `stories-nov/gta-1911.png`.
+    - Qui 03/12 18h: 02 acabou o leite (movido do 19/11 por causa do GTA), story do leite 03/12 18h10
     - Ter 24/11 10h: 01 síndico custo zero (carrossel)
   - Agendados em 01/11 (aprovados): qui 26/11 18h Black Friday (10% em tudo só em 27/11, cupom MIOBLACK10; `public/ig/14-black-friday-v2/`), seg 30/11 10h Dia do Síndico (`15-dia-do-sindico-v2`). Stories (`public/ig/stories-nov/`): 05/11 18h10, 10/11 10h10, 12/11 18h10, 15/11 11h, 17/11 10h10, 24/11 10h10, 27/11 10h (BF), 30/11 10h10.
   - Pendentes: resultado do concurso (arte `13-resultado-concurso`, gerar com `VENCEDOR="@perfil" FRASE="..."`) e story do leite 19/11 (esperando foto realista do GPT com Italac). O João viaja de 04 a 16/11.
