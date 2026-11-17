@@ -94,15 +94,20 @@ function wheel(cx = 540, cy = 700, R = 380, r = 160) {
     const a0 = (i - 0.5) * (2 * Math.PI / n) + gap, a1 = (i + 0.5) * (2 * Math.PI / n) - gap;
     const [x0, y0] = pt(a0, R), [x1, y1] = pt(a1, R), [x2, y2] = pt(a1, r), [x3, y3] = pt(a0, r);
     const on = i === 0;
-    svg += `<path d="M${x0},${y0} A${R},${R} 0 0 1 ${x1},${y1} L${x2},${y2} A${r},${r} 0 0 0 ${x3},${y3} Z" fill="${on ? "rgba(214,74,120,.55)" : "rgba(255,240,250,.12)"}" stroke="${on ? "#ffd6e6" : "rgba(255,255,255,.7)"}" stroke-width="${on ? 5 : 2.5}"/>`;
+    const d = `M${x0},${y0} A${R},${R} 0 0 1 ${x1},${y1} L${x2},${y2} A${r},${r} 0 0 0 ${x3},${y3} Z`;
+    // neon suave: um traço desfocado por baixo (brilho) e o traço nítido por cima
+    svg += `<path d="${d}" fill="none" stroke="url(#neon)" stroke-width="${on ? 14 : 9}" opacity="${on ? .75 : .45}" filter="url(#g)"/>
+      <path d="${d}" fill="${on ? "rgba(214,74,120,.5)" : "rgba(40,6,40,.35)"}" stroke="${on ? "#ffe3ef" : "url(#neon)"}" stroke-width="${on ? 4.5 : 3}"/>`;
     const [px, py] = pt(i * 2 * Math.PI / n, (R + r) / 2 + 6), h = WHEEL_ITENS[i][3] * (on ? 1.12 : 1);
     imgs += `<img src="${PROD(img)}" style="position:absolute;left:${px}px;top:${py}px;height:${h}px;max-width:200px;object-fit:contain;transform:translate(-50%,-50%)${on ? " rotate(-4deg)" : ""};filter:drop-shadow(0 14px 18px rgba(20,0,20,.55))">`;
   });
   const [, nome, poder] = WHEEL_ITENS[0];
   return `<svg width="1080" height="1350" style="position:absolute;inset:0;z-index:1" viewBox="0 0 1080 1350">
-      <defs><filter id="g"><feGaussianBlur stdDeviation="10"/></filter></defs>
-      <circle cx="${cx}" cy="${cy}" r="${R + 14}" fill="none" stroke="rgba(255,120,190,.35)" stroke-width="10" filter="url(#g)"/>${svg}
-      <circle cx="${cx}" cy="${cy}" r="${r - 14}" fill="rgba(30,6,20,.72)" stroke="rgba(255,255,255,.5)" stroke-width="2"/></svg>
+      <defs><filter id="g" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="8"/></filter>
+        <linearGradient id="neon" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6fae"/><stop offset=".55" stop-color="#ff9a6a"/><stop offset="1" stop-color="#c77dff"/></linearGradient></defs>
+      <circle cx="${cx}" cy="${cy}" r="${R + 16}" fill="none" stroke="url(#neon)" stroke-width="8" opacity=".45" filter="url(#g)"/>${svg}
+      <circle cx="${cx}" cy="${cy}" r="${r - 14}" fill="none" stroke="url(#neon)" stroke-width="10" opacity=".6" filter="url(#g)"/>
+      <circle cx="${cx}" cy="${cy}" r="${r - 14}" fill="rgba(30,6,20,.78)" stroke="url(#neon)" stroke-width="3"/></svg>
     <div style="position:absolute;inset:0;z-index:2">${imgs}</div>
     <div style="position:absolute;left:${cx - 130}px;top:${cy - 60}px;width:260px;text-align:center;z-index:3;color:#fffdf9">
       <p style="font-size:24px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffc2da">Equipado</p>
