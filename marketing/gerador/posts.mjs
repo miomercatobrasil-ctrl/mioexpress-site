@@ -485,23 +485,45 @@ Marca aqui o síndico ou a síndica do seu prédio 👇
         <div class="z"><p class="eyebrow" style="color:#ffc2da;text-shadow:0 2px 12px rgba(0,0,0,.6)">Nova missão desbloqueada</p>
         <h1 class="mt1" style="font-size:78px;text-shadow:0 4px 24px rgba(30,0,30,.7)">Maratona sem<br>sair do <em style="color:#ffc2da">condomínio.</em></h1></div>
         ${rodape(true, "Arraste →")}</div>`,
-      `<div class="s" style="color:#fffdf9;background:#2a0820">${NEON_BG("loja3-frente-b", "50% 45%")}${HUD}
+      `<div class="s" style="color:#fffdf9;background:#2a0820">
+        <div style="position:absolute;inset:0;background:url(${f("assets/source/gta/loja.png")}) 50% 50%/cover"></div>
+        <div style="position:absolute;inset:0;background:radial-gradient(circle 470px at 50% 52%, rgba(30,6,30,.6), rgba(30,6,30,.15) 100%), linear-gradient(180deg, rgba(30,6,30,.55) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 75%, rgba(30,6,30,.85) 100%)"></div>
+        ${HUD}
         <img src="${LOGO_W}" style="position:absolute;right:70px;top:80px;height:56px;z-index:3">
-        <div style="position:absolute;left:0;right:0;top:250px;text-align:center;z-index:3"><p class="eyebrow" style="color:#ffc2da">Escolha seus suprimentos</p></div>
-        ${wheel()}
+        <div style="position:absolute;left:70px;top:258px;z-index:3;padding:14px 22px;border-left:5px solid #ff7bac;background:rgba(20,0,20,.62);border-radius:4px 12px 12px 4px">
+          <p style="font-size:20px;font-weight:700;letter-spacing:.2em;color:#ff9ec4">OBJETIVO</p>
+          <p style="font-size:28px;font-weight:700;margin-top:2px">Estocar suprimentos para a maratona</p></div>
+        ${wheel(540, 760, 370, 156)}
         <div style="position:absolute;left:70px;right:70px;bottom:150px;z-index:3;display:flex;justify-content:center;gap:18px">
-          ${[["□", "+100 vida"], ["○", "Munição extra"], ["△", "Modo relax"]].map(([b, t]) => `<span style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-radius:14px;background:rgba(20,0,15,.6);border:1.5px solid rgba(255,255,255,.35);font-size:26px;font-weight:600;white-space:nowrap"><b style="width:36px;height:36px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center;font-size:20px">${b}</b>${t}</span>`).join("")}</div>
-        <p style="position:absolute;left:0;right:0;bottom:70px;text-align:center;z-index:3;font-size:22px;font-weight:600;opacity:.75;letter-spacing:.06em">Beba com moderação · venda proibida para menores de 18 anos</p></div>`,
-      `<div class="s" style="color:#fffdf9;background:#2a0820">${NEON_BG("loja4-frente", "50% 70%")}
-        <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(30,6,20,0) 35%, rgba(30,6,20,.8) 55%, rgba(30,6,20,.95) 100%)"></div>
-        <div class="z" style="margin-top:auto;margin-bottom:120px">
-          <p class="eyebrow" style="color:#ffc2da">Ponto de reabastecimento</p>
-          <h1 class="mt1" style="font-size:90px">A loja de<br>suprimentos fica<br><em style="color:#ffc2da">no térreo.</em></h1>
-          <p class="lead mt1">Aberta 24h. Pix ou cartão no totem,<br>sem app e sem cadastro.</p></div>${rodape()}</div>`,
+          ${[["□", "+100 vida", "#ff7bac"], ["○", "Munição extra", "#5ff0d0"], ["△", "Modo relax", "#e2c48f"]].map(([b, t, c]) => `<span style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-radius:14px;background:rgba(20,0,15,.7);border:2px solid ${c};box-shadow:0 0 16px ${c}66;font-size:26px;font-weight:600;white-space:nowrap"><b style="width:36px;height:36px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center;font-size:20px">${b}</b>${t}</span>`).join("")}</div>
+        <p style="position:absolute;left:0;right:0;bottom:70px;text-align:center;z-index:3;font-size:22px;font-weight:600;opacity:.8;letter-spacing:.06em">Beba com moderação · venda proibida para menores de 18 anos</p></div>`,
+      `<div class="s" style="color:#fffdf9;background:#1a0618">
+        <div style="position:absolute;inset:0;background:url(${f("assets/source/gta/sofa.png")}) 50% 50%/cover"></div>
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(20,4,24,.92) 0%, rgba(20,4,24,.7) 22%, rgba(20,4,24,0) 40%, rgba(0,0,0,0) 82%, rgba(20,4,24,.7) 100%)"></div>
+        <div class="z" style="margin-top:-6px">
+          <p class="eyebrow" style="color:#5ff0d0;text-shadow:0 0 14px rgba(95,240,208,.6)">✔ Objetivo concluído</p>
+          <p style="font-size:112px;font-weight:800;font-style:italic;line-height:.92;letter-spacing:-.02em;margin-top:16px;text-shadow:0 0 30px rgba(255,123,172,.55), 0 4px 0 #7a1f2b">MISSÃO<br><span style="color:#ffc2da">CUMPRIDA</span></p>
+          <div style="display:inline-flex;align-items:center;gap:16px;margin-top:26px;padding:12px 22px;border-radius:12px;background:rgba(20,0,20,.65);border:2px solid #e2c48f">
+            <span style="font-size:20px;font-weight:700;letter-spacing:.18em;color:#e2c48f">RECOMPENSA</span>
+            <span style="font-size:28px;font-weight:700">Loja aberta 24h no térreo</span></div></div>
+        <div style="position:absolute;right:70px;top:84px;z-index:3;width:210px;text-align:center">
+          <svg width="210" height="210" viewBox="0 0 210 210">
+            <defs><clipPath id="mm"><circle cx="105" cy="105" r="98"/></clipPath></defs>
+            <circle cx="105" cy="105" r="102" fill="rgba(20,0,24,.8)" stroke="#fffdf9" stroke-width="4"/>
+            <g clip-path="url(#mm)" stroke="rgba(255,255,255,.28)" stroke-width="16" fill="none">
+              <path d="M0 140 H210 M70 0 V210 M150 0 V210"/></g>
+            <g clip-path="url(#mm)" fill="rgba(255,255,255,.12)"><rect x="84" y="20" width="52" height="106" rx="6"/><rect x="164" y="40" width="50" height="86" rx="6"/><rect x="0" y="30" width="56" height="96" rx="6"/></g>
+            <path d="M105 160 V140 H70 V75" fill="none" stroke="#ff7bac" stroke-width="6" stroke-dasharray="2 9" stroke-linecap="round"/>
+            <path d="M105 150 l-12 22 l12 -6 l12 6 z" fill="#5ff0d0"/>
+            <circle cx="70" cy="64" r="20" fill="#7a1f2b" stroke="#fffdf9" stroke-width="3"/>
+            <text x="70" y="72" text-anchor="middle" font-family="M" font-weight="800" font-size="22" fill="#fffdf9">M</text>
+          </svg>
+          <p style="font-size:22px;font-weight:700;margin-top:8px;text-shadow:0 2px 8px #000">Mio · 30 m</p></div>
+        ${rodape()}</div>`,
     ],
-    legenda: `🎮 MISSÃO DESBLOQUEADA: maratona sem sair do condomínio.
+    legenda: `🎮 GTA VI CHEGOU! E a missão de hoje é uma só: maratona sem sair do condomínio.
 
-O jogo mais esperado da década chegou e ninguém quer pausar pra ir ao mercado. Por isso a loja de suprimentos fica no térreo:
+O jogo mais esperado da década finalmente saiu e ninguém quer pausar pra ir ao mercado. Por isso a loja de suprimentos fica no térreo:
 
 🍕 Pizza Sadia: +100 de vida
 🌶️ Doritos e Pringles: munição extra
@@ -510,9 +532,9 @@ O jogo mais esperado da década chegou e ninguém quer pausar pra ir ao mercado.
 
 Aberta 24h, Pix ou cartão no totem, sem app e sem cadastro. Desce de chinelo e volta pro controle.
 
-Quem aí vai virar a noite? 👇
+E aí, vai virar a noite em Vice City? 👇
 
-#GTA6 #GTAVI #gamer #maratona #mioexpress #condominio #saojosedoscampos #jacarei
+#GTA6 #GTAVI #ViceCity #gamer #maratona #mioexpress #condominio #saojosedoscampos #jacarei
 Beba com moderação. Venda proibida para menores de 18 anos.`,
   },
 ];
